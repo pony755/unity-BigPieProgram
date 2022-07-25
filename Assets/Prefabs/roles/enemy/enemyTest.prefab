@@ -99,16 +99,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   anim: {fileID: 0}
+  hub: {fileID: 0}
   playerHero: 0
   unitName: 2B
   unitLevel: 2
+  tired: 0
   Atk: 1
+  Def: 0
   maxHP: 100
   currentHP: 100
   heroSkillList:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 454df6538d053024abd6fd7e50c182f7, type: 2}
+  - {fileID: 11400000, guid: 39cb426723686b346886effff1ebcf92, type: 2}
   gameCode: 0
 --- !u!65 &4093394329364901655
 BoxCollider:

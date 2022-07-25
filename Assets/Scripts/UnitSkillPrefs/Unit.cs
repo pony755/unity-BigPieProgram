@@ -22,8 +22,6 @@ public class Unit : MonoBehaviour
     public List<Skill> heroSkillList;
 
 
-    [Header("游戏内数组编号")]
-    public int gameCode;//游戏内角色编号
     public void Start()
     {
          anim=GetComponent<Animator>();
@@ -70,7 +68,7 @@ public class Unit : MonoBehaviour
     {
         if(skill.type==skillType.AD)
         {
-            Debug.Log(unitName + "受到了" + (skill.finalPoint(turnUnit) - Def) + "点物理伤害");
+            Debug.Log(unitName + "受到了" + (skill.finalPoint(turnUnit)-Def) +"点物理伤害");
             currentHP=currentHP-(skill.finalPoint(turnUnit)-Def);
 
         }
@@ -121,7 +119,7 @@ public class Unit : MonoBehaviour
             if (GameManager.instance.state == BattleState.PLAYERTURN && playerHero)
             {
                 anim.Play("idle");
-                GameManager.instance.SkillShow(gameCode);//传入角色编号
+                GameManager.instance.SkillShow(this);//传入角色
             }
         }
         
@@ -130,7 +128,7 @@ public class Unit : MonoBehaviour
         {
             if(!GameManager.instance.pointUnit.Contains(this))//不在列表内，则加入列表
             {
-                GameManager.instance.pointUnit.Add(GameManager.instance.enemyUnit[gameCode]);//传入对应敌人预制体
+                GameManager.instance.pointUnit.Add(this);//传入对应敌人预制体
             }
            
         }

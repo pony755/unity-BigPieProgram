@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-public enum BattleState { START, PLAYERTURNSTART,PLAYERTURN, SKILL,CARD,POINTENEMY,POINTPLAYER,ACTION,ACTIONFINISH,ENEMYTURNSTART, ENEMYTURN,ENEMYFINISH,WON, LOST }
+public enum BattleState { START, PLAYERTURNSTART,PLAYERTURN, SKILL,CARD,POINTENEMY,POINTPLAYER,ACTION,ACTIONFINISH,ENEMYTURNSTART, ENEMYTURN,ENEMYFINISH,WIN, LOST,OVER }
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-
     [Header("技能画布设置")]
+    public GameObject WinOrLost;
     public GameObject skillImg;//技能画布
     public GameObject backBtn;
     public GameObject[] skillBtns;//技能按钮   
@@ -67,19 +67,29 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        foreach (var o in playerUnit)
+            o.HubUpdate();
+        foreach (var o in enemyUnit)
+            o.HubUpdate();
+
+        if(playerUnit.Count== 0 && state!=BattleState.OVER)
+        {
+            state = BattleState.LOST;
+            StartCoroutine(Lost());
+        }
+
+        if (enemyUnit.Count == 0 && state != BattleState.OVER)
+        {
+            state = BattleState.WIN;
+            StartCoroutine(Win());
+        }
+
         HeroPointActive();
-        if (state== BattleState.ACTION)//当进入ACTION时，执行函数(携程）
+        if (state == BattleState.ACTION)//当进入ACTION时，执行函数(携程）
         {
             StartCoroutine(Action());
         }
-        foreach(var o in playerUnit)
-        {
-            o.HubUpdate();
-        }
-        foreach (var o in enemyUnit)
-        {
-            o.HubUpdate();
-        }
+                        
     }
     public void SetHeros()//在对应位置设置战斗队伍预置体以及状态栏
     {
@@ -87,7 +97,6 @@ public class GameManager : MonoBehaviour
         {
             playerPrefab[i]=Instantiate(fightPrefs.fightHeros[i],playerStations[i].position,playerStations[i].rotation);
             playerUnit.Add(playerPrefab[i].GetComponent<Unit>());//添加unit进列表
-            playerUnit[i].gameCode = i;
             playerUnit[i].hub = Hub[i];
             playerUnit[i].HubUpdate();
             Hub[i].gameObject.SetActive(true);//显示对应角色状态栏          
@@ -97,7 +106,6 @@ public class GameManager : MonoBehaviour
         {
             enemyPrefab[j] = Instantiate(enemyPrefs.enemyHeros[j], enemyStations[j].position, enemyStations[j].rotation);
             enemyUnit.Add(enemyPrefab[j].GetComponent<Unit>());
-            enemyUnit[j].gameCode = j;
             enemyUnit[j].hub = enemyHub[j];
             enemyUnit[j].HubUpdate();
             enemyHub[j].gameObject.SetActive(true);//显示对应角色状态栏          
@@ -110,24 +118,24 @@ public class GameManager : MonoBehaviour
 
 
     //————————————————————————UI——————————————————————————
-    public void SkillShow(int code)//显示技能栏(code为当前场上角色编号）
+    public void SkillShow(Unit unit)//显示技能栏(code为当前场上角色编号）
     {
         backBtn.SetActive(true);
         skillImg.SetActive(true);
-        turnUnit.Add(playerUnit[code]);
+        turnUnit.Add(unit);
         state= BattleState.SKILL;//切换回合状态
-        BtnSet(code);
+        BtnSet(unit);
        
     }
-    public void BtnSet(int code)
+    public void BtnSet(Unit unit)
     {
 
-        for (int i = 0; i < playerUnit[code].heroSkillList.Count; i++)//设置按钮
+        for (int i = 0; i < unit.heroSkillList.Count; i++)//设置按钮
         {
             skillBtns[i].SetActive(true);
             skillBtnInfo.Add(skillBtns[i].GetComponent<SkillBtn>());//获取脚本，进行操作
-            skillBtnInfo[i].skillInfo = playerUnit[code].heroSkillList[i];//按钮获取技能脚本
-            skillBtnInfo[i].skillText.text = playerUnit[code].heroSkillList[i].skillName;
+            skillBtnInfo[i].skillInfo = unit.heroSkillList[i];//按钮获取技能脚本
+            skillBtnInfo[i].skillText.text =unit.heroSkillList[i].skillName;
         }
     }
     public void GameReset()//重置
@@ -183,13 +191,15 @@ public class GameManager : MonoBehaviour
                 {
                     o.transform.GetChild(0).gameObject.SetActive(false);
                 }
-            }
-            if(pointUnit.Count==pointNumber)//接收敌人列表数等于指定个数时,进入ACTION
-            {
-                state = BattleState.ACTION;                             
-            }
+                if (pointUnit.Count == pointNumber)//接收目标列表数等于指定个数时,进入ACTION
+                {
+                    state = BattleState.ACTION;
+                }
+            }           
         }
-     
+
+  
+
     }
 
 
@@ -201,10 +211,16 @@ public class GameManager : MonoBehaviour
         Debug.Log("回合开始");
         //结算状态
         yield return new WaitForSeconds(1f);
-        state = BattleState.PLAYERTURN;
+        if (state != BattleState.OVER)
+        {
+            state = BattleState.PLAYERTURN;
+            Debug.Log("玩家回合");
+        }
+        
     }
     IEnumerator Action()//行动阶段函数
     {
+        state = BattleState.ACTIONFINISH;//及时切换state,防止多次运行此函数
         BtnHide();
         //重置动画
         foreach(var o in playerUnit)
@@ -215,16 +231,20 @@ public class GameManager : MonoBehaviour
         {
             o.anim.Play("idle");
         }
-        state = BattleState.ACTIONFINISH;//及时切换state,防止多次运行此函数
+        
         Debug.Log(turnUnit[0].unitName + "发动了" + useSkill.skillName);        
-        Debug.Log("动画时间...");
         yield return new WaitForSeconds(1f);
         foreach (var o in pointUnit)
         {
             o.skillSettle(turnUnit[0], useSkill);
         }
         GameReset();
-        StartCoroutine(ActionFinish());
+        yield return new WaitForSeconds(1.5f);
+        if (state != BattleState.OVER)
+        {
+            StartCoroutine(ActionFinish());
+        }
+        
              
     }
     IEnumerator ActionFinish()
@@ -236,17 +256,53 @@ public class GameManager : MonoBehaviour
             if (o.tired > 0)
             o.tired = o.tired - 1;
         }
-        yield return new WaitForSeconds(1f);
-        StartCoroutine(EnemyTurnStart());
+        if (state != BattleState.OVER)
+        {
+            yield return new WaitForSeconds(1f);
+            StartCoroutine(EnemyTurnStart());
+        }
+        
     }
     IEnumerator EnemyTurnStart()
     {
         state = BattleState.ENEMYTURNSTART;
         Debug.Log("敌方回合开始");
         //结算状态
-        yield return new WaitForSeconds(1f);
+        if (state != BattleState.OVER)
+        {
+            yield return new WaitForSeconds(1f);            
+            StartCoroutine(EnemyTurn());
+        }
+        
+    }
+
+    IEnumerator EnemyTurn()
+    {
         state = BattleState.ENEMYTURN;
-        //来个函数切换到finish函数
+        System.Random r=new System.Random();
+        turnUnit.Add(enemyUnit[r.Next(enemyUnit.Count)]);//随机添加一个敌方
+        useSkill = turnUnit[0].heroSkillList[r.Next(turnUnit[0].heroSkillList.Count)];//随机添加一个技能
+        pointNumber = useSkill.pointNum;//添加技能目标数量
+        useSkill.EnemyUse();
+        while(pointNumber>pointUnit.Count)//添加玩家作为目标
+        {
+            int player = r.Next(playerUnit.Count);
+            if (!pointUnit.Contains(playerUnit[player]))
+               pointUnit.Add(playerUnit[player]);
+        }
+        yield return new WaitForSeconds(1f);
+        Debug.Log(turnUnit[0].unitName + "发动了" + useSkill.skillName);
+        yield return new WaitForSeconds(1f);
+        foreach (var o in pointUnit)
+        {
+            o.skillSettle(turnUnit[0], useSkill);
+        }
+        GameReset();
+        if (state != BattleState.OVER)
+        {
+            StartCoroutine(EnemyFinish());
+        }
+        
     }
     IEnumerator EnemyFinish()
     {
@@ -254,9 +310,30 @@ public class GameManager : MonoBehaviour
         Debug.Log("敌方回合结束");
         foreach (var o in enemyUnit)
         {
-            o.tired = o.tired - 1;
+            if (o.tired > 0)
+                o.tired = o.tired - 1;
         }
-        yield return new WaitForSeconds(1f);
-        StartCoroutine(PlayerTurnStart());
+        if (state != BattleState.OVER)
+        {
+            yield return new WaitForSeconds(1f);
+            StartCoroutine(PlayerTurnStart());
+        }
+        
     }
+
+    IEnumerator Win()
+    {
+        state= BattleState.OVER;
+        yield return new WaitForSeconds(1f);
+        WinOrLost.SetActive(true);
+        Debug.Log("《《《《你赢了》》》》");
+    }
+    IEnumerator Lost()
+    {
+        state = BattleState.OVER;
+        yield return new WaitForSeconds(1f);
+        WinOrLost.SetActive(true);
+        Debug.Log("《《《《你输了》》》》");
+    }
+
 }

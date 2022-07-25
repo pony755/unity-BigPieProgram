@@ -52,6 +52,79 @@ public class Skill : ScriptableObject
         return sum;
     }
 
+    public void JudgePlayerSkill()//玩家回合获取使用的技能名,并且更改GameManager技能目标数量变量。判断接下来的状态
+    {
+        if (GameManager.instance.state == BattleState.SKILL)
+        {
+            if (myself)
+            {
+                GameManager.instance.useSkill = this;//读取使用的技能索引
+                GameManager.instance.pointNumber = 1;
+                GameManager.instance.pointUnit.Add(GameManager.instance.turnUnit[0]);//添加自己作为目标
+                GameManager.instance.state = BattleState.ACTION;//直接进入action
+            }
+
+            else if (allEnemies)
+            {
+                GameManager.instance.useSkill = this;//读取使用的技能索引
+                GameManager.instance.pointNumber = GameManager.instance.enemyUnit.Count;//目标数量为敌人数
+                foreach (var o in GameManager.instance.enemyUnit)//添加所有敌人作为目标
+                {
+                    GameManager.instance.pointUnit.Add(o);
+                }
+                GameManager.instance.state = BattleState.ACTION;//直接进入action
+            }
+
+            else if (!players)
+            {
+                GameManager.instance.state = BattleState.POINTENEMY;
+                GameManager.instance.useSkill = this;//读取使用的技能索引
+                if (pointNum > GameManager.instance.enemyUnit.Count)//目标数量大于敌人数
+                {
+                    GameManager.instance.pointNumber = GameManager.instance.enemyUnit.Count;//设定选择的目标为敌人数量
+                }
+                else
+                    GameManager.instance.pointNumber = pointNum;//设定选择的目标数量为技能目标              
+            }
+        }
+    }
+
+    public void EnemyUse()
+    {
+        if (GameManager.instance.state == BattleState.ENEMYTURN)
+        {
+            if (myself)
+            {
+                GameManager.instance.pointNumber = 1;
+                GameManager.instance.pointUnit.Add(GameManager.instance.turnUnit[0]);//添加自己作为目标
+            }
+
+            else if (allEnemies)
+            {
+                GameManager.instance.pointNumber = GameManager.instance.playerUnit.Count;//目标数量为己方数
+                foreach (var o in GameManager.instance.playerUnit)//添加所有敌人作为目标
+                {
+                    GameManager.instance.pointUnit.Add(o);
+                }
+            }
+
+            else if (!players)
+            {
+                if (pointNum > GameManager.instance.enemyUnit.Count)//目标数量大于敌人数
+                {
+                    GameManager.instance.pointNumber = GameManager.instance.enemyUnit.Count;//设定选择的目标为敌人数量
+                }
+                else
+                    GameManager.instance.pointNumber = pointNum;//设定选择的目标数量为技能目标              
+            }
+
+
+
+        }
+
+
+
+    }
     public int finalPoint(Unit unit)//计算最终数值，在unit有函数负责判断类型然后执行对应操作
     {
         return baseInt+finalAddition(unit);
