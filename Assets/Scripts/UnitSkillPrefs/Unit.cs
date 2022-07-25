@@ -112,7 +112,7 @@ public class Unit : MonoBehaviour
         if (GameManager.instance.state == BattleState.POINTENEMY && !playerHero)
             anim.Play("idle");
     }
-    private void OnMouseDown()//点击显示技能栏
+    private void OnMouseDown()//点击
     {
         if (tired == 0)
         {
@@ -126,7 +126,7 @@ public class Unit : MonoBehaviour
 
         if (GameManager.instance.state == BattleState.POINTENEMY && !playerHero)
         {
-            if(!GameManager.instance.pointUnit.Contains(this))//不在列表内，则加入列表
+            if(!GameManager.instance.pointUnit.Contains(this) || GameManager.instance.useSkill.reChoose)//技能支持多选或者不在列表内，则加入列表
             {
                 GameManager.instance.pointUnit.Add(this);//传入对应敌人预制体
             }

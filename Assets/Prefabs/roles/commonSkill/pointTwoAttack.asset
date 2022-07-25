@@ -16,10 +16,13 @@ MonoBehaviour:
   description: 2
   use: 1
   type: 0
+  skillTired: 0
   myself: 0
   allEnemies: 0
   players: 0
+  moreSkill: []
   baseInt: 100
   attribute: 
   addition: []
   pointNum: 2
+  reChoose: 0

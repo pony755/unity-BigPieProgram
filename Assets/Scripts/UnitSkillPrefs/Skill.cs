@@ -34,6 +34,7 @@ public class Skill : ScriptableObject
     public List<heroAttribute> attribute;//技能增益属性列表
     public List<float> addition;//加成列表
     public int pointNum;//技能目标数量
+    public bool reChoose;//是否可以重复选择同一目标
 
     private int finalAddition(Unit unit)//计算增益部分
     {
@@ -108,7 +109,7 @@ public class Skill : ScriptableObject
                 }
             }
 
-            else if (!players)
+            else if (!players&&!reChoose)
             {
                 if (pointNum > GameManager.instance.enemyUnit.Count)//目标数量大于敌人数
                 {

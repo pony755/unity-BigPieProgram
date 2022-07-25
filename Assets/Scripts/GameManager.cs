@@ -187,7 +187,7 @@ public class GameManager : MonoBehaviour
             foreach(var o in enemyUnit)//亮灯
             {
                 o.transform.GetChild(0).gameObject.SetActive(true);
-                if (pointUnit.Contains(o.GetComponent<Unit>()))//检测该物体是否在目标列表内
+                if (pointUnit.Contains(o.GetComponent<Unit>())&&!useSkill.reChoose)//检测该物体是否在目标列表内且技能不支持重复选
                 {
                     o.transform.GetChild(0).gameObject.SetActive(false);
                 }
