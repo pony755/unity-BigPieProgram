@@ -108,10 +108,10 @@ MonoBehaviour:
   Def: 0
   maxHP: 100
   currentHP: 100
+  maxMP: 25
+  currentMP: 20
   heroSkillList:
-  - {fileID: 11400000, guid: 454df6538d053024abd6fd7e50c182f7, type: 2}
-  - {fileID: 11400000, guid: 39cb426723686b346886effff1ebcf92, type: 2}
-  gameCode: 0
+  - {fileID: 11400000, guid: f1e79f704783f2b4fa3cb08037b9db76, type: 2}
 --- !u!65 &4093394329364901655
 BoxCollider:
   m_ObjectHideFlags: 0

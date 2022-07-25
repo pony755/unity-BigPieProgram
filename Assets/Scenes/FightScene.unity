@@ -7218,8 +7218,16 @@ PrefabInstance:
       value: 999
       objectReference: {fileID: 0}
     - target: {fileID: 3748680341008811948, guid: 13d55d39730bcc54d9f19a615f7fec3f, type: 3}
+      propertyPath: maxMP
+      value: 45
+      objectReference: {fileID: 0}
+    - target: {fileID: 3748680341008811948, guid: 13d55d39730bcc54d9f19a615f7fec3f, type: 3}
       propertyPath: unitName
       value: DSB
+      objectReference: {fileID: 0}
+    - target: {fileID: 3748680341008811948, guid: 13d55d39730bcc54d9f19a615f7fec3f, type: 3}
+      propertyPath: currentMP
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 3748680341008811948, guid: 13d55d39730bcc54d9f19a615f7fec3f, type: 3}
       propertyPath: unitLevel
@@ -7359,12 +7367,20 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3748680341008811948, guid: 13d55d39730bcc54d9f19a615f7fec3f, type: 3}
+      propertyPath: maxMP
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3748680341008811948, guid: 13d55d39730bcc54d9f19a615f7fec3f, type: 3}
       propertyPath: unitName
       value: 2B
       objectReference: {fileID: 0}
     - target: {fileID: 3748680341008811948, guid: 13d55d39730bcc54d9f19a615f7fec3f, type: 3}
       propertyPath: currentHP
       value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 3748680341008811948, guid: 13d55d39730bcc54d9f19a615f7fec3f, type: 3}
+      propertyPath: currentMP
+      value: 54
       objectReference: {fileID: 0}
     - target: {fileID: 3748680341008811948, guid: 13d55d39730bcc54d9f19a615f7fec3f, type: 3}
       propertyPath: unitLevel

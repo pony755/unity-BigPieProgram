@@ -280,28 +280,66 @@ public class GameManager : MonoBehaviour
     {
         state = BattleState.ENEMYTURN;
         System.Random r=new System.Random();
-        turnUnit.Add(enemyUnit[r.Next(enemyUnit.Count)]);//随机添加一个敌方
-        useSkill = turnUnit[0].heroSkillList[r.Next(turnUnit[0].heroSkillList.Count)];//随机添加一个技能
-        pointNumber = useSkill.pointNum;//添加技能目标数量
-        useSkill.EnemyUse();
-        while(pointNumber>pointUnit.Count)//添加玩家作为目标
+        List<Unit> tempEnemy=new List<Unit>();
+        foreach(var o in enemyUnit)
         {
-            int player = r.Next(playerUnit.Count);
-            if (!pointUnit.Contains(playerUnit[player]))
-               pointUnit.Add(playerUnit[player]);
+            if(o.tired==0)//提取0疲劳的敌人
+            {
+                foreach(var t in o.heroSkillList)
+                {
+                    if(o.currentMP>=t.needMP)//提取有技能可用的敌人
+                    {
+                        tempEnemy.Add(o);
+                        break;
+                    }                   
+                }                
+            }
         }
-        yield return new WaitForSeconds(1f);
-        Debug.Log(turnUnit[0].unitName + "发动了" + useSkill.skillName);
-        yield return new WaitForSeconds(1f);
-        foreach (var o in pointUnit)
+
+
+
+        if(tempEnemy.Count==0)//回合结束
         {
-            o.skillSettle(turnUnit[0], useSkill);
-        }
-        GameReset();
-        if (state != BattleState.OVER)
-        {
+            tempEnemy.Clear();
             StartCoroutine(EnemyFinish());
         }
+            
+        else
+        {
+            turnUnit.Add(tempEnemy[r.Next(tempEnemy.Count)]);//随机添加一个敌方
+            tempEnemy.Clear();
+
+            List<Skill> tempSkill = new List<Skill>();
+            foreach (var t in turnUnit[0].heroSkillList)
+            {
+                if(turnUnit[0].currentMP>=t.needMP)
+                    tempSkill.Add(t);
+            }
+            useSkill = tempSkill[r.Next(tempSkill.Count)];
+            tempSkill.Clear();
+
+            pointNumber = useSkill.pointNum;//添加技能目标数量
+            useSkill.EnemyUse();
+            while (pointNumber > pointUnit.Count)//添加玩家作为目标
+            {
+                int player = r.Next(playerUnit.Count);
+                if (!pointUnit.Contains(playerUnit[player]))
+                    pointUnit.Add(playerUnit[player]);
+            }
+            yield return new WaitForSeconds(1f);
+            Debug.Log(turnUnit[0].unitName + "发动了" + useSkill.skillName);
+            yield return new WaitForSeconds(1f);
+            foreach (var o in pointUnit)
+            {
+                o.skillSettle(turnUnit[0], useSkill);
+            }
+            GameReset();
+            if (state != BattleState.OVER)
+            {
+                StartCoroutine(EnemyFinish());
+            }
+        }
+       
         
     }
     IEnumerator EnemyFinish()

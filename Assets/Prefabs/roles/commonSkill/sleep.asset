@@ -16,7 +16,8 @@ MonoBehaviour:
   description: "\u7761\u89C9"
   use: 1
   type: 2
-  skillTired: 5
+  skillTired: 0
+  needMP: 20
   myself: 1
   allEnemies: 0
   players: 0
@@ -25,3 +26,4 @@ MonoBehaviour:
   attribute: 
   addition: []
   pointNum: 0
+  reChoose: 0

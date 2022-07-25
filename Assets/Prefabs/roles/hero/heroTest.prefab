@@ -118,17 +118,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   anim: {fileID: 0}
+  hub: {fileID: 0}
   playerHero: 1
   unitName: SB
   unitLevel: 1
+  tired: 0
   Atk: 1
+  Def: 0
   maxHP: 100
   currentHP: 100
+  maxMP: 100
+  currentMP: 100
   heroSkillList:
   - {fileID: 11400000, guid: 454df6538d053024abd6fd7e50c182f7, type: 2}
   - {fileID: 11400000, guid: c0a8ff7551226da429eefdb1e92f9754, type: 2}
   - {fileID: 11400000, guid: 45a221e81356bfe4992ebf7214508c9d, type: 2}
-  gameCode: 0
 --- !u!65 &4898371208631370174
 BoxCollider:
   m_ObjectHideFlags: 0

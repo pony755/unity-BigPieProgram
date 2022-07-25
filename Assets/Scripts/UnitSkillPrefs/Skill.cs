@@ -16,6 +16,7 @@ public class Skill : ScriptableObject
     public bool use;//是否可以使用
     public skillType type;//技能类型
     public int skillTired;//技能疲劳
+    public int needMP;//MP消耗
 
     [Header("判断是否是对自身使用")]
     public bool myself; //判断是否是对自身使用
@@ -57,6 +58,11 @@ public class Skill : ScriptableObject
     {
         if (GameManager.instance.state == BattleState.SKILL)
         {
+            if (this.needMP > GameManager.instance.turnUnit[0].currentMP)
+            {
+                Debug.Log("mp不足");
+                return;
+            }             
             if (myself)
             {
                 GameManager.instance.useSkill = this;//读取使用的技能索引

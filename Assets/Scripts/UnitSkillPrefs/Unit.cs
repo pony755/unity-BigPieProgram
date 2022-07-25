@@ -17,6 +17,8 @@ public class Unit : MonoBehaviour
 
     public int maxHP;
     public int currentHP;
+    public int maxMP;
+    public int currentMP;
 
     [Header("技能")]
     public List<Skill> heroSkillList;
@@ -70,13 +72,15 @@ public class Unit : MonoBehaviour
         {
             Debug.Log(unitName + "受到了" + (skill.finalPoint(turnUnit)-Def) +"点物理伤害");
             currentHP=currentHP-(skill.finalPoint(turnUnit)-Def);
-
+            if(currentHP < 0)
+                currentHP=0;
         }
         HubUpdate();
         CheckDead();
     }
     public void skillSettle(Unit turnUnit, Skill skill)//结算技能
     {
+        turnUnit.currentMP = turnUnit.currentMP - skill.needMP;
         turnUnit.tired=turnUnit.tired+skill.skillTired;
         if(skill.type==skillType.Mix)
         {
