@@ -56,7 +56,15 @@ public class Skill : ScriptableObject
 
     public void JudgePlayerSkill()//玩家回合获取使用的技能名,并且更改GameManager技能目标数量变量。判断接下来的状态
     {
-        if (GameManager.instance.state == BattleState.SKILL)
+        if (GameManager.instance.state != BattleState.SKILL)
+        {
+            GameManager.instance.state = BattleState.SKILL;
+            GameManager.instance.useSkill = this;
+            this.JudgePlayerSkill();
+        }
+
+
+            if (GameManager.instance.state == BattleState.SKILL)
         {
             if (this.needMP > GameManager.instance.turnUnit[0].currentMP)
             {

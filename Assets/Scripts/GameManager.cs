@@ -7,7 +7,9 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     [Header("技能画布设置")]
-    public GameObject WinOrLost;
+    public Text turnNum;//回合数
+    public Text tips;//
+    public GameObject WinOrLost;//胜负画布
     public GameObject skillImg;//技能画布
     public GameObject backBtn;
     public GameObject[] skillBtns;//技能按钮   
@@ -45,6 +47,7 @@ public class GameManager : MonoBehaviour
 
     [Header("——————FIGHTING——————")]
 
+    public int turn;
     public List<Unit> turnUnit;//当前回合技能发动方
     public Skill useSkill;//角色技能
     public List<Unit> pointUnit;//当前回合技能目标方
@@ -55,10 +58,10 @@ public class GameManager : MonoBehaviour
             instance = this;
         else
             Destroy(gameObject);
-        state = BattleState.START;//设置状态：开始
         SetHeros();//设置英雄
         pointNumber = 1;//默认值
         useSkill = null;//默认值
+        turn = 0;
         StartCoroutine(PlayerTurnStart());
 
     }
@@ -72,6 +75,8 @@ public class GameManager : MonoBehaviour
         foreach (var o in enemyUnit)
             o.HubUpdate();
 
+
+        UpdateTips();
         if(playerUnit.Count== 0 && state!=BattleState.OVER)
         {
             state = BattleState.LOST;
@@ -120,6 +125,7 @@ public class GameManager : MonoBehaviour
     //————————————————————————UI——————————————————————————
     public void SkillShow(Unit unit)//显示技能栏(code为当前场上角色编号）
     {
+        tips.text = "选择技能...";
         backBtn.SetActive(true);
         skillImg.SetActive(true);
         turnUnit.Add(unit);
@@ -141,6 +147,7 @@ public class GameManager : MonoBehaviour
     public void GameReset()//重置
     {
         BtnHide();
+        tips.text = "";
         backBtn.SetActive(false);
         pointNumber = 1;//默认值
         useSkill=null;//默认值
@@ -207,21 +214,26 @@ public class GameManager : MonoBehaviour
     //回合各阶段函数
     IEnumerator PlayerTurnStart()
     {
-        state = BattleState.PLAYERTURNSTART;
-        Debug.Log("回合开始");
+        tips.text = "你的回合...";
+        turn = turn + 1;
+        turnNum.text = turn.ToString();
+        state = BattleState.PLAYERTURNSTART;     
         //结算状态
         yield return new WaitForSeconds(1f);
         if (state != BattleState.OVER)
         {
             state = BattleState.PLAYERTURN;
-            Debug.Log("玩家回合");
+            tips.text = "选择行动...";
         }
-        
+        yield return new WaitForSeconds(1f);
+        tips.text = "";
     }
+    //使用技能的text提示在SkillBtn里
     IEnumerator Action()//行动阶段函数
     {
-        state = BattleState.ACTIONFINISH;//及时切换state,防止多次运行此函数
+        state = BattleState.ACTIONFINISH;//及时切换state,防止多次运行此函数 
         BtnHide();
+        skillImg.SetActive(false);
         //重置动画
         foreach(var o in playerUnit)
         {
@@ -231,8 +243,7 @@ public class GameManager : MonoBehaviour
         {
             o.anim.Play("idle");
         }
-        
-        Debug.Log(turnUnit[0].unitName + "发动了" + useSkill.skillName);        
+        TipsSkillPoint();           
         yield return new WaitForSeconds(1f);
         foreach (var o in pointUnit)
         {
@@ -248,16 +259,20 @@ public class GameManager : MonoBehaviour
              
     }
     IEnumerator ActionFinish()
-    {
-        Debug.Log("回合结束");
-        yield return new WaitForSeconds(2f);
+    {     
+        yield return new WaitForSeconds(0.5f);
         foreach (var o in playerUnit)
         {
             if (o.tired > 0)
-            o.tired = o.tired - 1;
+            {
+                o.tired = o.tired - 1;
+                tips.text = o.unitName + " 减少1点疲劳";
+            }
+            yield return new WaitForSeconds(0.5f);
         }
         if (state != BattleState.OVER)
         {
+            tips.text = "己方回合结束";
             yield return new WaitForSeconds(1f);
             StartCoroutine(EnemyTurnStart());
         }
@@ -266,7 +281,7 @@ public class GameManager : MonoBehaviour
     IEnumerator EnemyTurnStart()
     {
         state = BattleState.ENEMYTURNSTART;
-        Debug.Log("敌方回合开始");
+        tips.text = "敌方回合";
         //结算状态
         if (state != BattleState.OVER)
         {
@@ -279,80 +294,36 @@ public class GameManager : MonoBehaviour
     IEnumerator EnemyTurn()
     {
         state = BattleState.ENEMYTURN;
-        System.Random r=new System.Random();
-        List<Unit> tempEnemy=new List<Unit>();
-        foreach(var o in enemyUnit)
+        tips.text = "等待敌方行动...";
+        yield return new WaitForSeconds(0.5f);
+        EnemyAI();
+        yield return new WaitForSeconds(1.5f);
+        foreach (var o in pointUnit)
         {
-            if(o.tired==0)//提取0疲劳的敌人
-            {
-                foreach(var t in o.heroSkillList)
-                {
-                    if(o.currentMP>=t.needMP)//提取有技能可用的敌人
-                    {
-                        tempEnemy.Add(o);
-                        break;
-                    }                   
-                }                
-            }
+            o.skillSettle(turnUnit[0], useSkill);
         }
-
-
-
-        if(tempEnemy.Count==0)//回合结束
+        GameReset();
+        if (state != BattleState.OVER)
         {
-            tempEnemy.Clear();
             StartCoroutine(EnemyFinish());
         }
-            
-        else
-        {
-            turnUnit.Add(tempEnemy[r.Next(tempEnemy.Count)]);//随机添加一个敌方
-            tempEnemy.Clear();
-
-            List<Skill> tempSkill = new List<Skill>();
-            foreach (var t in turnUnit[0].heroSkillList)
-            {
-                if(turnUnit[0].currentMP>=t.needMP)
-                    tempSkill.Add(t);
-            }
-            useSkill = tempSkill[r.Next(tempSkill.Count)];
-            tempSkill.Clear();
-
-            pointNumber = useSkill.pointNum;//添加技能目标数量
-            useSkill.EnemyUse();
-            while (pointNumber > pointUnit.Count)//添加玩家作为目标
-            {
-                int player = r.Next(playerUnit.Count);
-                if (!pointUnit.Contains(playerUnit[player]))
-                    pointUnit.Add(playerUnit[player]);
-            }
-            yield return new WaitForSeconds(1f);
-            Debug.Log(turnUnit[0].unitName + "发动了" + useSkill.skillName);
-            yield return new WaitForSeconds(1f);
-            foreach (var o in pointUnit)
-            {
-                o.skillSettle(turnUnit[0], useSkill);
-            }
-            GameReset();
-            if (state != BattleState.OVER)
-            {
-                StartCoroutine(EnemyFinish());
-            }
-        }
-       
-        
+              
     }
     IEnumerator EnemyFinish()
     {
-        
-        Debug.Log("敌方回合结束");
+       
         foreach (var o in enemyUnit)
         {
             if (o.tired > 0)
+            {
                 o.tired = o.tired - 1;
+                tips.text = o.unitName + " 减少1点疲劳";
+            }
+            yield return new WaitForSeconds(0.5f);
         }
         if (state != BattleState.OVER)
         {
+            tips.text = "敌方回合结束";
             yield return new WaitForSeconds(1f);
             StartCoroutine(PlayerTurnStart());
         }
@@ -374,4 +345,84 @@ public class GameManager : MonoBehaviour
         Debug.Log("《《《《你输了》》》》");
     }
 
+    private void UpdateTips()
+    {
+        if (tips.text == "")
+        {
+            tips.transform.parent.gameObject.SetActive(false);
+        }
+        else
+        {
+            tips.transform.parent.gameObject.SetActive(true);
+        }
+    }
+
+
+
+    private void EnemyAI()
+    {
+        System.Random r = new System.Random();
+        List<Unit> tempEnemy = new List<Unit>();
+        foreach (var o in enemyUnit)
+        {
+            if (o.tired == 0)//提取0疲劳的敌人
+            {
+                foreach (var t in o.heroSkillList)
+                {
+                    if (o.currentMP >= t.needMP)//提取有技能可用的敌人
+                    {
+                        tempEnemy.Add(o);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (tempEnemy.Count == 0)//回合结束
+        {
+            tempEnemy.Clear();
+            StartCoroutine(EnemyFinish());
+        }
+
+        else
+        {
+            turnUnit.Add(tempEnemy[r.Next(tempEnemy.Count)]);//随机添加一个敌方
+            tempEnemy.Clear();
+
+            List<Skill> tempSkill = new List<Skill>();
+            foreach (var t in turnUnit[0].heroSkillList)
+            {
+                if (turnUnit[0].currentMP >= t.needMP)
+                    tempSkill.Add(t);
+            }
+            useSkill = tempSkill[r.Next(tempSkill.Count)];
+            tempSkill.Clear();
+
+            pointNumber = useSkill.pointNum;//添加技能目标数量
+            useSkill.EnemyUse();
+            while (pointNumber > pointUnit.Count)//添加玩家作为目标
+            {
+                int player = r.Next(playerUnit.Count);
+                if (!pointUnit.Contains(playerUnit[player]))
+                    pointUnit.Add(playerUnit[player]);
+            }
+        }
+        TipsSkillPoint();
+    }
+    public void TipsSkillPoint()//文本函数
+    {
+        if(pointUnit.Count==1&&pointUnit[0]==turnUnit[0])//对自己使用
+        {
+            tips.text= turnUnit[0].unitName + " 对自己使用了 " + useSkill.skillName;
+        }
+        else
+        {
+            string tempText=" ";
+            foreach(var o in pointUnit)
+            {
+                tempText=tempText+o.unitName+" ";
+            }
+            tips.text = turnUnit[0].unitName + " 对 "+tempText+" 使用了 " + useSkill.skillName;
+        }
+    }
 }
