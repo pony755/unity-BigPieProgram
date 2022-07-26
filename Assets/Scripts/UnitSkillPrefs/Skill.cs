@@ -108,7 +108,16 @@ public class Skill : ScriptableObject
     {
         if (GameManager.instance.state == BattleState.ENEMYTURN)
         {
-            if (myself)
+            if (!players && !reChoose)
+            {
+                if (pointNum > GameManager.instance.playerUnit.Count)//目标数量大于敌人数
+                {
+                    GameManager.instance.pointNumber = GameManager.instance.playerUnit.Count;//设定选择的目标为敌人数量
+                }
+                else
+                    GameManager.instance.pointNumber = pointNum;//设定选择的目标数量为技能目标              
+            }
+            else if (myself)
             {
                 GameManager.instance.pointNumber = 1;
                 GameManager.instance.pointUnit.Add(GameManager.instance.turnUnit[0]);//添加自己作为目标
@@ -123,15 +132,7 @@ public class Skill : ScriptableObject
                 }
             }
 
-            else if (!players&&!reChoose)
-            {
-                if (pointNum > GameManager.instance.enemyUnit.Count)//目标数量大于敌人数
-                {
-                    GameManager.instance.pointNumber = GameManager.instance.enemyUnit.Count;//设定选择的目标为敌人数量
-                }
-                else
-                    GameManager.instance.pointNumber = pointNum;//设定选择的目标数量为技能目标              
-            }
+            
 
 
 

@@ -223,10 +223,8 @@ public class GameManager : MonoBehaviour
         if (state != BattleState.OVER)
         {
             state = BattleState.PLAYERTURN;
-            tips.text = "选择行动...";
+            tips.text = "";
         }
-        yield return new WaitForSeconds(1f);
-        tips.text = "";
     }
     //使用技能的text提示在SkillBtn里
     IEnumerator Action()//行动阶段函数
@@ -250,6 +248,7 @@ public class GameManager : MonoBehaviour
             o.skillSettle(turnUnit[0], useSkill);
         }
         GameReset();
+
         yield return new WaitForSeconds(1.5f);
         if (state != BattleState.OVER)
         {
@@ -259,71 +258,70 @@ public class GameManager : MonoBehaviour
              
     }
     IEnumerator ActionFinish()
-    {     
-        yield return new WaitForSeconds(0.5f);
-        foreach (var o in playerUnit)
-        {
-            if (o.tired > 0)
-            {
-                o.tired = o.tired - 1;
-                tips.text = o.unitName + " 减少1点疲劳";
-            }
-            yield return new WaitForSeconds(0.5f);
-        }
+    {
+        tips.text = "己方回合结束";
+        yield return new WaitForSeconds(1f);        
         if (state != BattleState.OVER)
-        {
-            tips.text = "己方回合结束";
-            yield return new WaitForSeconds(1f);
-            StartCoroutine(EnemyTurnStart());
+        {           
+            foreach (var o in playerUnit)
+            {
+                if (o.tired > 0)
+                {
+                    o.tired = o.tired - 1;
+                    tips.text = o.unitName + " 减少1点疲劳";
+                    yield return new WaitForSeconds(0.3f);
+                }               
+            }
+        yield return new WaitForSeconds(1f);
+        StartCoroutine(EnemyTurnStart());
         }
         
     }
     IEnumerator EnemyTurnStart()
-    {
+    {       
         state = BattleState.ENEMYTURNSTART;
         tips.text = "敌方回合";
+        yield return new WaitForSeconds(1f);
         //结算状态
-        if (state != BattleState.OVER)
-        {
-            yield return new WaitForSeconds(1f);            
-            StartCoroutine(EnemyTurn());
-        }
-        
+        StartCoroutine(EnemyTurn());
     }
 
     IEnumerator EnemyTurn()
     {
         state = BattleState.ENEMYTURN;
         tips.text = "等待敌方行动...";
-        yield return new WaitForSeconds(0.5f);
         EnemyAI();
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(2f);
+        TipsSkillPoint();
+        yield return new WaitForSeconds(1f);
         foreach (var o in pointUnit)
         {
             o.skillSettle(turnUnit[0], useSkill);
         }
         GameReset();
+
+        yield return new WaitForSeconds(1f);
         if (state != BattleState.OVER)
         {
             StartCoroutine(EnemyFinish());
         }
-              
+
     }
     IEnumerator EnemyFinish()
     {
-       
-        foreach (var o in enemyUnit)
-        {
-            if (o.tired > 0)
-            {
-                o.tired = o.tired - 1;
-                tips.text = o.unitName + " 减少1点疲劳";
-            }
-            yield return new WaitForSeconds(0.5f);
-        }
+        tips.text = "敌方回合结束";
+        yield return new WaitForSeconds(1f);
         if (state != BattleState.OVER)
         {
-            tips.text = "敌方回合结束";
+            foreach (var o in enemyUnit)
+            {
+                if (o.tired > 0)
+                {
+                    o.tired = o.tired - 1;
+                    tips.text = o.unitName + " 减少1点疲劳";
+                    yield return new WaitForSeconds(0.3f);
+                }
+            }
             yield return new WaitForSeconds(1f);
             StartCoroutine(PlayerTurnStart());
         }
@@ -378,12 +376,10 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if (tempEnemy.Count == 0)//回合结束
+        if (tempEnemy.Count == 0)
         {
             tempEnemy.Clear();
-            StartCoroutine(EnemyFinish());
         }
-
         else
         {
             turnUnit.Add(tempEnemy[r.Next(tempEnemy.Count)]);//随机添加一个敌方
@@ -406,23 +402,32 @@ public class GameManager : MonoBehaviour
                 if (!pointUnit.Contains(playerUnit[player]))
                     pointUnit.Add(playerUnit[player]);
             }
+   
         }
-        TipsSkillPoint();
     }
     public void TipsSkillPoint()//文本函数
     {
+        if (turnUnit.Count == 0)//为空时，可能是卡牌,可能是敌人无法使用技能
+        {
+            if(useSkill==null)
+            {
+                tips.text = "敌方无法行动";
+                return;
+            }
+        }
+            
         if(pointUnit.Count==1&&pointUnit[0]==turnUnit[0])//对自己使用
         {
             tips.text= turnUnit[0].unitName + " 对自己使用了 " + useSkill.skillName;
         }
         else
         {
-            string tempText=" ";
-            foreach(var o in pointUnit)
+            string tempText = " ";
+            foreach (var o in pointUnit)
             {
-                tempText=tempText+o.unitName+" ";
+                tempText = tempText + o.unitName + " ";
             }
-            tips.text = turnUnit[0].unitName + " 对 "+tempText+" 使用了 " + useSkill.skillName;
+            tips.text = turnUnit[0].unitName + " 对 " + tempText + " 使用了 " + useSkill.skillName;
         }
     }
 }
