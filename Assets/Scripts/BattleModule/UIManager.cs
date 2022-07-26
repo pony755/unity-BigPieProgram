@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UIMnanger : MonoBehaviour
+public class UIManager : MonoBehaviour
 {
-    public static UIMnanger instance;
+    public static UIManager instance;
     public GameObject winOrLost;
     // Start is called before the first frame update
     void Start()
