@@ -15,7 +15,7 @@ public class PlaceCard : MonoBehaviour
 
     public enum CardType//卡牌类型
     {
-        none,battle,eliteBattle,randomEvent,shop,hotel,treasure,portal,placeOfGod
+        battle,eliteBattle,randomEvent,shop,hotel,treasure,portal,placeOfGod
     };
 
 
@@ -23,30 +23,44 @@ public class PlaceCard : MonoBehaviour
     void Start()
     {
         cardState = CardState.back;
+        mapManager = GameObject.FindGameObjectWithTag("MapManager").GetComponent<MapManager>();
     }
 
     public void OnMouseUp()
     {
-        if(cardState == CardState.face||cardState == CardState.hide)
+        if(cardState.Equals(CardState.hide)||cardState.Equals(CardState.face))
         {
             return;
         }
         OpenCard();
     }
 
-    void OpenCard()
+    void OpenCard()//翻牌
     {
-        transform.eulerAngles = new Vector3(0, 180, 0);
+        StartCoroutine(TurnAnimation());
         cardState = CardState.face;
-        mapManager.AddCardInList(this);
-        StartCoroutine(EnterBattle());
+        if (cardType.Equals(CardType.battle))
+        {
+            StartCoroutine(EnterBattle());
+        }
     }
 
-    IEnumerator EnterBattle()
+    IEnumerator TurnAnimation()//翻牌动画
+    {
+        float angle = 0;
+        for(int i = 0; i < 360; i++)
+        {
+            angle = (float)(angle + 0.5);
+            transform.eulerAngles = new Vector3(0, angle, 0);
+            yield return new WaitForSeconds(0.005f);
+        }
+    }
+
+    IEnumerator EnterBattle()//进入战斗
     {
         yield return new WaitForSeconds(3.0f);
         SceneManager.LoadScene("BattleScene", LoadSceneMode.Additive);
-        gameObject.SetActive(false);
+        mapManager.FreezeMap();
     }
 
     // Update is called once per frame
