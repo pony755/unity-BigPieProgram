@@ -5,34 +5,40 @@ using UnityEngine.SceneManagement;
 
 public class PlaceCard : MonoBehaviour
 {
-    public enum PlaceCardState
+    public CardState cardState;
+    public CardType cardType;
+    public MapManager mapManager;
+    public enum CardState//¿¨ÅÆ×´Ì¬
     {
-        hide,back,front
+        hide,back,face
     };
-    public PlaceCardState cardState;
 
-    public enum PlaceCardType
+    public enum CardType//¿¨ÅÆÀàÐÍ
     {
-        battle,randomEvent,shop,hotel,treasure,portal,placeOfGod
+        none,battle,eliteBattle,randomEvent,shop,hotel,treasure,portal,placeOfGod
     };
-    public PlaceCardType cardType;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        cardState = PlaceCardState.back;
+        cardState = CardState.back;
     }
 
     public void OnMouseUp()
     {
-        OpenPlaceCard();
+        if(cardState == CardState.face||cardState == CardState.hide)
+        {
+            return;
+        }
+        OpenCard();
     }
 
-    void OpenPlaceCard()
+    void OpenCard()
     {
         transform.eulerAngles = new Vector3(0, 180, 0);
-        cardState = PlaceCardState.front;
+        cardState = CardState.face;
+        mapManager.AddCardInList(this);
         StartCoroutine(EnterBattle());
     }
 
