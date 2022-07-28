@@ -6,9 +6,10 @@ using static PlaceCard;
 
 public class MapManager : MonoBehaviour
 {
-    static int mapRow = 3;
-    static int mapColumn = 3;
-    public GameObject[,] map = new GameObject[mapRow,mapColumn];
+    public int level = 0;
+    private int mapRow;
+    private int mapColumn;
+    public GameObject[,] map;
     public List<CardType> typeList;
     public Transform[] cardPosition;
     public bool isTurning = false;
@@ -21,6 +22,8 @@ public class MapManager : MonoBehaviour
     }
     void InitializeMap()//初始化地图
     {
+        InitializeMapSize();
+        map = new GameObject[mapRow, mapColumn];
         int positionIndex = 0;
         InitializeTypeList();
         int maxRandomNumber = typeList.Count;
@@ -34,7 +37,7 @@ public class MapManager : MonoBehaviour
             }
         }
     }
-    /*void InitializeMapSize()//初始化地图大小
+    void InitializeMapSize()//初始化地图大小
     {
         switch (level)
         {
@@ -70,7 +73,7 @@ public class MapManager : MonoBehaviour
                 }
         }
     }
-    void InitializeCardPosition()//卡牌位置
+    /*void InitializeCardPosition()//卡牌位置
     {
         int positionIndex = 0;
         int x, y;
