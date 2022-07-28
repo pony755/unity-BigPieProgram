@@ -99,7 +99,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   anim: {fileID: 0}
-  hub: {fileID: 0}
+  point: {fileID: 2542240277406501082}
   playerHero: 0
   unitName: 2B
   unitLevel: 2
@@ -111,7 +111,13 @@ MonoBehaviour:
   maxMP: 25
   currentMP: 20
   heroSkillList:
-  - {fileID: 11400000, guid: 1ca8b41c037cac04e81c644c7f02f3f3, type: 2}
+  - {fileID: 11400000, guid: 64e60c4976528d948972cf35af738f78, type: 2}
+  passiveTurnEndList: []
+  passiveTurnStartList: []
+  passiveAttackList: []
+  passiveHitList: []
+  passiveDeadList: []
+  passiveGameBeginList: []
 --- !u!65 &4093394329364901655
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -205,6 +211,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 47f424858be9b724ea87fb4fafa3533c, type: 3}
+--- !u!1 &2542240277406501082 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7868830945678623232, guid: 47f424858be9b724ea87fb4fafa3533c, type: 3}
+  m_PrefabInstance: {fileID: 5653264507356039898}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4274001034096830647 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8440910454959219309, guid: 47f424858be9b724ea87fb4fafa3533c, type: 3}
