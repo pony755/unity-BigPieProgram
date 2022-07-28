@@ -16,7 +16,7 @@ public class CameraController : MonoBehaviour
 		{
             if (mainCamera.transform.position.y <= 6)
             {
-				mainCamera.transform.Translate(new Vector3(0, 0.1f, 0));
+				mainCamera.transform.Translate(new Vector3(0, 0.07f, 0));
 			}
 		}
 		//S键向下
@@ -24,7 +24,7 @@ public class CameraController : MonoBehaviour
 		{
 			if(mainCamera.transform.position.y >= -6)
             {
-				mainCamera.transform.Translate(new Vector3(0, -0.1f, 0));
+				mainCamera.transform.Translate(new Vector3(0, -0.07f, 0));
 			}
 		}
 		//A键向左
@@ -32,7 +32,7 @@ public class CameraController : MonoBehaviour
 		{
 			if(mainCamera.transform.position.x >= -11)
             {
-				mainCamera.transform.Translate(new Vector3(-0.1f, 0, 0));
+				mainCamera.transform.Translate(new Vector3(-0.07f, 0, 0));
 			}
 		}
 		//D键向右
@@ -40,7 +40,7 @@ public class CameraController : MonoBehaviour
 		{
 			if(mainCamera.transform.position.x <= 11)
             {
-				mainCamera.transform.Translate(new Vector3(0.1f, 0, 0));
+				mainCamera.transform.Translate(new Vector3(0.07f, 0, 0));
 			}
 		}
 		//鼠标滚轮向上放大

@@ -6,12 +6,14 @@ using static PlaceCard;
 
 public class MapManager : MonoBehaviour
 {
-    public int level = 0;
+    public int level;
     private int mapRow;
     private int mapColumn;
     public GameObject[,] map;
     public List<CardType> typeList;
-    public Transform[] cardPosition;
+    public Dictionary<CardType, int> cardLibrary;
+    public int[] cardNumber;
+    public GameObject[] cardPosition;
     public bool isTurning = false;
     private bool startListening = false;
 
@@ -26,15 +28,17 @@ public class MapManager : MonoBehaviour
     {
         InitializeMapSize();
         map = new GameObject[mapRow, mapColumn];
-        int positionIndex = 0;
+        InitializeCardPosition();
         InitializeTypeList();
         int maxRandomNumber = typeList.Count;
-        for(int i = 0; i < mapRow; i++)
+        int positionIndex = 0;
+        GameObject cards = GameObject.Find("Cards");
+        for (int i = 0; i < mapRow; i++)
         {
             for(int j = 0; j < mapColumn; j++)
             {
                 int randomNumber = UnityEngine.Random.Range(0, maxRandomNumber);
-                InitializeCard(typeList[randomNumber], positionIndex, i, j);
+                InitializeCard(typeList[randomNumber], cards, positionIndex, i, j);
                 positionIndex++;
             }
         }
@@ -75,9 +79,10 @@ public class MapManager : MonoBehaviour
                 }
         }
     }
-    /*void InitializeCardPosition()//卡牌位置
+    void InitializeCardPosition()//卡牌位置
     {
         int positionIndex = 0;
+        GameObject cardLocations = GameObject.FindGameObjectWithTag("CardPosition");
         int x, y;
         int z = 0;
         switch (level)
@@ -90,9 +95,11 @@ public class MapManager : MonoBehaviour
                         x = -2;
                         for (int j = 0; j < mapColumn; j++)
                         {
-                            Transform position = gameObject.AddComponent<Transform>();
-                            position.localPosition = new Vector3(x, y, z);
-                            cardPosition[positionIndex] = position;
+                            GameObject positionObject = new GameObject();
+                            positionObject.name = "Position" + positionIndex;
+                            positionObject.transform.position = new Vector3(x, y, z);
+                            positionObject.transform.SetParent(cardLocations.transform);
+                            cardPosition[positionIndex] = positionObject;
                             positionIndex++;
                             x += 2;
                         }
@@ -109,9 +116,11 @@ public class MapManager : MonoBehaviour
                         x = -4;
                         for (int j = 0; j < mapColumn; j++)
                         {
-                            Transform position = gameObject.AddComponent<Transform>();
-                            position.localPosition = new Vector3(x, y, z);
-                            cardPosition[positionIndex] = position;
+                            GameObject positionObject = new GameObject();
+                            positionObject.name = "Position" + positionIndex;
+                            positionObject.transform.position = new Vector3(x, y, z);
+                            positionObject.transform.SetParent(cardLocations.transform);
+                            cardPosition[positionIndex] = positionObject;
                             positionIndex++;
                             x += 2;
                         }
@@ -133,7 +142,7 @@ public class MapManager : MonoBehaviour
                     break;
                 }
         }
-    }*/
+    }
     void InitializeTypeList()//将卡牌类型从枚举转入列表
     {
         Array array = Enum.GetValues(typeof(CardType));
@@ -142,19 +151,20 @@ public class MapManager : MonoBehaviour
             typeList.Add((CardType)type);
         }
     }
-    void InitializeCard(CardType cardType,int positionIndex,int row,int column)//初始化卡牌
+    void InitializeCard(CardType cardType,GameObject cards,int positionIndex,int row,int column)//初始化卡牌
     {
         GameObject card = Instantiate(Resources.Load<GameObject>("Prefabs/Card"));
         card.GetComponent<PlaceCard>().cardType = cardType;
         card.GetComponent<PlaceCard>().cardState = CardState.hide;
         card.name = "Card_" + cardType.ToString();
-        card.transform.position = cardPosition[positionIndex].position;
+        card.transform.position = cardPosition[positionIndex].transform.position;
         GameObject cardFace = Instantiate(Resources.Load<GameObject>("Prefabs/Cardface"));
         cardFace.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("MapGraphics/Cardface_" + cardType.ToString());
         cardFace.transform.SetParent(card.transform);
         cardFace.transform.localPosition = new Vector3(0, 0, 0.01f);
         cardFace.transform.eulerAngles = new Vector3(0, 180, 0);
         map[row, column] = card;
+        card.transform.SetParent(cards.transform);
     }
     void CardStateListener()//卡牌状态监听器
     {

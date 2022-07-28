@@ -6,6 +6,7 @@ TagManager:
   tags:
   - skill
   - MapManager
+  - CardPosition
   layers:
   - Default
   - TransparentFX
