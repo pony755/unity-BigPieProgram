@@ -48,6 +48,7 @@ MonoBehaviour:
   cardState: 0
   cardType: 0
   mapManager: {fileID: 0}
+  linked: 0
 --- !u!61 &4032050278491997578
 BoxCollider2D:
   m_ObjectHideFlags: 0
