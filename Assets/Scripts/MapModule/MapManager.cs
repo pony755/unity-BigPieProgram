@@ -13,12 +13,14 @@ public class MapManager : MonoBehaviour
     public List<CardType> typeList;
     public Transform[] cardPosition;
     public bool isTurning = false;
+    private bool startListening = false;
 
     // Start is called before the first frame update
     void Start()
     {
         InitializeMap();
         map[0, 0].GetComponent<PlaceCard>().cardState = CardState.back;
+        startListening = true;
     }
     void InitializeMap()//³õÊ¼»¯µØÍ¼
     {
@@ -156,18 +158,21 @@ public class MapManager : MonoBehaviour
     }
     void CardStateListener()//¿¨ÅÆ×´Ì¬¼àÌýÆ÷
     {
-        for (int i = 0; i < mapRow; i++)
+        if (startListening)
         {
-            for (int j = 0; j < mapColumn; j++)
+            for (int i = 0; i < mapRow; i++)
             {
-                if (map[i, j].GetComponent<PlaceCard>().linked)
+                for (int j = 0; j < mapColumn; j++)
                 {
-                    continue;
-                }
-                else if (map[i, j].GetComponent<PlaceCard>().cardState.Equals(CardState.face))
-                {
-                    TransformCardState(i, j);
-                    map[i, j].GetComponent<PlaceCard>().linked = true;
+                    if (map[i, j].GetComponent<PlaceCard>().linked)
+                    {
+                        continue;
+                    }
+                    else if (map[i, j].GetComponent<PlaceCard>().cardState.Equals(CardState.face))
+                    {
+                        TransformCardState(i, j);
+                        map[i, j].GetComponent<PlaceCard>().linked = true;
+                    }
                 }
             }
         }
