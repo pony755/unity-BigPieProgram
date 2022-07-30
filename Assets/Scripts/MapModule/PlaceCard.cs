@@ -22,7 +22,7 @@ public class PlaceCard : MonoBehaviour
     {
         mapManager = GameObject.FindGameObjectWithTag("MapManager").GetComponent<MapManager>();
     }
-    public void OnMouseUp()//鼠标点击
+    private void OnMouseUp()//鼠标点击
     {
         if (mapManager.isTurning)
         {

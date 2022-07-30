@@ -11,8 +11,8 @@ public class MapManager : MonoBehaviour
     private int mapColumn;
     public GameObject[,] map;
     public List<CardType> typeList;
-    public Dictionary<CardType, int> cardLibrary;
-    public int[] cardNumber;
+    //public Dictionary<CardType, int> cardLibrary;
+    //public int[] cardNumber;
     public GameObject[] cardPosition;
     public bool isTurning = false;
     private bool startListening = false;
