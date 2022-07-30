@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class BattleHub : MonoBehaviour
 {
     private Unit hubUnit;
+    public Image headImg;
     public Text nameText;
     public Text levelText;
     public Text tiredText;
@@ -36,7 +37,10 @@ public class BattleHub : MonoBehaviour
         
     }
 
-
+    private void Start()
+    {
+        headImg.sprite = hubUnit.normalSprite;
+    }
 
     private void CheckDead()//死亡判断结算函数
     {
@@ -51,9 +55,11 @@ public class BattleHub : MonoBehaviour
             {
                 GameManager.instance.enemyUnit.Remove(hubUnit);
             }
-
+           
         }
     }
+
+   
     private void Update()
     {
         if (hubUnit.currentHP > hubUnit.maxHP)

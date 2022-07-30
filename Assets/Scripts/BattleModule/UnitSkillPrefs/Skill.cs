@@ -7,7 +7,7 @@ public enum animType {Attack}//动画类型
 public enum skillPoint { Myself,AllEnemy,AllPlayers,Players,Enemies }//技能指向
 public enum heroAttribute {Atk,HP}//属性
 public enum passiveType {None,Hit,Dead,Attack,GameBegin,TurnStart,TurnEnd}//被动类型(决定触发时间)
-public enum passivePoint {MTurnUnit, MMyself,MAllEnemy,MAllPlayers,MEnemiesAuto, MPlayersAuto }//被动目标(M代表自己为技能使用方,结尾字母表示回合约束)
+public enum passivePoint {MDamager, MMyself,MAllEnemy,MAllPlayers,MEnemiesAuto, MPlayersAuto }//被动目标(M代表自己为技能使用方,结尾字母表示回合约束)
 public enum passiveTurn {E,M,A}
 [CreateAssetMenu(fileName ="skill",menuName ="Create new skill")]
 public class Skill : ScriptableObject
@@ -24,13 +24,13 @@ public class Skill : ScriptableObject
     public int delayedTurn;//延时回合
     
 
-    [Header("技能指向(若为被动则随便设置)")]
+    [Header("技能指向(若为被动则随便设置),noMe仅针对玩家有约束")]
     public skillPoint point;//技能指向类型
-
+    public bool noMe;//选择时不会包含自己
     [Header("如果point是Players或Enemies,可勾选此项(若为被动则随便设置)")]   
     public bool autoPoint;//判断是否自动选取目标
-    [Header("非被动可设置此项，额外添加自己进目标")]
-    public bool myself;//额外添加自己进目标
+    
+    
 
     [Header("技能类型为Mix的时候设置，子技能设置(实现多段伤害，多数值伤害)")]
     public List<Skill> moreSkill;
@@ -147,7 +147,6 @@ public class Skill : ScriptableObject
                 else
                 {
                     GameManager.instance.state = BattleState.POINTENEMY;
-                    GameManager.instance.tips.text = "选择 " + GameManager.instance.useSkill.skillName + " 的目标";
                 }                       
             }
             else if (point == skillPoint.Players)
@@ -180,7 +179,6 @@ public class Skill : ScriptableObject
                 else
                 {
                     GameManager.instance.state = BattleState.POINTPLAYER;
-                    GameManager.instance.tips.text = "选择 " + GameManager.instance.useSkill.skillName + " 的目标";
                 }
             }
             
@@ -191,25 +189,22 @@ public class Skill : ScriptableObject
     {
         if (GameManager.instance.state == BattleState.ENEMYTURN)
         {
+            GameManager.instance.pointNumber = pointNum;
             if (point == skillPoint.Enemies && !reChoose)
             {
                 if (pointNum > GameManager.instance.playerUnit.Count)//目标数量大于敌人数
                 {
                     GameManager.instance.pointNumber = GameManager.instance.playerUnit.Count;//设定选择的目标为敌人数量
-                }
-                else
-                    GameManager.instance.pointNumber = pointNum;//设定选择的目标数量为技能目标              
+                }            
             }
             if (point == skillPoint.Players && !reChoose)
             {
-                if (pointNum > GameManager.instance.enemyUnit.Count)//目标数量大于敌人数
+                if (pointNum > GameManager.instance.enemyUnit.Count)//目标数量大于己方人数
                 {
                     GameManager.instance.pointNumber = GameManager.instance.enemyUnit.Count;//设定选择的目标为敌人数量
-                }
-                else
-                    GameManager.instance.pointNumber = pointNum;//设定选择的目标数量为技能目标              
+                }              
             }
-            else if (point==skillPoint.Myself)
+            if (point==skillPoint.Myself)
             {
                 GameManager.instance.pointNumber = 1;
                 GameManager.instance.pointUnit.Add(GameManager.instance.turnUnit[0]);//添加自己作为目标
@@ -231,15 +226,7 @@ public class Skill : ScriptableObject
                     GameManager.instance.pointUnit.Add(o);
                 }
             }
-
-
-
-
-
         }
-
-
-
     }
 
     public int finalPoint(Unit unit)//计算最终数值，在unit有函数负责判断类型然后执行对应操作

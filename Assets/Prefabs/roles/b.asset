@@ -14,23 +14,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: "\u6B7B\u4EA1\u6536\u5272"
   description: 
-  type: 0
+  type: 8
   animType: 0
   skillTired: 0
   needMP: 0
-  delayedTurn: 1
+  delayedTurn: 0
   point: 4
   autoPoint: 0
   myself: 0
-  moreSkill: []
+  moreSkill:
+  - {fileID: 11400000, guid: 64e60c4976528d948972cf35af738f78, type: 2}
+  - {fileID: 11400000, guid: 64e60c4976528d948972cf35af738f78, type: 2}
+  - {fileID: 11400000, guid: 64e60c4976528d948972cf35af738f78, type: 2}
+  - {fileID: 11400000, guid: 64e60c4976528d948972cf35af738f78, type: 2}
+  - {fileID: 11400000, guid: 64e60c4976528d948972cf35af738f78, type: 2}
   passiveType: 1
-  passivePoint: 4
-  passiveTurn: 0
+  passivePoint: 0
+  passiveTurn: 2
   baseInt: 20
   attribute: 
   addition: []
-  pointNum: 5
-  reChoose: 1
+  pointNum: 1
+  reChoose: 0
   precent: 0
   attributeCost: 
   skillCost: 

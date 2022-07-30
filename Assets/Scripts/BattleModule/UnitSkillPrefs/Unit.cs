@@ -1,12 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
+using TMPro;
 public class Unit : MonoBehaviour
 {
-    public Animator anim;//动画
+    [HideInInspector]public Animator anim;//动画
+    private Unit damger;//暂时记录伤害来源
+    public Sprite normalSprite;
     public GameObject point;//指向
-    //public GameObject floatPoint;//伤害
+    public GameObject floatPoint;//伤害
+    public GameObject floatSkill;//技能浮动
     public bool playerHero;//判断是不是己方角色
     public string unitName;
     public int unitLevel;
@@ -46,12 +50,13 @@ public class Unit : MonoBehaviour
         {
             if(currentHP > 0)
                  point.SetActive(true);
-            if (!GameManager.instance.useSkill.reChoose && GameManager.instance.pointUnit.Contains(this))
+            if ((!GameManager.instance.useSkill.reChoose && GameManager.instance.pointUnit.Contains(this))|| (GameManager.instance.useSkill.noMe&&GameManager.instance.turnUnit[0]==this))
             {
                 point.SetActive(false);
-                anim.Play("idle");
             }
         }
+
+        
     }
     IEnumerator SetPassive()
     {
@@ -83,12 +88,14 @@ public class Unit : MonoBehaviour
                 passiveTurnEndList.Add(p);
             }
         } 
-        yield return null;
+        yield return new WaitForSeconds(0.3f);
+        PassiveGameBegin();
     }
 
     
-    private void Settle(Unit turnUnit, Skill skill)
+    IEnumerator Settle(Unit turnUnit, Skill skill)
     {
+        
         if (skill.delayedTurn > 0 &&!GameManager.instance.delayedSwitch)
         {
 
@@ -105,16 +112,19 @@ public class Unit : MonoBehaviour
             if (skill.type == skillType.AD)
             {
                 int damage = skill.finalPoint(turnUnit) - Def;
-                Debug.Log(unitName + "受到了" + damage + "点物理伤害");
-                currentHP = currentHP - damage;
-                if(damage > 0)
+                if (damage < 0)
+                    damage = 0;               
+                
+                if(damage > 0&& currentHP > 0)
                 {
-                    //Instantiate(floatPoint,transform.position,Quaternion.identity);
-                    if (currentHP > 0)
-                    {
-                        //伤害读取
-                        anim.Play("hit");
-                    }
+                    damger = turnUnit;//暂时记录伤害来源
+                    currentHP = currentHP - damage;
+                    Debug.Log(unitName + "受到了" + damage + "点物理伤害");
+                    floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().text = damage.ToString();
+                    floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().color = Color.red;
+                    Instantiate(floatPoint,transform.position+ new Vector3(0, 1, 0), Quaternion.identity);
+                    anim.Play("hit");
+
                     //结算伤害收益代价
                     for (int i = 0; i < skill.attributeGet.Count; i++)
                     {
@@ -123,13 +133,11 @@ public class Unit : MonoBehaviour
                         else if (skill.attributeGet[i] == heroAttribute.HP)
                             turnUnit.currentHP = turnUnit.currentHP + (int)(skill.damageGet[i] * (float)damage);
                     }
-                }
-                
-                              
+                }                        
             }
 
         }
-       
+        yield return null;
 
     }
    
@@ -163,12 +171,12 @@ public class Unit : MonoBehaviour
             {
                 foreach (var o in skill.moreSkill)
                 {
-                    Settle(turnUnit, o);
+                    StartCoroutine( Settle(turnUnit, o));
                 }
             }
             else
             {
-                Settle(turnUnit, skill);
+                StartCoroutine(Settle(turnUnit, skill));
             }
         }
     }
@@ -223,10 +231,8 @@ public class Unit : MonoBehaviour
             {
                 StartCoroutine(PassiveSettle(o));
             }
-
-
         }
-
+        damger = null;
     }
 
     public void PassiveDead()//死亡时
@@ -264,8 +270,9 @@ public class Unit : MonoBehaviour
 
         if(Go)
         {
-            if (o.passivePoint == passivePoint.MTurnUnit)
-                GameManager.instance.turnUnit[0].skillSettle(this, o);
+            FloatSkillShow(this, o, Color.grey);
+            if (o.passivePoint == passivePoint.MDamager)
+                damger.skillSettle(this, o);
             else if (o.passivePoint == passivePoint.MMyself)
                 this.skillSettle(this, o);
             else if (o.passivePoint == passivePoint.MAllEnemy)
@@ -359,47 +366,39 @@ public class Unit : MonoBehaviour
         
     }
 
+    public void FloatSkillShow(Unit unit, Skill skill, Color color)//技能字样显示函数
+    {
+        unit.floatSkill.transform.GetChild(0).GetComponent<TMP_Text>().text = skill.skillName;
+        unit.floatSkill.transform.GetChild(0).GetComponent<TMP_Text>().color = color;
+        Instantiate(unit.floatSkill, unit.transform.position, Quaternion.identity);
+    }
+
     //——————————————————鼠标事件————————————————————————————
     private void OnMouseEnter()//进入选择动画
     {
-
+        if (GameManager.instance.backMenu.activeInHierarchy)
+            return;
         if (GameManager.instance.state == BattleState.PLAYERTURN && playerHero)//己方玩家回合
         {
             if (tired == 0)
                 anim.Play("choose");
         }
-        else if(GameManager.instance.state == BattleState.POINTENEMY && !playerHero)
-        {
-            if(GameManager.instance.useSkill.reChoose|| !GameManager.instance.pointUnit.Contains(this))
-                anim.Play("choose");
-        }
+        if (point.activeInHierarchy)
+             anim.Play("choose");
 
-        else if (GameManager.instance.state == BattleState.POINTPLAYER && playerHero)
-        {
-            if (GameManager.instance.useSkill.reChoose || !GameManager.instance.pointUnit.Contains(this))
-                anim.Play("choose");
-        }
-        else if (GameManager.instance.state == BattleState.POINTALL)
-        {
-            if (GameManager.instance.useSkill.reChoose || !GameManager.instance.pointUnit.Contains(this))
-                anim.Play("choose");
-        }
-
+        
 
     }
     private void OnMouseExit()//退出回归原样
     {
-        if (GameManager.instance.state == BattleState.PLAYERTURN && playerHero)
-            anim.Play("idle");
-        else if (GameManager.instance.state == BattleState.POINTENEMY && !playerHero)
-            anim.Play("idle");
-        else if (GameManager.instance.state == BattleState.POINTPLAYER && playerHero)
-            anim.Play("idle");
-        else if(GameManager.instance.state == BattleState.POINTALL)
-            anim.Play("idle");
+        if (point.activeInHierarchy|| GameManager.instance.state == BattleState.PLAYERTURN)
+           anim.Play("idle");
+
     }
     private void OnMouseDown()//点击
     {
+        if (GameManager.instance.backMenu.activeInHierarchy)
+            return;
         if (tired == 0)
         {
             if ((GameManager.instance.state == BattleState.PLAYERTURN && playerHero))
@@ -408,16 +407,17 @@ public class Unit : MonoBehaviour
                 GameManager.instance.SkillShow(this);//传入角色
             }
         }
-        
 
-        if ((GameManager.instance.state == BattleState.POINTENEMY && !playerHero)|| GameManager.instance.state == BattleState.POINTALL|| (GameManager.instance.state == BattleState.POINTPLAYER && playerHero))
+        if (point.activeInHierarchy)
         {
-            if(!GameManager.instance.pointUnit.Contains(this) || GameManager.instance.useSkill.reChoose)//技能支持多选或者不在列表内，则加入列表
-            {
-                GameManager.instance.pointUnit.Add(this);//传入对应预制体
-            }
-           
+            GameManager.instance.pointUnit.Add(this);//传入对应预制体
+            if (!GameManager.instance.useSkill.reChoose)
+                anim.Play("idle");
         }
+            
+
+           
+
         
     }
 

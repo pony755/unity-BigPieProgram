@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcfd16004382e0a418e136e82d553831, type: 3}
   m_Name: attack
   m_EditorClassIdentifier: 
-  skillName: a
+  skillName: "\u7B49\u7B49\u6253\u4F60"
   description: a
   type: 0
   animType: 0
@@ -20,20 +20,19 @@ MonoBehaviour:
   needMP: 0
   delayedTurn: 0
   point: 4
+  noMe: 1
   autoPoint: 0
-  myself: 0
   moreSkill: []
   passiveType: 0
-  passivePoint: 0
+  passivePoint: 4
   passiveTurn: 0
   baseInt: 10
   attribute: 
   addition: []
   pointNum: 5
-  reChoose: 0
+  reChoose: 1
   precent: 0
   attributeCost: 
   skillCost: 
-  attributeGet: 01000000
-  damageGet:
-  - 0.5
+  attributeGet: 
+  damageGet: []
