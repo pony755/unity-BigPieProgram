@@ -270,9 +270,14 @@ public class Unit : MonoBehaviour
 
         if(Go)
         {
-            FloatSkillShow(this, o, Color.grey);
+            FloatSkillShow(this, o, new Color32(190, 190, 190, 255));
             if (o.passivePoint == passivePoint.MDamager)
-                damger.skillSettle(this, o);
+                if (damger != null)
+                {
+                    
+                    damger.skillSettle(this, o);
+                }
+                    
             else if (o.passivePoint == passivePoint.MMyself)
                 this.skillSettle(this, o);
             else if (o.passivePoint == passivePoint.MAllEnemy)
@@ -376,7 +381,7 @@ public class Unit : MonoBehaviour
     //！！！！！！！！！！！！！！！！！！報炎並周！！！！！！！！！！！！！！！！！！！！！！！！！！！！
     private void OnMouseEnter()//序秘僉夲強鮫
     {
-        if (GameManager.instance.backMenu.activeInHierarchy)
+        if (GameManager.instance.backPanel.activeInHierarchy)
             return;
         if (GameManager.instance.state == BattleState.PLAYERTURN && playerHero)//失圭螺社指栽
         {
@@ -397,7 +402,7 @@ public class Unit : MonoBehaviour
     }
     private void OnMouseDown()//泣似
     {
-        if (GameManager.instance.backMenu.activeInHierarchy)
+        if (GameManager.instance.backPanel.activeInHierarchy)
             return;
         if (tired == 0)
         {

@@ -10,28 +10,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dcfd16004382e0a418e136e82d553831, type: 3}
-  m_Name: attack
+  m_Name: skill 2
   m_EditorClassIdentifier: 
-  skillImg: {fileID: 21300000, guid: c6b7df32f83429749ad91a72ac04d14d, type: 3}
-  skillName: "\u7B49\u7B49\u6253\u4F60"
-  description: "a\u4E00\u4E0B"
-  type: 0
+  skillImg: {fileID: 0}
+  skillName: 
+  description: 
+  type: 7
   animType: 0
   skillTired: 0
   needMP: 0
   delayedTurn: 0
-  point: 4
-  noMe: 1
+  point: 0
+  noMe: 0
   autoPoint: 0
   moreSkill: []
   passiveType: 0
-  passivePoint: 4
+  passivePoint: 0
   passiveTurn: 0
-  baseInt: 10
+  baseInt: 0
   attribute: 
   addition: []
-  pointNum: 5
-  reChoose: 1
+  pointNum: 0
+  reChoose: 0
   precent: 0
   attributeCost: 
   skillCost: 

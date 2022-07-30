@@ -13,6 +13,7 @@ public enum passiveTurn {E,M,A}
 public class Skill : ScriptableObject
 {
     [Header("文本描述")]
+    public Sprite skillImg;//技能图标
     public string skillName;//技能名
     public string description;//技能描述
 
