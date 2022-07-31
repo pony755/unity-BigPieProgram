@@ -174,14 +174,14 @@ public class MapManager : MonoBehaviour
             {
                 for (int j = 0; j < mapColumn; j++)
                 {
-                    if (map[i, j].GetComponent<PlaceCard>().linked)
+                    if (map[i, j].GetComponent<PlaceCard>().isLinked)
                     {
                         continue;
                     }
                     else if (map[i, j].GetComponent<PlaceCard>().cardState.Equals(CardState.face))
                     {
                         TransformCardState(i, j);
-                        map[i, j].GetComponent<PlaceCard>().linked = true;
+                        map[i, j].GetComponent<PlaceCard>().isLinked = true;
                     }
                 }
             }

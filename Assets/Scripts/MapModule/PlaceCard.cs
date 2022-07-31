@@ -8,7 +8,8 @@ public class PlaceCard : MonoBehaviour
     public CardState cardState;
     public CardType cardType;
     public MapManager mapManager;
-    public bool linked = false;//联动标志，标记是否已经进行了相邻卡牌状态转换操作
+    public bool isLinked = false;//联动标志，标记是否已经进行了相邻卡牌状态转换操作
+    public bool isCorrupted = false;
     public enum CardState//卡牌状态
     {
         hide,back,face
