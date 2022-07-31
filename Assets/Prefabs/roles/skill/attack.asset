@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillImg: {fileID: 21300000, guid: c6b7df32f83429749ad91a72ac04d14d, type: 3}
   skillName: "\u7B49\u7B49\u6253\u4F60"
-  description: "a\u4E00\u4E0B"
+  description: "a\u4E94\u4E0B"
   type: 0
   animType: 0
   skillTired: 0
@@ -35,5 +35,3 @@ MonoBehaviour:
   precent: 0
   attributeCost: 
   skillCost: 
-  attributeGet: 
-  damageGet: []

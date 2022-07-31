@@ -12,7 +12,6 @@ public class SkillText : MonoBehaviour
 
     public IEnumerator Reset()
     {
-        skillImg= null;
         skillName.text = "";
         foreach (var t in skillType)
             t.text = "";

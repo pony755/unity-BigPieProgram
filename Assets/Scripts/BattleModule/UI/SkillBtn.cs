@@ -25,7 +25,7 @@ public class SkillBtn : MonoBehaviour
             StartCoroutine(TypeTextColor());
         else
             StartCoroutine(MixTypeTextColor());
-        GameManager.instance.skillText.GetComponent<SkillText>().skillImg=skillImg;
+        GameManager.instance.skillText.GetComponent<SkillText>().skillImg.sprite=skillImg.sprite;
         GameManager.instance.skillText.GetComponent<SkillText>().skillName.text=skillInfo.skillName;
         GameManager.instance.skillText.GetComponent<SkillText>().skillText.text ="         "+ skillInfo.description;
         if (GameManager.instance.state == BattleState.SKILL)

@@ -22,7 +22,7 @@ public class BattleHub : MonoBehaviour
     {
         hubUnit = unit;
         nameText.text = unit.unitName;
-        levelText.text = "Lvl " + unit.unitLevel;
+        levelText.text = "Lv " + unit.unitLevel;
         tiredText.text = "疲劳 " + unit.tired;
         hpSlider.value= unit.currentHP;       
         hpSlider.maxValue = unit.maxHP;
@@ -85,13 +85,6 @@ public class BattleHub : MonoBehaviour
 
 
 
-
-
-
-
-
-        nameText.text = hubUnit.unitName;
-        levelText.text = "Lvl " + hubUnit.unitLevel;
         tiredText.text = "疲劳 " + hubUnit.tired;
         hpSlider.value = hubUnit.currentHP;
         hpSlider.maxValue = hubUnit.maxHP;

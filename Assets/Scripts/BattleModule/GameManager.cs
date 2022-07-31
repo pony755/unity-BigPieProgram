@@ -7,7 +7,7 @@ public enum BattleState { NONE,START, PLAYERTURNSTART,PLAYERTURN, POINTALL,SKILL
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    private bool win = false;//胜利条件布尔值
+    [HideInInspector]public bool win = false;//胜利条件布尔值
     [Header("技能画布设置")]
     public Text turnNum;//回合数
     public Text tips;//提示框
@@ -145,7 +145,6 @@ public class GameManager : MonoBehaviour
     //————————————————————————UI——————————————————————————
     public void SkillShow(Unit unit)//显示技能栏(code为当前场上角色编号）
     {
-        tips.text = "选择技能...";
         backBtn.SetActive(true);
         skillImg.SetActive(true);
         turnUnit.Add(unit);
@@ -284,8 +283,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
         if (state != BattleState.OVER)
         {
-            state = BattleState.PLAYERTURN;
-            tips.text = "选择行动";
+            state = BattleState.PLAYERTURN; 
         }
         yield return new WaitForSeconds(1f);
         tips.text = "";
@@ -441,6 +439,7 @@ public class GameManager : MonoBehaviour
         state= BattleState.OVER;
         yield return new WaitForSeconds(1f);
         win = true;
+        Time.timeScale = 1;
         WinOrLost.SetActive(true);
         Debug.Log("《《《《你赢了》》》》");
     }
@@ -448,6 +447,7 @@ public class GameManager : MonoBehaviour
     {
         state = BattleState.OVER;
         yield return new WaitForSeconds(1f);
+        Time.timeScale = 1;
         WinOrLost.SetActive(true);
         Debug.Log("《《《《你输了》》》》");
     }
@@ -471,7 +471,7 @@ public class GameManager : MonoBehaviour
         List<Unit> tempEnemy = new List<Unit>();
         foreach (var o in enemyUnit)
         {
-            if (o.tired == 0)//提取0疲劳的敌人
+            if (o.tired == 0&&o.currentHP>0)//提取0疲劳的敌人
             {
                 foreach (var t in o.heroSkillList)
                 {
@@ -594,7 +594,6 @@ public class GameManager : MonoBehaviour
     {
         backPanel.SetActive(false);
     }
-
-
+   
    
 }
