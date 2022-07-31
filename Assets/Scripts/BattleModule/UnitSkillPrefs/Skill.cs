@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using TMPro;
 public enum skillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Mix,Delayed}//技能类型
 public enum animType {Attack}//动画类型
 public enum skillPoint { Myself,AllEnemy,AllPlayers,Players,Enemies }//技能指向
@@ -13,6 +13,7 @@ public enum passiveTurn {E,M,A}
 public class Skill : ScriptableObject
 {
     [Header("文本描述")]
+    public Sprite skillImg;//技能图标
     public string skillName;//技能名
     public string description;//技能描述
 
@@ -54,9 +55,6 @@ public class Skill : ScriptableObject
     public List<heroAttribute> attributeCost;//技能增益属性列表
     public List<int> skillCost;//代价列表
 
-    [Header("AD,AP伤害(针对伤害获得的属性变化，默认为加)")]
-    public List<heroAttribute> attributeGet;//增益属性列表
-    public List<float> damageGet;//增益列表
     private int finalAddition(Unit unit)//计算增益部分
     {
         if(attribute == null)
@@ -80,6 +78,7 @@ public class Skill : ScriptableObject
         {
             GameManager.instance.state = BattleState.SKILL;
             GameManager.instance.useSkill = this;
+            GameManager.instance.pointUnit.Clear();
             this.JudgePlayerSkill();
         }
 
@@ -233,5 +232,36 @@ public class Skill : ScriptableObject
     {
         return baseInt+finalAddition(unit);
     }
+
+
+    //————————————————————默认的实现技能函数（可以根据不同的需求在此重载）—————————————————————————
+    public virtual void SkillSettleAD(Unit turnUnit,Unit pointUnit)
+    {
+        if (this.type == skillType.AD)
+        {
+            int damage = this.finalPoint(turnUnit) -pointUnit. Def;
+            if (damage < 0)
+                damage = 0;
+
+            if (damage > 0 && pointUnit.currentHP > 0)
+            {
+                pointUnit.damger = turnUnit;//暂时记录伤害来源
+                pointUnit.currentHP = pointUnit.currentHP - damage;
+                Debug.Log(pointUnit.unitName + "受到了" + damage + "点物理伤害");
+                pointUnit.floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().text = damage.ToString();
+                pointUnit.floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().color = Color.red;
+                Instantiate(pointUnit.floatPoint, pointUnit.transform.position + new Vector3(0, 1, 0), Quaternion.identity);
+                pointUnit.anim.Play("hit");
+            }
+        }
+    }
+
+
+
+
+
+
+
+
 
 }

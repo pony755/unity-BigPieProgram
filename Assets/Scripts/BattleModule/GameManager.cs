@@ -7,16 +7,17 @@ public enum BattleState { NONE,START, PLAYERTURNSTART,PLAYERTURN, POINTALL,SKILL
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    private bool win = false;//胜利条件布尔值
+    [HideInInspector]public bool win = false;//胜利条件布尔值
     [Header("技能画布设置")]
     public Text turnNum;//回合数
-    public Text tips;//
-    public GameObject backMenu;
+    public Text tips;//提示框
+    public GameObject backPanel;//返回画布
     public GameObject WinOrLost;//胜负画布
     public GameObject skillImg;//技能画布
+    public GameObject skillText;//技能介绍
     public GameObject backBtn;
-    public GameObject[] skillBtns;//技能按钮   
-    public Text[] skilText;//技能按钮文本
+    public List<GameObject> skillBtns;//技能按钮   
+
 
     [Header("己方UI设置")]
     public BattleHub[] Hub;//状态栏
@@ -36,8 +37,6 @@ public class GameManager : MonoBehaviour
     
     public BattleState state;
 
-    [Header("Btn")]
-    public List<SkillBtn> skillBtnInfo;//技能按钮脚本
     [Header("Heros")]
     public GameObject[] playerPrefab;//接收战斗列表角色
     public List<Unit> playerUnit;//获取战斗列表角色Unit脚本
@@ -146,7 +145,6 @@ public class GameManager : MonoBehaviour
     //————————————————————————UI——————————————————————————
     public void SkillShow(Unit unit)//显示技能栏(code为当前场上角色编号）
     {
-        tips.text = "选择技能...";
         backBtn.SetActive(true);
         skillImg.SetActive(true);
         turnUnit.Add(unit);
@@ -159,11 +157,9 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < unit.heroSkillList.Count; i++)//设置按钮
         {
+            skillBtns[i].GetComponent<SkillBtn>().skillInfo = unit.heroSkillList[i];
             skillBtns[i].SetActive(true);
-            skillBtnInfo.Add(skillBtns[i].GetComponent<SkillBtn>());//获取脚本，进行操作
-            skillBtnInfo[i].skillInfo = unit.heroSkillList[i];//按钮获取技能脚本
-            skillBtnInfo[i].skillText.text =unit.heroSkillList[i].skillName;
-            if(unit.heroSkillList[i].passiveType!=passiveType.None)
+            if (unit.heroSkillList[i].passiveType!=passiveType.None)
             {
                 skillBtns[i].GetComponent<Button>().interactable = false;
             }
@@ -177,7 +173,6 @@ public class GameManager : MonoBehaviour
         pointNumber = 1;//默认值
         useSkill=null;//默认值
         skillImg.SetActive(false);
-        skillBtnInfo.Clear();
         turnUnit.Clear();
         pointUnit.Clear();
     }
@@ -185,11 +180,11 @@ public class GameManager : MonoBehaviour
     public void BtnHide()
     {
         backBtn.SetActive(false);
-        for (int i = 0; i < skillBtnInfo.Count; i++)//隐藏按钮
+        for (int i = 0; i < skillBtns.Count; i++)//隐藏按钮
         {
             skillBtns[i].SetActive(false);
             skillBtns[i].GetComponent<Button>().interactable = true;
-            skillBtnInfo[i].skillInfo = null;//清空按钮的skill
+            skillBtns[i].GetComponent<SkillBtn>().skillInfo = null;
         }
     }
     public void Back()//返回玩家回合
@@ -288,8 +283,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
         if (state != BattleState.OVER)
         {
-            state = BattleState.PLAYERTURN;
-            tips.text = "选择行动";
+            state = BattleState.PLAYERTURN; 
         }
         yield return new WaitForSeconds(1f);
         tips.text = "";
@@ -445,6 +439,7 @@ public class GameManager : MonoBehaviour
         state= BattleState.OVER;
         yield return new WaitForSeconds(1f);
         win = true;
+        Time.timeScale = 1;
         WinOrLost.SetActive(true);
         Debug.Log("《《《《你赢了》》》》");
     }
@@ -452,6 +447,7 @@ public class GameManager : MonoBehaviour
     {
         state = BattleState.OVER;
         yield return new WaitForSeconds(1f);
+        Time.timeScale = 1;
         WinOrLost.SetActive(true);
         Debug.Log("《《《《你输了》》》》");
     }
@@ -475,7 +471,7 @@ public class GameManager : MonoBehaviour
         List<Unit> tempEnemy = new List<Unit>();
         foreach (var o in enemyUnit)
         {
-            if (o.tired == 0)//提取0疲劳的敌人
+            if (o.tired == 0&&o.currentHP>0)//提取0疲劳的敌人
             {
                 foreach (var t in o.heroSkillList)
                 {
@@ -588,11 +584,16 @@ public class GameManager : MonoBehaviour
         {
             turnUnit[0].anim.Play("attack");
         }
-            
-
     }
 
-    
-
-
+    public void ShowBackMenu()
+    {
+        backPanel.SetActive(true);
+    }
+    public void HideBackMenu()
+    {
+        backPanel.SetActive(false);
+    }
+   
+   
 }

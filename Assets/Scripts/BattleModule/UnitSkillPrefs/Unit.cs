@@ -6,7 +6,7 @@ using TMPro;
 public class Unit : MonoBehaviour
 {
     [HideInInspector]public Animator anim;//动画
-    private Unit damger;//暂时记录伤害来源
+    [HideInInspector]public Unit damger;//暂时记录伤害来源
     public Sprite normalSprite;
     public GameObject point;//指向
     public GameObject floatPoint;//伤害
@@ -23,6 +23,8 @@ public class Unit : MonoBehaviour
     public int currentHP;
     public int maxMP;
     public int currentMP;
+    public int currentExp=0;
+    public int nextExp=50;
 
     [Header("技能")]
     public List<Skill> heroSkillList;
@@ -95,46 +97,17 @@ public class Unit : MonoBehaviour
     
     IEnumerator Settle(Unit turnUnit, Skill skill)
     {
-        
-        if (skill.delayedTurn > 0 &&!GameManager.instance.delayedSwitch)
+        if (skill.delayedTurn > 0 && !GameManager.instance.delayedSwitch)
         {
 
-            GameManager.instance.delayedTurn.Add(1);
+            GameManager.instance.delayedTurn.Add(GameManager.instance.turn + skill.delayedTurn);
             GameManager.instance.delayedTurnUnit.Add(turnUnit);
-            Skill tempSkill = new Skill();
-            tempSkill = skill;
-            tempSkill.delayedTurn = 0;
-            GameManager.instance.delayedSkill.Add(tempSkill);
+            GameManager.instance.delayedSkill.Add(skill);
             GameManager.instance.delayedPointUnit.Add(this);
         }
         else
         {
-            if (skill.type == skillType.AD)
-            {
-                int damage = skill.finalPoint(turnUnit) - Def;
-                if (damage < 0)
-                    damage = 0;               
-                
-                if(damage > 0&& currentHP > 0)
-                {
-                    damger = turnUnit;//暂时记录伤害来源
-                    currentHP = currentHP - damage;
-                    Debug.Log(unitName + "受到了" + damage + "点物理伤害");
-                    floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().text = damage.ToString();
-                    floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().color = Color.red;
-                    Instantiate(floatPoint,transform.position+ new Vector3(0, 1, 0), Quaternion.identity);
-                    anim.Play("hit");
-
-                    //结算伤害收益代价
-                    for (int i = 0; i < skill.attributeGet.Count; i++)
-                    {
-                        if (skill.attributeGet[i] == heroAttribute.Atk)
-                            turnUnit.Atk = turnUnit.Atk + (int)(skill.damageGet[i] * (float)damage);
-                        else if (skill.attributeGet[i] == heroAttribute.HP)
-                            turnUnit.currentHP = turnUnit.currentHP + (int)(skill.damageGet[i] * (float)damage);
-                    }
-                }                        
-            }
+            skill.SkillSettleAD(turnUnit,this);
 
         }
         yield return null;
@@ -270,9 +243,14 @@ public class Unit : MonoBehaviour
 
         if(Go)
         {
-            FloatSkillShow(this, o, Color.grey);
+            FloatSkillShow(this, o, new Color32(190, 190, 190, 255));
             if (o.passivePoint == passivePoint.MDamager)
-                damger.skillSettle(this, o);
+                if (damger != null)
+                {
+                    
+                    damger.skillSettle(this, o);
+                }
+                    
             else if (o.passivePoint == passivePoint.MMyself)
                 this.skillSettle(this, o);
             else if (o.passivePoint == passivePoint.MAllEnemy)
@@ -376,7 +354,7 @@ public class Unit : MonoBehaviour
     //——————————————————鼠标事件————————————————————————————
     private void OnMouseEnter()//进入选择动画
     {
-        if (GameManager.instance.backMenu.activeInHierarchy)
+        if (GameManager.instance.backPanel.activeInHierarchy)
             return;
         if (GameManager.instance.state == BattleState.PLAYERTURN && playerHero)//己方玩家回合
         {
@@ -397,7 +375,7 @@ public class Unit : MonoBehaviour
     }
     private void OnMouseDown()//点击
     {
-        if (GameManager.instance.backMenu.activeInHierarchy)
+        if (GameManager.instance.backPanel.activeInHierarchy)
             return;
         if (tired == 0)
         {
