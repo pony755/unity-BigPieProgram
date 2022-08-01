@@ -6,35 +6,48 @@ using static PlaceCard;
 
 public class MapManager : MonoBehaviour
 {
-    static int mapRow = 3;
-    static int mapColumn = 3;
-    public GameObject[,] map = new GameObject[mapRow,mapColumn];
+    public Player player;
+    public int level;
+    public int childlevel;
+    public GameObject[,] map;
+    private int mapRow;
+    private int mapColumn;
     public List<CardType> typeList;
-    public Transform[] cardPosition;
+    public GameObject[] cardPosition;
+    public int nightmareSharps;
     public bool isTurning = false;
+    private bool startListening = false;
 
     // Start is called before the first frame update
     void Start()
     {
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        SaveLoad.LoadPlayer(player);
         InitializeMap();
         map[0, 0].GetComponent<PlaceCard>().cardState = CardState.back;
+        startListening = true;
     }
     void InitializeMap()//初始化地图
     {
-        int positionIndex = 0;
+        InitializeMapSize();
+        map = new GameObject[mapRow, mapColumn];
+        InitializeCardPosition();
         InitializeTypeList();
         int maxRandomNumber = typeList.Count;
-        for(int i = 0; i < mapRow; i++)
+        int positionIndex = 0;
+        GameObject cards = GameObject.Find("Cards");
+        for (int i = 0; i < mapRow; i++)
         {
             for(int j = 0; j < mapColumn; j++)
             {
                 int randomNumber = UnityEngine.Random.Range(0, maxRandomNumber);
-                InitializeCard(typeList[randomNumber], positionIndex, i, j);
+                InitializeCard(typeList[randomNumber], cards, positionIndex, i, j);
                 positionIndex++;
             }
         }
+        EmbedSharps();
     }
-    /*void InitializeMapSize()//初始化地图大小
+    void InitializeMapSize()//初始化地图大小
     {
         switch (level)
         {
@@ -73,6 +86,7 @@ public class MapManager : MonoBehaviour
     void InitializeCardPosition()//卡牌位置
     {
         int positionIndex = 0;
+        GameObject cardLocations = GameObject.FindGameObjectWithTag("CardPosition");
         int x, y;
         int z = 0;
         switch (level)
@@ -85,9 +99,11 @@ public class MapManager : MonoBehaviour
                         x = -2;
                         for (int j = 0; j < mapColumn; j++)
                         {
-                            Transform position = gameObject.AddComponent<Transform>();
-                            position.localPosition = new Vector3(x, y, z);
-                            cardPosition[positionIndex] = position;
+                            GameObject positionObject = new GameObject();
+                            positionObject.name = "Position" + positionIndex;
+                            positionObject.transform.position = new Vector3(x, y, z);
+                            positionObject.transform.SetParent(cardLocations.transform);
+                            cardPosition[positionIndex] = positionObject;
                             positionIndex++;
                             x += 2;
                         }
@@ -104,9 +120,11 @@ public class MapManager : MonoBehaviour
                         x = -4;
                         for (int j = 0; j < mapColumn; j++)
                         {
-                            Transform position = gameObject.AddComponent<Transform>();
-                            position.localPosition = new Vector3(x, y, z);
-                            cardPosition[positionIndex] = position;
+                            GameObject positionObject = new GameObject();
+                            positionObject.name = "Position" + positionIndex;
+                            positionObject.transform.position = new Vector3(x, y, z);
+                            positionObject.transform.SetParent(cardLocations.transform);
+                            cardPosition[positionIndex] = positionObject;
                             positionIndex++;
                             x += 2;
                         }
@@ -128,7 +146,7 @@ public class MapManager : MonoBehaviour
                     break;
                 }
         }
-    }*/
+    }
     void InitializeTypeList()//将卡牌类型从枚举转入列表
     {
         Array array = Enum.GetValues(typeof(CardType));
@@ -137,34 +155,59 @@ public class MapManager : MonoBehaviour
             typeList.Add((CardType)type);
         }
     }
-    void InitializeCard(CardType cardType,int positionIndex,int row,int column)//初始化卡牌
+    void InitializeCard(CardType cardType,GameObject cards,int positionIndex,int row,int column)//初始化卡牌
     {
         GameObject card = Instantiate(Resources.Load<GameObject>("Prefabs/Card"));
         card.GetComponent<PlaceCard>().cardType = cardType;
         card.GetComponent<PlaceCard>().cardState = CardState.hide;
         card.name = "Card_" + cardType.ToString();
-        card.transform.position = cardPosition[positionIndex].position;
+        card.transform.position = cardPosition[positionIndex].transform.position;
         GameObject cardFace = Instantiate(Resources.Load<GameObject>("Prefabs/Cardface"));
         cardFace.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("MapGraphics/Cardface_" + cardType.ToString());
         cardFace.transform.SetParent(card.transform);
         cardFace.transform.localPosition = new Vector3(0, 0, 0.01f);
         cardFace.transform.eulerAngles = new Vector3(0, 180, 0);
         map[row, column] = card;
+        card.transform.SetParent(cards.transform);
+    }
+    void EmbedSharps()//嵌入梦魇碎片
+    {
+        int row, column;
+        GameObject target;
+        for(nightmareSharps = 5; nightmareSharps > 0; nightmareSharps--)
+        {
+            row = UnityEngine.Random.Range(0, mapRow - 1);
+            column = UnityEngine.Random.Range(0, mapColumn - 1);
+            target = map[row, column];
+            if (target.GetComponent<PlaceCard>().isEmbedded)
+            {
+                nightmareSharps++;
+                continue;
+            }
+            else
+            {
+                target.GetComponent<PlaceCard>().isEmbedded = true;
+                target.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("MapGraphics/Cardback_Nightmare");
+            }
+        }
     }
     void CardStateListener()//卡牌状态监听器
     {
-        for (int i = 0; i < mapRow; i++)
+        if (startListening)
         {
-            for (int j = 0; j < mapColumn; j++)
+            for (int i = 0; i < mapRow; i++)
             {
-                if (map[i, j].GetComponent<PlaceCard>().linked)
+                for (int j = 0; j < mapColumn; j++)
                 {
-                    continue;
-                }
-                else if (map[i, j].GetComponent<PlaceCard>().cardState.Equals(CardState.face))
-                {
-                    TransformCardState(i, j);
-                    map[i, j].GetComponent<PlaceCard>().linked = true;
+                    if (map[i, j].GetComponent<PlaceCard>().isLinked)
+                    {
+                        continue;
+                    }
+                    else if (map[i, j].GetComponent<PlaceCard>().cardState.Equals(CardState.face))
+                    {
+                        TransformCardState(i, j);
+                        map[i, j].GetComponent<PlaceCard>().isLinked = true;
+                    }
                 }
             }
         }
@@ -203,7 +246,7 @@ public class MapManager : MonoBehaviour
         {
             for(int j =0; j < mapColumn; j++)
             {
-                map[i,j].gameObject.SetActive(false);
+                map[i,j].SetActive(false);
             }
         }
     }
@@ -213,7 +256,7 @@ public class MapManager : MonoBehaviour
         {
             for (int j = 0; j < mapColumn; j++)
             {
-                map[i, j].gameObject.SetActive(true);
+                map[i, j].SetActive(true);
             }
         }
     }
@@ -221,5 +264,6 @@ public class MapManager : MonoBehaviour
     void Update()
     {
         CardStateListener();
+
     }
 }

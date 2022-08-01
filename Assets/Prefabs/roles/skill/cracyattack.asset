@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 238fe8073cb2a004998d10dc54299a95, type: 3}
+  m_Name: cracyattack
+  m_EditorClassIdentifier: 
+  skillImg: {fileID: 21300000, guid: 7c2f75c0b7a51c3459d7a6e02e1d0754, type: 3}
+  skillName: "\u5F7B\u5E95\u75AF\u72C2\uFF01"
+  description: "\u6EE1\u8840\u65F6\u5BF9\u654C\u4EBA\u9020\u6210\u5DE8\u5927\u4F24\u5BB3"
+  type: 0
+  animType: 0
+  skillTired: 0
+  needMP: 0
+  delayedTurn: 0
+  point: 4
+  noMe: 0
+  autoPoint: 0
+  moreSkill: []
+  passiveType: 0
+  passivePoint: 0
+  passiveTurn: 0
+  baseInt: 10
+  attribute: 
+  addition: []
+  pointNum: 1
+  reChoose: 0
+  precent: 0
+  attributeCost: 
+  skillCost: 

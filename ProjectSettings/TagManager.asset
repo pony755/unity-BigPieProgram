@@ -6,6 +6,7 @@ TagManager:
   tags:
   - skill
   - MapManager
+  - CardPosition
   layers:
   - Default
   - TransparentFX
@@ -45,4 +46,7 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 2468599369
+    locked: 0
+  - name: Point
+    uniqueID: 3466819653
     locked: 0

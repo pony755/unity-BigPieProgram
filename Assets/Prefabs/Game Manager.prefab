@@ -1,0 +1,102 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3039291171819049387
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3039291171819049389}
+  - component: {fileID: 3039291171819049388}
+  m_Layer: 0
+  m_Name: Game Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3039291171819049389
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3039291171819049387}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.8765153, y: -0.82185847, z: -1.4564819}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3039291171819049388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3039291171819049387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59192da7b3ae9fd45ae574ce7e74f074, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  turnNum: {fileID: 0}
+  tips: {fileID: 0}
+  backPanel: {fileID: 0}
+  WinOrLost: {fileID: 0}
+  skillImg: {fileID: 0}
+  skillText: {fileID: 0}
+  backBtn: {fileID: 0}
+  skillBtns:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  skilText:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  Hub:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  playerStations:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  enemyHub:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  enemyStations:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  fightPrefs: {fileID: 0}
+  enemyPrefs: {fileID: 0}
+  state: 0
+  skillBtnInfo: []
+  playerPrefab:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  playerUnit: []
+  enemyPrefab:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  enemyUnit: []
+  delayedSwitch: 0
+  delayedTurn: 
+  delayedTurnUnit: []
+  delayedSkill: []
+  delayedPointUnit: []
+  turn: 0
+  turnUnit: []
+  useSkill: {fileID: 0}
+  pointNumber: 0
+  pointUnit: []
