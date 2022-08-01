@@ -13,7 +13,7 @@ public class SkillBtn : MonoBehaviour
     {
         skillImg.sprite=skillInfo.skillImg;
     }
-    public void addSkillName()//点击后获取使用的技能名,关闭skillText，并且更改GameManager技能目标数量变量。判断接下来的状态
+    public void AddSkillName()//点击后获取使用的技能名,关闭skillText，并且更改GameManager技能目标数量变量。判断接下来的状态
     {
         GameManager.instance.useSkill = skillInfo;//读取使用的技能索引
         StartCoroutine(skillInfo.JudgePlayerSkill());  
@@ -21,7 +21,7 @@ public class SkillBtn : MonoBehaviour
     }
     public void ShowSkillText()
     {
-        if (skillInfo.type != skillType.Mix)
+        if (skillInfo.type != SkillType.Mix)
             StartCoroutine(TypeTextColor());
         else
             StartCoroutine(MixTypeTextColor());
@@ -39,7 +39,7 @@ public class SkillBtn : MonoBehaviour
     IEnumerator TypeTextColor()//判断类型以及颜色
     {
         int tempIndex = 0;
-        if(skillInfo.passiveType!=passiveType.None)
+        if(skillInfo.passiveType!=PassiveType.None)
         {
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[tempIndex].text = "[被动]";
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[tempIndex].color = new Color32(190, 190, 190, 255);
@@ -58,8 +58,8 @@ public class SkillBtn : MonoBehaviour
     IEnumerator MixTypeTextColor()//判断类型以及颜色
     {
         int tempIndex = 0;
-        List<skillType> tempList = new List<skillType>();//临时存储子技能类型，如果子技能类型已拥有，则跳过BaseType结算
-        if (skillInfo.passiveType != passiveType.None)
+        List<SkillType> tempList = new List<SkillType>();//临时存储子技能类型，如果子技能类型已拥有，则跳过BaseType结算
+        if (skillInfo.passiveType != PassiveType.None)
         {
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[tempIndex].text = "[被动]";
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[tempIndex].color = new Color32(190, 190, 190, 255);
@@ -89,38 +89,38 @@ public class SkillBtn : MonoBehaviour
     private void BaseType(Skill skillInMix, int index)
     {
         
-        if (skillInMix.type == skillType.AD)
+        if (skillInMix.type == SkillType.AD)
         {
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].text = "[物理]";
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].color = Color.red;
         }
-        if (skillInMix.type == skillType.AP)
+        if (skillInMix.type == SkillType.AP)
         {
             
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].text = "[法术]";
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].color = Color.blue;
         }
-        if (skillInMix.type == skillType.Heal)
+        if (skillInMix.type == SkillType.Heal)
         {
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].text = "[治疗]";
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].color = Color.green;
         }
-        if (skillInMix.type == skillType.Shield)
+        if (skillInMix.type == SkillType.Shield)
         {
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].text = "[护盾]";
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].color = Color.grey;
         }
-        if (skillInMix.type == skillType.Burn)
+        if (skillInMix.type == SkillType.Burn)
         {
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].text = "[燃烧]";
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].color = new Color32(231, 115, 49, 255);
         }
-        if (skillInMix.type == skillType.Cold)
+        if (skillInMix.type == SkillType.Cold)
         {
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].text = "[冰冻]";
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].color = new Color32(97, 198, 236, 255);
         }
-        if (skillInMix.type == skillType.Poison)
+        if (skillInMix.type == SkillType.Poison)
         {
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].text = "[中毒]";
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].color = new Color32(157, 207, 73, 255);

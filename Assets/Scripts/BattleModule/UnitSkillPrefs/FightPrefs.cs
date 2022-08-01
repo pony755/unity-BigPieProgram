@@ -10,9 +10,12 @@ public class FightPrefs : MonoBehaviour
     
     void Start()
     {
-
-
+        StartCoroutine(Load());
     } 
 
-    
+    IEnumerator Load()
+    {       
+        StartCoroutine(GameManager.instance.SetHeros());
+        yield return null;
+    }
 }

@@ -23,8 +23,9 @@ public class Unit : MonoBehaviour
     public int currentHP;
     public int maxMP;
     public int currentMP;
-    public int currentExp=0;
-    public int nextExp=50;
+    public int currentExp;
+    public int nextExp;
+    public int getExp;
 
     [Header("室嬬")]
     public List<Skill> heroSkillList;
@@ -39,6 +40,8 @@ public class Unit : MonoBehaviour
 
     private void Start()
     {
+        
+
         anim = GetComponent<Animator>();
         StartCoroutine(SetPassive());
 
@@ -65,27 +68,27 @@ public class Unit : MonoBehaviour
         
         foreach (var p in heroSkillList)
         {
-            if (p.passiveType == passiveType.Hit)
+            if (p.passiveType == PassiveType.Hit)
             {
                 passiveHitList.Add(p);
             }
-            else if (p.passiveType == passiveType.Dead)
+            else if (p.passiveType == PassiveType.Dead)
             {
                 passiveDeadList.Add(p);
             }
-            else if (p.passiveType == passiveType.Attack)
+            else if (p.passiveType == PassiveType.Attack)
             {
                 passiveAttackList.Add(p);
             }
-            else if (p.passiveType == passiveType.GameBegin)
+            else if (p.passiveType == PassiveType.GameBegin)
             {
                 passiveGameBeginList.Add(p);
             }
-            else if (p.passiveType == passiveType.TurnStart)
+            else if (p.passiveType == PassiveType.TurnStart)
             {
                 passiveTurnStartList.Add(p);
             }
-            else if (p.passiveType == passiveType.TurnEnd)
+            else if (p.passiveType == PassiveType.TurnEnd)
             {
                 passiveTurnEndList.Add(p);
             }
@@ -117,17 +120,17 @@ public class Unit : MonoBehaviour
 
        
      
-    public void skillSettle(Unit turnUnit, Skill skill)//潤麻室嬬
+    public void SkillSettle(Unit turnUnit, Skill skill)//潤麻室嬬
     {
         for (int i=0;i< skill.attributeCost.Count;i++)//潤麻窟強旗勺
         {
-            if (skill.attributeCost[i] == heroAttribute.Atk)
-                turnUnit.Atk = turnUnit.Atk + skill.skillCost[i];
-            else if (skill.attributeCost[i] == heroAttribute.HP)
-                turnUnit.currentHP = turnUnit.currentHP + skill.skillCost[i];
+            if (skill.attributeCost[i] == HeroAttribute.Atk)
+                turnUnit.Atk +=  skill.skillCost[i];
+            else if (skill.attributeCost[i] == HeroAttribute.HP)
+                turnUnit.currentHP +=  skill.skillCost[i];
         }
-        turnUnit.currentMP = turnUnit.currentMP - skill.needMP;
-        turnUnit.tired=turnUnit.tired+skill.skillTired;
+        turnUnit.currentMP -=  skill.needMP;
+        turnUnit.tired+=skill.skillTired;
         
         if (skill.delayedTurn > 0&&!GameManager.instance.delayedSwitch)
         {
@@ -140,7 +143,7 @@ public class Unit : MonoBehaviour
 
         else
         {
-            if (skill.type == skillType.Mix)
+            if (skill.type == SkillType.Mix)
             {
                 foreach (var o in skill.moreSkill)
                 {
@@ -228,13 +231,13 @@ public class Unit : MonoBehaviour
         int tempPointNum = o.pointNum;
         List<Unit> tempUnits = new List<Unit>();
         System.Random r = new System.Random();
-        if (o.passiveTurn==passiveTurn.E)
+        if (o.passiveTurn==PassiveTurn.E)
         {
             if (!(((GameManager.instance.state == BattleState.ENEMYTURN || GameManager.instance.state == BattleState.ENEMYTURNSTART || GameManager.instance.state == BattleState.ENEMYFINISH) && this.playerHero)
              || (GameManager.instance.state == BattleState.ACTIONFINISH || GameManager.instance.state == BattleState.PLAYERTURNSTART) && !this.playerHero))
                 Go = false;
         }
-        else if(o.passiveTurn==passiveTurn.M)
+        else if(o.passiveTurn==PassiveTurn.M)
         {
             if(!(((GameManager.instance.state == BattleState.ENEMYTURN || GameManager.instance.state == BattleState.ENEMYTURNSTART || GameManager.instance.state == BattleState.ENEMYFINISH) && !this.playerHero)
             || ((GameManager.instance.state == BattleState.ACTIONFINISH || GameManager.instance.state == BattleState.PLAYERTURNSTART) && this.playerHero)))
@@ -244,30 +247,30 @@ public class Unit : MonoBehaviour
         if(Go)
         {
             FloatSkillShow(this, o, new Color32(190, 190, 190, 255));
-            if (o.passivePoint == passivePoint.MDamager)
+            if (o.passivePoint == PassivePoint.MDamager)
                 if (damger != null)
                 {
                     
-                    damger.skillSettle(this, o);
+                    damger.SkillSettle(this, o);
                 }
                     
-            else if (o.passivePoint == passivePoint.MMyself)
-                this.skillSettle(this, o);
-            else if (o.passivePoint == passivePoint.MAllEnemy)
+            else if (o.passivePoint == PassivePoint.MMyself)
+                this.SkillSettle(this, o);
+            else if (o.passivePoint == PassivePoint.MAllEnemy)
             {
                 for (int i = 0; i < GameManager.instance.enemyUnit.Count; i++)
                 {
-                    GameManager.instance.enemyUnit[i].skillSettle(this, o);
+                    GameManager.instance.enemyUnit[i].SkillSettle(this, o);
                 }
             }
-            else if (o.passivePoint == passivePoint.MAllPlayers)
+            else if (o.passivePoint == PassivePoint.MAllPlayers)
             {
                 for (int i = 0; i < GameManager.instance.playerUnit.Count; i++)
                 {
-                    GameManager.instance.playerUnit[i].skillSettle(this, o);
+                    GameManager.instance.playerUnit[i].SkillSettle(this, o);
                 }
             }
-            else if (o.passivePoint == passivePoint.MEnemiesAuto)
+            else if (o.passivePoint == PassivePoint.MEnemiesAuto)
             {
 
                 if (!o.reChoose)
@@ -296,7 +299,7 @@ public class Unit : MonoBehaviour
                 for (int j = 0; j < tempPointNum; j++)
                 {
                     int k = r.Next(tempUnits.Count);
-                    tempUnits[k].skillSettle(this, o);
+                    tempUnits[k].SkillSettle(this, o);
                     if (!o.reChoose)
                         tempUnits.Remove(tempUnits[k]);
                     yield return new WaitForSeconds(0.05f);
@@ -304,7 +307,7 @@ public class Unit : MonoBehaviour
                 }
 
             }
-            else if (o.passivePoint == passivePoint.MPlayersAuto)
+            else if (o.passivePoint == PassivePoint.MPlayersAuto)
             {
                 if (!o.reChoose)
                 {
@@ -332,7 +335,7 @@ public class Unit : MonoBehaviour
                 for (int j = 0; j < tempPointNum; j++)
                 {
                     int k = r.Next(tempUnits.Count);
-                    tempUnits[k].skillSettle(this, o);
+                    tempUnits[k].SkillSettle(this, o);
                     if (!o.reChoose)
                         tempUnits.Remove(tempUnits[k]);
                     yield return new WaitForSeconds(0.05f);
@@ -350,6 +353,70 @@ public class Unit : MonoBehaviour
         unit.floatSkill.transform.GetChild(0).GetComponent<TMP_Text>().color = color;
         Instantiate(unit.floatSkill, unit.transform.position, Quaternion.identity);
     }
+
+    //！！！！！！！！！！！！！！！！！！！！！！！！！！叔弼幅雫！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+
+    public virtual void LevelUp2()
+    {
+        return;
+    }
+    public virtual void LevelUp3()
+    {
+        return;
+    }
+    public virtual void LevelUp4()
+    {
+        return;
+    }
+    public virtual void LevelUp5()
+    {
+        return;
+    }
+    public virtual void LevelUp6()
+    {
+        return;
+    }
+    public virtual void LevelUp7()
+    {
+        return;
+    }
+    public virtual void LevelUp8()
+    {
+        return;
+    }
+    public virtual void LevelUp9()
+    {
+        return;
+    }
+    public virtual void LevelUp10()
+    {
+        return;
+    }
+    public virtual void LevelUp11()
+    {
+        return;
+    }
+    public virtual void LevelUp12()
+    {
+        return;
+    }
+    public virtual void LevelUp13()
+    {
+        return;
+    }
+    public virtual void LevelUp14()
+    {
+        return;
+    }
+    public virtual void LevelUp15()
+    {
+        return;
+    }
+    public virtual void Awaking()
+    {
+        return;
+    }
+
 
     //！！！！！！！！！！！！！！！！！！報炎並周！！！！！！！！！！！！！！！！！！！！！！！！！！！！
     private void OnMouseEnter()//序秘僉夲強鮫
@@ -392,11 +459,7 @@ public class Unit : MonoBehaviour
             if (!GameManager.instance.useSkill.reChoose)
                 anim.Play("idle");
         }
-            
-
-           
-
-        
+   
     }
 
 }

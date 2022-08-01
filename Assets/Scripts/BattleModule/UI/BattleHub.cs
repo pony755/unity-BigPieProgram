@@ -17,7 +17,7 @@ public class BattleHub : MonoBehaviour
     public Text CurrentMP;
     public Slider mpSlider;
     private float scale;
-    private float hurtSpeed=0.003f;
+    readonly private float hurtSpeed=0.003f;
     public void SetHub(Unit unit)
     {
         hubUnit = unit;
@@ -76,7 +76,7 @@ public class BattleHub : MonoBehaviour
         scale=(float)hubUnit.currentHP/ (float)hubUnit.maxHP;
         if (hurtHPImg.fillAmount > scale)
         {
-            hurtHPImg.fillAmount = hurtHPImg.fillAmount - hurtSpeed;
+            hurtHPImg.fillAmount -= hurtSpeed;
         }
         else
         {
