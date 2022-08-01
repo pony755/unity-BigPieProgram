@@ -7,22 +7,22 @@ public class ChildSkillMode : Skill
 {
     public override void SkillSettleAD(Unit turnUnit,Unit pointUnit)
     {
-        if (this.type == skillType.AD)
+        if (this.type == SkillType.AD)
         {
             bool add100=false;
             if(turnUnit.currentHP==turnUnit.maxHP)
             {
-                this.baseInt = this.baseInt + 100;
+                this.baseInt +=100;
                 add100=true;
             }   
-            int damage = this.finalPoint(turnUnit) - pointUnit.Def;
+            int damage = this.FinalPoint(turnUnit) - pointUnit.Def;
             if (damage < 0)
                 damage = 0;
 
             if (damage > 0 && pointUnit.currentHP > 0)
             {
                 pointUnit.damger = turnUnit;//暂时记录伤害来源
-                pointUnit.currentHP = pointUnit.currentHP - damage;
+                pointUnit.currentHP -= damage;
                 Debug.Log(pointUnit.unitName + "受到了" + damage + "点物理伤害");
                 pointUnit.floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().text = damage.ToString();
                 pointUnit.floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().color = Color.red;
@@ -31,7 +31,7 @@ public class ChildSkillMode : Skill
             }
             if(add100)
             {
-                this.baseInt = this.baseInt - 100;
+                this.baseInt -=100;
                 add100 = false;
             }
         }

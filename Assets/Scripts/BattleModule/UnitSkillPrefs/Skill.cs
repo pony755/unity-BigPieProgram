@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-public enum skillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Mix,Delayed}//技能类型
-public enum animType {Attack}//动画类型
-public enum skillPoint { Myself,AllEnemy,AllPlayers,Players,Enemies }//技能指向
-public enum heroAttribute {Atk,HP}//属性
-public enum passiveType {None,Hit,Dead,Attack,GameBegin,TurnStart,TurnEnd}//被动类型(决定触发时间)
-public enum passivePoint {MDamager, MMyself,MAllEnemy,MAllPlayers,MEnemiesAuto, MPlayersAuto }//被动目标(M代表自己为技能使用方,结尾字母表示回合约束)
-public enum passiveTurn {E,M,A}
+public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Mix,Delayed}//技能类型
+public enum AnimType {Attack}//动画类型
+public enum SkillPoint { Myself,AllEnemy,AllPlayers,Players,Enemies }//技能指向
+public enum HeroAttribute {Atk,HP}//属性
+public enum PassiveType {None,Hit,Dead,Attack,GameBegin,TurnStart,TurnEnd}//被动类型(决定触发时间)
+public enum PassivePoint {MDamager, MMyself,MAllEnemy,MAllPlayers,MEnemiesAuto, MPlayersAuto }//被动目标(M代表自己为技能使用方,结尾字母表示回合约束)
+public enum PassiveTurn {E,M,A}
 [CreateAssetMenu(fileName ="skill",menuName ="Create new skill")]
 public class Skill : ScriptableObject
 {
@@ -18,15 +18,15 @@ public class Skill : ScriptableObject
     public string description;//技能描述
 
     [Header("技能设置")]
-    public skillType type;//技能类型
-    public animType animType;//动画类型
+    public SkillType type;//技能类型
+    public AnimType animType;//动画类型
     public int skillTired;//技能疲劳
     public int needMP;//MP消耗
     public int delayedTurn;//延时回合
     
 
     [Header("技能指向(若为被动则随便设置),noMe仅针对玩家有约束")]
-    public skillPoint point;//技能指向类型
+    public SkillPoint point;//技能指向类型
     public bool noMe;//选择时不会包含自己
     [Header("如果point是Players或Enemies,可勾选此项(若为被动则随便设置)")]   
     public bool autoPoint;//判断是否自动选取目标
@@ -37,14 +37,14 @@ public class Skill : ScriptableObject
     public List<Skill> moreSkill;
 
     [Header("技能类型为被动的时候设置")]
-    public passiveType passiveType;
+    public PassiveType passiveType;
     [Header("(被动)M代表自己为技能使用方,后面表示目标(尾缀Auto需要设置目标数和rechoose)")]
-    public passivePoint passivePoint;
+    public PassivePoint passivePoint;
     [Header("(被动)E异回合，M同回合，A都可以")]
-    public passiveTurn passiveTurn;
+    public PassiveTurn passiveTurn;
     [Header("技能数值设置(Mix子技能只需设置下列项和type)")]
     public int baseInt;//技能基础类
-    public List<heroAttribute> attribute;//技能增益属性列表
+    public List<HeroAttribute> attribute;//技能增益属性列表
     public List<float> addition;//加成列表
     public int pointNum;//技能目标数量
     public bool reChoose;//是否可以重复选择同一目标
@@ -52,10 +52,10 @@ public class Skill : ScriptableObject
     public int precent;//成功率
 
     [Header("发动技能后的属性变化(默认为加)")]
-    public List<heroAttribute> attributeCost;//技能增益属性列表
+    public List<HeroAttribute> attributeCost;//技能增益属性列表
     public List<int> skillCost;//代价列表
 
-    private int finalAddition(Unit unit)//计算增益部分
+    private int FinalAddition(Unit unit)//计算增益部分
     {
         if(attribute == null)
             return 0;
@@ -63,7 +63,7 @@ public class Skill : ScriptableObject
         int sum=0;
         for(int i=0;i<attribute.Count;i++)
         {
-            if(attribute[i] == heroAttribute.Atk)
+            if(attribute[i] == HeroAttribute.Atk)
             {
                 add = (float)unit.Atk * addition[i];
                 sum = (int)(sum + add);
@@ -91,14 +91,14 @@ public class Skill : ScriptableObject
                 Debug.Log("mp不足");
                 yield return null;
             }             
-            if (point==skillPoint.Myself)
+            if (point==SkillPoint.Myself)
             {           
                 GameManager.instance.pointNumber = 1;
                 GameManager.instance.pointUnit.Add(GameManager.instance.turnUnit[0]);//添加自己作为目标
                 GameManager.instance.state = BattleState.ACTION;//直接进入action
             }
 
-            else if (point==skillPoint.AllEnemy)
+            else if (point==SkillPoint.AllEnemy)
             {
                 GameManager.instance.pointNumber = GameManager.instance.enemyUnit.Count;//目标数量为敌人数
                 foreach (var o in GameManager.instance.enemyUnit)//添加所有敌人作为目标
@@ -107,7 +107,7 @@ public class Skill : ScriptableObject
                 }
                 GameManager.instance.state = BattleState.ACTION;//直接进入action
             }
-            else if (point == skillPoint.AllPlayers)
+            else if (point == SkillPoint.AllPlayers)
             {
                 GameManager.instance.pointNumber = GameManager.instance.playerUnit.Count;//目标数量为敌人数
                 foreach (var o in GameManager.instance.playerUnit)//添加所有敌人作为目标
@@ -117,7 +117,7 @@ public class Skill : ScriptableObject
                 GameManager.instance.state = BattleState.ACTION;//直接进入action
             }
 
-            else if (point==skillPoint.Enemies)
+            else if (point==SkillPoint.Enemies)
             {
                 if (!reChoose)
                 {
@@ -148,7 +148,7 @@ public class Skill : ScriptableObject
                     GameManager.instance.state = BattleState.POINTENEMY;
                 }                       
             }
-            else if (point == skillPoint.Players)
+            else if (point == SkillPoint.Players)
             {
                 if (!reChoose)
                 {
@@ -189,27 +189,27 @@ public class Skill : ScriptableObject
         if (GameManager.instance.state == BattleState.ENEMYTURN)
         {
             GameManager.instance.pointNumber = pointNum;
-            if (point == skillPoint.Enemies && !reChoose)
+            if (point == SkillPoint.Enemies && !reChoose)
             {
                 if (pointNum > GameManager.instance.playerUnit.Count)//目标数量大于敌人数
                 {
                     GameManager.instance.pointNumber = GameManager.instance.playerUnit.Count;//设定选择的目标为敌人数量
                 }            
             }
-            if (point == skillPoint.Players && !reChoose)
+            if (point == SkillPoint.Players && !reChoose)
             {
                 if (pointNum > GameManager.instance.enemyUnit.Count)//目标数量大于己方人数
                 {
                     GameManager.instance.pointNumber = GameManager.instance.enemyUnit.Count;//设定选择的目标为敌人数量
                 }              
             }
-            if (point==skillPoint.Myself)
+            if (point==SkillPoint.Myself)
             {
                 GameManager.instance.pointNumber = 1;
                 GameManager.instance.pointUnit.Add(GameManager.instance.turnUnit[0]);//添加自己作为目标
             }
 
-            else if (point == skillPoint.AllEnemy)
+            else if (point == SkillPoint.AllEnemy)
             {
                 GameManager.instance.pointNumber = GameManager.instance.playerUnit.Count;//目标数量为己方数
                 foreach (var o in GameManager.instance.playerUnit)//添加所有敌人作为目标
@@ -217,7 +217,7 @@ public class Skill : ScriptableObject
                     GameManager.instance.pointUnit.Add(o);
                 }
             }
-            else if (point == skillPoint.AllPlayers)
+            else if (point == SkillPoint.AllPlayers)
             {
                 GameManager.instance.pointNumber = GameManager.instance.enemyUnit.Count;//目标数量为己方数
                 foreach (var o in GameManager.instance.enemyUnit)//添加所有敌人作为目标
@@ -228,25 +228,25 @@ public class Skill : ScriptableObject
         }
     }
 
-    public int finalPoint(Unit unit)//计算最终数值，在unit有函数负责判断类型然后执行对应操作
+    public int FinalPoint(Unit unit)//计算最终数值，在unit有函数负责判断类型然后执行对应操作
     {
-        return baseInt+finalAddition(unit);
+        return baseInt+FinalAddition(unit);
     }
 
 
     //————————————————————默认的实现技能函数（可以根据不同的需求在此重载）—————————————————————————
     public virtual void SkillSettleAD(Unit turnUnit,Unit pointUnit)
     {
-        if (this.type == skillType.AD)
+        if (this.type == SkillType.AD)
         {
-            int damage = this.finalPoint(turnUnit) -pointUnit. Def;
+            int damage = this.FinalPoint(turnUnit) -pointUnit. Def;
             if (damage < 0)
                 damage = 0;
 
             if (damage > 0 && pointUnit.currentHP > 0)
             {
                 pointUnit.damger = turnUnit;//暂时记录伤害来源
-                pointUnit.currentHP = pointUnit.currentHP - damage;
+                pointUnit.currentHP -=  damage;
                 Debug.Log(pointUnit.unitName + "受到了" + damage + "点物理伤害");
                 pointUnit.floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().text = damage.ToString();
                 pointUnit.floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().color = Color.red;

@@ -127,12 +127,15 @@ MonoBehaviour:
   unitName: SB
   unitLevel: 1
   tired: 0
-  Atk: 1
+  Atk: 110
   Def: 0
   maxHP: 100
   currentHP: 100
   maxMP: 100
   currentMP: 100
+  currentExp: 10
+  nextExp: 50
+  getExp: 50
   heroSkillList:
   - {fileID: 11400000, guid: 64e60c4976528d948972cf35af738f78, type: 2}
   - {fileID: 11400000, guid: 49a00aeec135b8946a2e503b294e1583, type: 2}
