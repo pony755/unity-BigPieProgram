@@ -2,10 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UIManager : MonoBehaviour
+public class MapUI : MonoBehaviour
 {
-    public static UIManager instance;
-    public GameObject winOrLost;
+    public enum ButtonType
+    {
+        none,library,team,equipment,saveLoad,settings
+    } 
+    public ButtonType buttonType;
     // Start is called before the first frame update
     void Start()
     {
