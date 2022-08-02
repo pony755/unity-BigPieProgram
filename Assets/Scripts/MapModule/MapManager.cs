@@ -22,7 +22,7 @@ public class MapManager : MonoBehaviour
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        SaveLoad.LoadPlayer(player);
+        player.Load();
         InitializeMap();
         map[0, 0].GetComponent<PlaceCard>().cardState = CardState.back;
         startListening = true;
