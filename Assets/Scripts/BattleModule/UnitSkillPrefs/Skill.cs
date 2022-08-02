@@ -6,7 +6,7 @@ public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Mix,Delay
 public enum AnimType {Attack}//动画类型
 public enum SkillPoint { Myself,AllEnemy,AllPlayers,Players,Enemies }//技能指向
 public enum HeroAttribute {Atk,HP}//属性
-public enum PassiveType {None,Hit,Dead,Attack,GameBegin,TurnStart,TurnEnd}//被动类型(决定触发时间)
+public enum PassiveType {None,Hit,Dead,GameBegin,TurnStart,TurnEnd}//被动类型(决定触发时间)
 public enum PassivePoint {MDamager, MMyself,MAllEnemy,MAllPlayers,MEnemiesAuto, MPlayersAuto }//被动目标(M代表自己为技能使用方,结尾字母表示回合约束)
 public enum PassiveTurn {E,M,A}
 [CreateAssetMenu(fileName ="skill",menuName ="Create new skill")]

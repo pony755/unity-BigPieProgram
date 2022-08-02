@@ -33,7 +33,6 @@ public class Unit : MonoBehaviour
     [Header("被动技能列表")]
     public List<Skill> passiveTurnEndList;//回合开始时触发
     public List<Skill> passiveTurnStartList;//回合开始时触发
-    public List<Skill> passiveAttackList;//攻击触发
     public List<Skill> passiveHitList;//受伤触发
     public List<Skill> passiveDeadList;//死亡触发
     public List<Skill> passiveGameBeginList;//死亡触发
@@ -60,6 +59,7 @@ public class Unit : MonoBehaviour
                 point.SetActive(false);
             }
         }
+        
 
         
     }
@@ -76,10 +76,6 @@ public class Unit : MonoBehaviour
             {
                 passiveDeadList.Add(p);
             }
-            else if (p.passiveType == PassiveType.Attack)
-            {
-                passiveAttackList.Add(p);
-            }
             else if (p.passiveType == PassiveType.GameBegin)
             {
                 passiveGameBeginList.Add(p);
@@ -93,7 +89,7 @@ public class Unit : MonoBehaviour
                 passiveTurnEndList.Add(p);
             }
         } 
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.5f);
         PassiveGameBegin();
     }
 
@@ -161,10 +157,12 @@ public class Unit : MonoBehaviour
     //——————————————————被动事件(绑定到对应动画)————————————————————————————
     public void PassiveGameBegin()
     {
+        
         if (passiveGameBeginList.Count > 0)
         {
             foreach (var o in passiveGameBeginList)
             {
+                
                 StartCoroutine(PassiveSettle(o));
             }
         }
@@ -184,16 +182,6 @@ public class Unit : MonoBehaviour
         if (passiveTurnStartList.Count > 0)
         {
             foreach (var o in passiveTurnStartList)
-            {
-                StartCoroutine(PassiveSettle(o));
-            }
-        }
-    }
-    public void PassiveAttack()//攻击时
-    {
-        if (passiveAttackList.Count > 0)
-        {
-            foreach (var o in passiveAttackList)
             {
                 StartCoroutine(PassiveSettle(o));
             }
@@ -227,6 +215,7 @@ public class Unit : MonoBehaviour
     
     IEnumerator PassiveSettle(Skill o)
     {
+
         bool Go=true;//判断是否继续运行
         int tempPointNum = o.pointNum;
         List<Unit> tempUnits = new List<Unit>();
@@ -245,32 +234,54 @@ public class Unit : MonoBehaviour
         }
 
         if(Go)
-        {
+        {        
             FloatSkillShow(this, o, new Color32(190, 190, 190, 255));
+
             if (o.passivePoint == PassivePoint.MDamager)
                 if (damger != null)
-                {
-                    
+                {             
                     damger.SkillSettle(this, o);
-                }
-                    
-            else if (o.passivePoint == PassivePoint.MMyself)
+                }                   
+            if (o.passivePoint == PassivePoint.MMyself)
                 this.SkillSettle(this, o);
-            else if (o.passivePoint == PassivePoint.MAllEnemy)
+            if (o.passivePoint == PassivePoint.MAllEnemy)
             {
-                for (int i = 0; i < GameManager.instance.enemyUnit.Count; i++)
-                {
-                    GameManager.instance.enemyUnit[i].SkillSettle(this, o);
-                }
+                    Debug.Log("sb");
+                    if(playerHero)
+                    {
+                        for (int i = 0; i < GameManager.instance.enemyUnit.Count; i++)
+                        {
+                            GameManager.instance.enemyUnit[i].SkillSettle(this, o);
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < GameManager.instance.playerUnit.Count; i++)
+                        {
+                            GameManager.instance.playerUnit[i].SkillSettle(this, o);
+                        }
+                    }
+                
             }
-            else if (o.passivePoint == PassivePoint.MAllPlayers)
+            if (o.passivePoint == PassivePoint.MAllPlayers)
             {
-                for (int i = 0; i < GameManager.instance.playerUnit.Count; i++)
-                {
-                    GameManager.instance.playerUnit[i].SkillSettle(this, o);
+                    if (!playerHero)
+                    {
+                        for (int i = 0; i < GameManager.instance.enemyUnit.Count; i++)
+                        {
+                            GameManager.instance.enemyUnit[i].SkillSettle(this, o);
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < GameManager.instance.playerUnit.Count; i++)
+                        {
+                            GameManager.instance.playerUnit[i].SkillSettle(this, o);
+                        }
+                    }
+
                 }
-            }
-            else if (o.passivePoint == PassivePoint.MEnemiesAuto)
+            if (o.passivePoint == PassivePoint.MEnemiesAuto)
             {
 
                 if (!o.reChoose)
@@ -307,7 +318,7 @@ public class Unit : MonoBehaviour
                 }
 
             }
-            else if (o.passivePoint == PassivePoint.MPlayersAuto)
+            if (o.passivePoint == PassivePoint.MPlayersAuto)
             {
                 if (!o.reChoose)
                 {

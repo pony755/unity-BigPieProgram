@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
     [HideInInspector]public bool win = false;//胜利条件布尔值
     [Header("技能画布设置")]
+    public GameObject turnTipsObject;
     public Text turnNum;//回合数
     public Text tips;//提示框
     public GameObject backPanel;//返回画布
@@ -66,6 +67,8 @@ public class GameManager : MonoBehaviour
         else
             Destroy(gameObject);
         //在fightprefs上setHero
+
+        LeanTween.move(turnTipsObject, new Vector3(turnTipsObject.transform.position.x, turnTipsObject.transform.position.y-200f, turnTipsObject.transform.position.z), 0.8f);
         win = false;
         delayedSwitch = false;
         state = BattleState.PLAYERTURNSTART;
@@ -125,7 +128,8 @@ public class GameManager : MonoBehaviour
             playerUnit.Add(playerPrefab[i].GetComponent<Unit>());//添加unit进列表
             //读取数据
             Hub[i].SetHub(playerUnit[i]);
-            Hub[i].gameObject.SetActive(true);//显示对应角色状态栏          
+            Hub[i].gameObject.SetActive(true);//显示对应角色状态栏
+            LeanTween.move(Hub[i].gameObject, new Vector3(Hub[i].gameObject.transform.position.x+350f, Hub[i].gameObject.transform.position.y, Hub[i].gameObject.transform.position.z), 0.8f);
         }
         for (int j = 0; j < enemyPrefs.enemyHeros.Length; j++)
         {
@@ -134,7 +138,8 @@ public class GameManager : MonoBehaviour
             //读取数据
             enemyUnit.Add(enemyPrefab[j].GetComponent<Unit>());
             enemyHub[j].SetHub(enemyUnit[j]);
-            enemyHub[j].gameObject.SetActive(true);//显示对应角色状态栏          
+            enemyHub[j].gameObject.SetActive(true);//显示对应角色状态栏
+            LeanTween.move(enemyHub[j].gameObject, new Vector3(enemyHub[j].gameObject.transform.position.x -350f, enemyHub[j].gameObject.transform.position.y, enemyHub[j].gameObject.transform.position.z), 0.8f);
         }
         yield return null;
     }
