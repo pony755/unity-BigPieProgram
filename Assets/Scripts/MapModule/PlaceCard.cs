@@ -48,7 +48,7 @@ public class PlaceCard : MonoBehaviour
         StartCoroutine(TurnAnimation());
         if (cardType.Equals(CardType.battle))
         {
-            StartCoroutine(EnterBattle());
+            //StartCoroutine(EnterBattle());
         }
     }
     IEnumerator TurnAnimation()//·­ÅÆ¶¯»­

@@ -978,7 +978,6 @@ MonoBehaviour:
   player: {fileID: 0}
   level: 1
   childlevel: 1
-  typeList: 
   cardPosition:
   - {fileID: 0}
   - {fileID: 0}
@@ -1288,7 +1287,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -1
-  m_Sprite: {fileID: 21300000, guid: a94852ef518bd6e40a3e254ad9b6a30c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 72261021da934f5429988048e1f9cc90, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

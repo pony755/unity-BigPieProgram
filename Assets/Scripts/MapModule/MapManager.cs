@@ -44,9 +44,9 @@ public class MapManager : MonoBehaviour
                 isSet = false;
                 while (!isSet)
                 {
-                    //System.Random random = new System.Random(Guid.NewGuid().GetHashCode());
-                    //int randomNumber = random.Next(0,maxRandomNumber);
-                    int randomNumber = UnityEngine.Random.Range(0, maxRandomNumber);
+                    System.Random random = new System.Random(Guid.NewGuid().GetHashCode());
+                    int randomNumber = random.Next(0,maxRandomNumber);
+                    Debug.Log(randomNumber);
                     CardType randomType = (CardType)randomNumber;
                     if (library[randomType] != 0)
                     {
@@ -61,7 +61,7 @@ public class MapManager : MonoBehaviour
         if (level != 0)
         {
             int method = UnityEngine.Random.Range(1, 3);//调节方法
-            AdjustMap(1);
+            AdjustMap(method);
         }
         EmbedSharps();
     }
@@ -265,29 +265,63 @@ public class MapManager : MonoBehaviour
     {
         if (method == 1)
         {
-            SwapCard(map[0, 0], map[mapRow - 1, mapColumn - 1]);
-            SwapCard(map[0, mapColumn - 1], map[mapRow - 1, 0]);
-            SwapCard(map[1, 1], map[mapRow - 2, mapColumn - 2]);
-            SwapCard(map[mapRow - 2, 1], map[1, mapColumn - 2]);
-            SwapCard(map[0, 2], map[mapRow - 1, mapColumn - 3]);
+            SwapCard(ref map[0, 0], ref map[mapRow - 1, mapColumn - 1]);
+            SwapPosition(map[0, 0], map[mapRow - 1, mapColumn - 1]);
+            SwapCard(ref map[0, mapColumn - 1], ref map[mapRow - 1, 0]);
+            SwapPosition(map[0, mapColumn - 1], map[mapRow - 1, 0]);
+            SwapCard(ref map[1, 1], ref map[mapRow - 2, mapColumn - 2]);
+            SwapPosition(map[1, 1], map[mapRow - 2, mapColumn - 2]);
+            SwapCard(ref map[mapRow - 2, 1], ref map[1, mapColumn - 2]);
+            SwapPosition(map[mapRow - 2, 1], map[1, mapColumn - 2]);
+            SwapCard(ref map[0, 2], ref map[mapRow - 1, mapColumn - 3]);
+            SwapPosition(map[0, 2], map[mapRow - 1, mapColumn - 3]);
             if (childlevel > 1)
             {
-                SwapCard(map[0, 3], map[mapRow - 1, 2]);
+                SwapCard(ref map[0, 3], ref map[mapRow - 1, 2]);
+                SwapPosition(map[0, 3], map[mapRow - 1, 2]);
             }
             if(childlevel > 2)
             {
-                SwapCard(map[1, 3], map[5, 3]);
+                SwapCard(ref map[1, 3], ref map[5, 3]);
+                SwapPosition(map[1, 3], map[5, 3]);
             }
         }
         else if(method == 2) 
         {
-
+            SwapCard(ref map[1, 0], ref map[mapRow - 2, mapColumn - 1]);
+            SwapPosition(map[1, 0], map[mapRow - 2, mapColumn - 1]);
+            SwapCard(ref map[0, 1], ref map[mapRow - 1, mapColumn - 2]);
+            SwapPosition(map[0, 1], map[mapRow - 1, mapColumn - 2]);
+            SwapCard(ref map[1, 2], ref map[mapRow - 2, mapColumn - 3]);
+            SwapPosition(map[1, 2], map[mapRow - 2, mapColumn - 3]);
+            SwapCard(ref map[mapRow - 1, 1], ref map[0, mapColumn - 2]);
+            SwapPosition(map[mapRow - 1, 1], map[0, mapColumn - 2]);
+            SwapCard(ref map[mapRow - 2, 0], ref map[1, mapColumn - 1]);
+            SwapPosition(map[mapRow - 2, 0], map[1, mapColumn - 1]);
+            if(childlevel > 1)
+            {
+                SwapCard(ref map[1, 3], ref map[mapRow - 2, 2]);
+                SwapPosition(map[1, 3], map[mapRow - 2, 2]);
+            }
+            if(childlevel > 2)
+            {
+                SwapCard(ref map[0, 3], ref map[6, 3]);
+                SwapPosition(map[0, 3], map[6, 3]);
+            }
         }
     }
-    void SwapCard(GameObject a,GameObject b)//交换卡牌
+    void SwapCard(ref GameObject a,ref GameObject b)//交换卡牌
     {
-        
-        
+        GameObject temp;
+        temp = a;
+        a = b;
+        b = temp;
+    }
+    void SwapPosition(GameObject a, GameObject b)//交换卡牌位置
+    {
+        Vector3 pos = a.transform.position;
+        a.transform.position = b.transform.position;
+        b.transform.position = pos;
     }
     void EmbedSharps()//嵌入梦魇碎片
     {
