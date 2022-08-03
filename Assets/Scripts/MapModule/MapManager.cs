@@ -12,7 +12,7 @@ public class MapManager : MonoBehaviour
     public GameObject[,] map;
     private int mapRow;
     private int mapColumn;
-    public List<CardType> typeList;
+    public Dictionary<CardType, int> library;
     public GameObject[] cardPosition;
     public int nightmareSharps;
     public bool isTurning = false;
@@ -22,7 +22,7 @@ public class MapManager : MonoBehaviour
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        player.Load();
+        player.Load();//加载存档
         InitializeMap();
         map[0, 0].GetComponent<PlaceCard>().cardState = CardState.back;
         startListening = true;
@@ -32,127 +32,211 @@ public class MapManager : MonoBehaviour
         InitializeMapSize();
         map = new GameObject[mapRow, mapColumn];
         InitializeCardPosition();
-        InitializeTypeList();
-        int maxRandomNumber = typeList.Count;
+        InitializeLibrary();
+        int maxRandomNumber = library.Count;
         int positionIndex = 0;
         GameObject cards = GameObject.Find("Cards");
+        bool isSet;//卡牌是否被设置好
         for (int i = 0; i < mapRow; i++)
         {
             for(int j = 0; j < mapColumn; j++)
             {
-                int randomNumber = UnityEngine.Random.Range(0, maxRandomNumber);
-                InitializeCard(typeList[randomNumber], cards, positionIndex, i, j);
-                positionIndex++;
+                isSet = false;
+                while (!isSet)
+                {
+                    int randomNumber = UnityEngine.Random.Range(0, maxRandomNumber);
+                    CardType randomType = (CardType)randomNumber;
+                    if (library[randomType] != 0)
+                    {
+                        library[randomType]--;
+                        InitializeCard(randomType, cards, positionIndex, i, j);
+                        positionIndex++;
+                        isSet = true;
+                    }
+                }
             }
         }
         EmbedSharps();
     }
     void InitializeMapSize()//初始化地图大小
     {
-        switch (level)
+        if (level == 0)
         {
-            case 0:
-                {
-                    mapRow = 3;
-                    mapColumn = 3;
-                    break;
-                }
-            case 1:
-            case 2:
-                {
-                    mapRow = 5;
-                    mapColumn = 5;
-                    break;
-                }
-            case 3:
-            case 4:
-                {
-                    mapRow = 6;
-                    mapColumn = 6;
-                    break;
-                }
-            case 5:
-                {
-                    mapRow = 7;
-                    mapRow = 7;
-                    break;
-                }
-            default:
-                {
-                    break;
-                }
+            {
+                mapRow = 3;
+                mapColumn = 3;
+            }
+        }
+        else
+        {
+            switch (childlevel)
+            {
+                case 1:
+                    {
+                        mapRow = 5;
+                        mapColumn = 5;
+                        break;
+                    }
+                case 2:
+                    {
+                        mapRow = 6;
+                        mapColumn = 6;
+                        break;
+                    }
+                case 3:
+                    {
+                        mapRow = 7;
+                        mapColumn = 7;
+                        break;
+                    }
+                default:
+                    {
+                        break;
+                    }
+            }
         }
     }
     void InitializeCardPosition()//卡牌位置
     {
         int positionIndex = 0;
-        GameObject cardLocations = GameObject.FindGameObjectWithTag("CardPosition");
+        GameObject cardPositions = GameObject.FindGameObjectWithTag("CardPosition");
         int x, y;
         int z = 0;
-        switch (level)
+        if(level == 0)
         {
-            case 0:
+            {
+                y = 3;
+                for (int i = 0; i < mapRow; i++)
                 {
-                    y = 3;
-                    for (int i = 0; i < mapRow; i++)
+                    x = -2;
+                    for (int j = 0; j < mapColumn; j++)
                     {
-                        x = -2;
-                        for (int j = 0; j < mapColumn; j++)
-                        {
-                            GameObject positionObject = new GameObject();
-                            positionObject.name = "Position" + positionIndex;
-                            positionObject.transform.position = new Vector3(x, y, z);
-                            positionObject.transform.SetParent(cardLocations.transform);
-                            cardPosition[positionIndex] = positionObject;
-                            positionIndex++;
-                            x += 2;
-                        }
-                        y -= 3;
+                        GameObject positionObject = new GameObject();
+                        positionObject.name = "Position" + positionIndex;
+                        positionObject.transform.position = new Vector3(x, y, z);
+                        positionObject.transform.SetParent(cardPositions.transform);
+                        cardPosition[positionIndex] = positionObject;
+                        positionIndex++;
+                        x += 2;
                     }
-                    break;
+                    y -= 3;
                 }
-            case 1:
-            case 2:
-                {
-                    y = 6;
-                    for (int i = 0; i < mapRow; i++)
+            }
+        }
+        else
+        {
+            switch (level)
+            {
+                case 1:
                     {
-                        x = -4;
-                        for (int j = 0; j < mapColumn; j++)
+                        y = 6;
+                        for (int i = 0; i < mapRow; i++)
                         {
-                            GameObject positionObject = new GameObject();
-                            positionObject.name = "Position" + positionIndex;
-                            positionObject.transform.position = new Vector3(x, y, z);
-                            positionObject.transform.SetParent(cardLocations.transform);
-                            cardPosition[positionIndex] = positionObject;
-                            positionIndex++;
-                            x += 2;
+                            x = -4;
+                            for (int j = 0; j < mapColumn; j++)
+                            {
+                                GameObject positionObject = new GameObject();
+                                positionObject.name = "Position" + positionIndex;
+                                positionObject.transform.position = new Vector3(x, y, z);
+                                positionObject.transform.SetParent(cardPositions.transform);
+                                cardPosition[positionIndex] = positionObject;
+                                positionIndex++;
+                                x += 2;
+                            }
+                            y -= 3;
                         }
-                        y -= 3;
+                        break;
                     }
-                    break;
-                }
-            case 3:
-            case 4:
-                {
-                    break;
-                }
-            case 5:
-                {
-                    break;
-                }
-            default:
-                {
-                    break;
-                }
+                case 2:
+                    {
+                        break ;
+                    }
+                case 3:
+                    {
+                        y = 9;
+                        for (int i = 0; i < mapRow; i++)
+                        {
+                            x = -6;
+                            for (int j = 0; j < mapColumn; j++)
+                            {
+                                GameObject positionObject = new GameObject();
+                                positionObject.name = "Position" + positionIndex;
+                                positionObject.transform.position = new Vector3(x, y, z);
+                                positionObject.transform.SetParent(cardPositions.transform);
+                                cardPosition[positionIndex] = positionObject;
+                                positionIndex++;
+                                x += 2;
+                            }
+                            y -= 3;
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        break;
+                    }
+            }
         }
     }
-    void InitializeTypeList()//将卡牌类型从枚举转入列表
+    void InitializeLibrary()//初始化牌库
     {
-        Array array = Enum.GetValues(typeof(CardType));
-        foreach (var type in array)
+        library = new Dictionary<CardType, int>();
+        if(level == 0)
         {
-            typeList.Add((CardType)type);
+            library.Add(CardType.battle, 1);
+            library.Add(CardType.eliteBattle, 1);
+            library.Add(CardType.randomEvent, 1);
+            library.Add(CardType.shop, 1);
+            library.Add(CardType.inn, 1);
+            library.Add(CardType.treasure, 1);
+            library.Add(CardType.portal, 2);
+            library.Add(CardType.placeOfGod, 1);
+        }
+        else
+        {
+            switch (childlevel)
+            {
+                case 1:
+                    {
+                        library.Add(CardType.battle, 7);
+                        library.Add(CardType.eliteBattle, 2);
+                        library.Add(CardType.randomEvent, 7);
+                        library.Add(CardType.shop, 2);
+                        library.Add(CardType.inn, 2);
+                        library.Add(CardType.treasure, 2);
+                        library.Add(CardType.portal, 2);
+                        library.Add(CardType.placeOfGod, 1);
+                        break;
+                    }
+                case 2:
+                    {
+                        library.Add(CardType.battle, 10);
+                        library.Add(CardType.eliteBattle, 3);
+                        library.Add(CardType.randomEvent, 10);
+                        library.Add(CardType.shop, 3);
+                        library.Add(CardType.inn, 3);
+                        library.Add(CardType.treasure, 3);
+                        library.Add(CardType.portal, 2);
+                        library.Add(CardType.placeOfGod, 2);
+                        break;
+                    }
+                case 3:
+                    {
+                        library.Add(CardType.battle, 13);
+                        library.Add(CardType.eliteBattle, 5);
+                        library.Add(CardType.randomEvent, 13);
+                        library.Add(CardType.shop, 4);
+                        library.Add(CardType.inn, 4);
+                        library.Add(CardType.treasure, 4);
+                        library.Add(CardType.portal, 3);
+                        library.Add(CardType.placeOfGod, 3);
+                        break;
+                    }
+                default:
+                    {
+                        break;
+                    }
+            }
         }
     }
     void InitializeCard(CardType cardType,GameObject cards,int positionIndex,int row,int column)//初始化卡牌

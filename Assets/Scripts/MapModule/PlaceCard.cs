@@ -17,7 +17,7 @@ public class PlaceCard : MonoBehaviour
     };
     public enum CardType//ø®≈∆¿‡–Õ
     {
-        battle,eliteBattle,randomEvent,shop,hotel,treasure,portal,placeOfGod
+        battle,eliteBattle,randomEvent,shop,inn,treasure,portal,placeOfGod
     };
     // Start is called before the first frame update
     void Start()
