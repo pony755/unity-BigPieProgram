@@ -44,6 +44,8 @@ public class MapManager : MonoBehaviour
                 isSet = false;
                 while (!isSet)
                 {
+                    //System.Random random = new System.Random(Guid.NewGuid().GetHashCode());
+                    //int randomNumber = random.Next(0,maxRandomNumber);
                     int randomNumber = UnityEngine.Random.Range(0, maxRandomNumber);
                     CardType randomType = (CardType)randomNumber;
                     if (library[randomType] != 0)
@@ -55,6 +57,11 @@ public class MapManager : MonoBehaviour
                     }
                 }
             }
+        }
+        if (level != 0)
+        {
+            int method = UnityEngine.Random.Range(1, 3);//调节方法
+            AdjustMap(1);
         }
         EmbedSharps();
     }
@@ -253,6 +260,34 @@ public class MapManager : MonoBehaviour
         cardFace.transform.eulerAngles = new Vector3(0, 180, 0);
         map[row, column] = card;
         card.transform.SetParent(cards.transform);
+    }
+    void AdjustMap(int method)//调整地图以适应随机需要
+    {
+        if (method == 1)
+        {
+            SwapCard(map[0, 0], map[mapRow - 1, mapColumn - 1]);
+            SwapCard(map[0, mapColumn - 1], map[mapRow - 1, 0]);
+            SwapCard(map[1, 1], map[mapRow - 2, mapColumn - 2]);
+            SwapCard(map[mapRow - 2, 1], map[1, mapColumn - 2]);
+            SwapCard(map[0, 2], map[mapRow - 1, mapColumn - 3]);
+            if (childlevel > 1)
+            {
+                SwapCard(map[0, 3], map[mapRow - 1, 2]);
+            }
+            if(childlevel > 2)
+            {
+                SwapCard(map[1, 3], map[5, 3]);
+            }
+        }
+        else if(method == 2) 
+        {
+
+        }
+    }
+    void SwapCard(GameObject a,GameObject b)//交换卡牌
+    {
+        
+        
     }
     void EmbedSharps()//嵌入梦魇碎片
     {
