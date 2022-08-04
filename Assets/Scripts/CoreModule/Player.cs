@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public int globalStateValue;//全局状态值，0为位于地图，1为位于其他场景
     [SerializeField] public int level;
     [SerializeField] public int childlevel;
     [SerializeField] public int BP;
@@ -38,6 +39,7 @@ public class Player : MonoBehaviour
         {
             saveData = new SaveData();
         }
+        globalStateValue = 0;
         level = saveData.level;
         childlevel = saveData.childlevel;
         BP = saveData.BP;

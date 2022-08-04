@@ -17,15 +17,53 @@ public class MapManager : MonoBehaviour
     public int nightmareSharps;
     public bool isTurning = false;
     private bool startListening = false;
+    private GameObject mainCamera;
+    private GameObject background;
+    private GameObject cardPositions;
+    private GameObject cards;
+    private GameObject border;
+    private GameObject canvas;
+    private GameObject eventSystem;
 
     // Start is called before the first frame update
     void Start()
     {
+        CopyObject();
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         player.Load();//加载存档
         InitializeMap();
         map[0, 0].GetComponent<PlaceCard>().cardState = CardState.back;
         startListening = true;
+    }
+    void CopyObject()//获取对象用于场景切换
+    {
+        mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+        background = GameObject.FindGameObjectWithTag("Background");
+        cardPositions = GameObject.FindGameObjectWithTag("CardPosition");
+        cards = GameObject.FindGameObjectWithTag("Card");
+        border = GameObject.FindGameObjectWithTag("Border");
+        canvas = GameObject.FindGameObjectWithTag("Canvas");
+        eventSystem = GameObject.FindGameObjectWithTag("EventSystem");
+    }
+    public void FreezeMap()//冻结地图物件
+    {
+        mainCamera.SetActive(false);
+        background.SetActive(false);
+        cardPositions.SetActive(false);
+        cards.SetActive(false);
+        border.SetActive(false);
+        canvas.SetActive(false);
+        eventSystem.SetActive(false);
+    }
+    public void ActivateMap()//激活地图物件
+    {
+        mainCamera.SetActive(true);
+        background.SetActive(true);
+        cardPositions.SetActive(true);
+        cards.SetActive(true);
+        border.SetActive(true);
+        canvas.SetActive(true);
+        eventSystem.SetActive(true);
     }
     void InitializeMap()//初始化地图
     {
@@ -393,23 +431,14 @@ public class MapManager : MonoBehaviour
             map[newRow, newColumn].GetComponent<PlaceCard>().cardState = CardState.back;
         }
     }
-    public void FreezeMap()//冻结地图物件
+    void PlayerStateListener()
     {
-        for(int i = 0; i < mapRow; i++)
+        if (player != null)
         {
-            for(int j =0; j < mapColumn; j++)
+            if (player.GetComponent<Player>().globalStateValue == 1)
             {
-                map[i,j].SetActive(false);
-            }
-        }
-    }
-    public void ActivateMap()//激活地图物件
-    {
-        for (int i = 0; i < mapRow; i++)
-        {
-            for (int j = 0; j < mapColumn; j++)
-            {
-                map[i, j].SetActive(true);
+                ActivateMap();
+                player.GetComponent<Player>().globalStateValue--;
             }
         }
     }
@@ -417,6 +446,6 @@ public class MapManager : MonoBehaviour
     void Update()
     {
         CardStateListener();
-
+        PlayerStateListener();
     }
 }
