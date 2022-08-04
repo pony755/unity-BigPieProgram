@@ -21,7 +21,7 @@ public class ChildSkillMode : Skill
 
             if (damage > 0 && pointUnit.currentHP > 0)
             {
-                pointUnit.damger = turnUnit;//暂时记录伤害来源
+                pointUnit.danger = turnUnit;//暂时记录伤害来源
                 pointUnit.currentHP -= damage;
                 Debug.Log(pointUnit.unitName + "受到了" + damage + "点物理伤害");
                 pointUnit.floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().text = damage.ToString();

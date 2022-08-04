@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Koubot.Tool;
 public class Unit : MonoBehaviour
 {
     [HideInInspector]public Animator anim;//动画
-    [HideInInspector]public Unit damger;//暂时记录伤害来源
+    [HideInInspector]public Unit danger;//暂时记录伤害来源
+    
     public Sprite normalSprite;
     public GameObject point;//指向
     public GameObject floatPoint;//伤害
@@ -14,11 +16,9 @@ public class Unit : MonoBehaviour
     public bool playerHero;//判断是不是己方角色
     public string unitName;
     public int unitLevel;
-
     public int tired;
     public int Atk;
     public int Def;
-
     public int maxHP;
     public int currentHP;
     public int maxMP;
@@ -26,6 +26,11 @@ public class Unit : MonoBehaviour
     public int currentExp;
     public int nextExp;
     public int getExp;
+
+    [Header("是否为玩家替身")]
+    public bool player;
+
+
 
     [Header("技能")]
     public List<Skill> heroSkillList;
@@ -37,16 +42,14 @@ public class Unit : MonoBehaviour
     public List<Skill> passiveDeadList;//死亡触发
     public List<Skill> passiveGameBeginList;//死亡触发
 
-    private void Start()
+    protected virtual void Start()
     {
-        
-
         anim = GetComponent<Animator>();
         StartCoroutine(SetPassive());
 
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         if (GameManager.instance. state != BattleState.POINTENEMY || GameManager.instance.state != BattleState.POINTPLAYER || GameManager.instance.state != BattleState.POINTALL)//非这三个阶段，灭图标
             point.SetActive(false);
@@ -58,10 +61,7 @@ public class Unit : MonoBehaviour
             {
                 point.SetActive(false);
             }
-        }
-        
-
-        
+        }      
     }
     IEnumerator SetPassive()
     {
@@ -161,8 +161,7 @@ public class Unit : MonoBehaviour
         if (passiveGameBeginList.Count > 0)
         {
             foreach (var o in passiveGameBeginList)
-            {
-                
+            {             
                 StartCoroutine(PassiveSettle(o));
             }
         }
@@ -196,7 +195,7 @@ public class Unit : MonoBehaviour
                 StartCoroutine(PassiveSettle(o));
             }
         }
-        damger = null;
+        danger = null;
     }
 
     public void PassiveDead()//死亡时
@@ -219,7 +218,6 @@ public class Unit : MonoBehaviour
         bool Go=true;//判断是否继续运行
         int tempPointNum = o.pointNum;
         List<Unit> tempUnits = new List<Unit>();
-        System.Random r = new System.Random();
         if (o.passiveTurn==PassiveTurn.E)
         {
             if (!(((GameManager.instance.state == BattleState.ENEMYTURN || GameManager.instance.state == BattleState.ENEMYTURNSTART || GameManager.instance.state == BattleState.ENEMYFINISH) && this.playerHero)
@@ -238,9 +236,9 @@ public class Unit : MonoBehaviour
             FloatSkillShow(this, o, new Color32(190, 190, 190, 255));
 
             if (o.passivePoint == PassivePoint.MDamager)
-                if (damger != null)
+                if (danger != null)
                 {             
-                    damger.SkillSettle(this, o);
+                    danger.SkillSettle(this, o);
                 }                   
             if (o.passivePoint == PassivePoint.MMyself)
                 this.SkillSettle(this, o);
@@ -309,7 +307,8 @@ public class Unit : MonoBehaviour
                 }
                 for (int j = 0; j < tempPointNum; j++)
                 {
-                    int k = r.Next(tempUnits.Count);
+                    
+                    int k = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempUnits.Count-1);
                     tempUnits[k].SkillSettle(this, o);
                     if (!o.reChoose)
                         tempUnits.Remove(tempUnits[k]);
@@ -345,7 +344,7 @@ public class Unit : MonoBehaviour
                 }
                 for (int j = 0; j < tempPointNum; j++)
                 {
-                    int k = r.Next(tempUnits.Count);
+                    int k = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempUnits.Count - 1);
                     tempUnits[k].SkillSettle(this, o);
                     if (!o.reChoose)
                         tempUnits.Remove(tempUnits[k]);
@@ -461,6 +460,7 @@ public class Unit : MonoBehaviour
             {
                 anim.Play("idle");
                 GameManager.instance.SkillShow(this);//传入角色
+                GameManager.instance.CardCanvas.SetActive(false);
             }
         }
 

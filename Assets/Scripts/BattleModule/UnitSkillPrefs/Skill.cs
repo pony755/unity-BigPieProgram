@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System;
+using Koubot.Tool;
 public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Mix,Delayed}//技能类型
 public enum AnimType {Attack}//动画类型
 public enum SkillPoint { Myself,AllEnemy,AllPlayers,Players,Enemies }//技能指向
@@ -35,6 +37,9 @@ public class Skill : ScriptableObject
 
     [Header("技能类型为Mix的时候设置，子技能设置(实现多段伤害，多数值伤害)")]
     public List<Skill> moreSkill;
+
+    [Header("卡牌设置：是否选择角色作为pointUnit")]
+    public bool cardPointUnit;
 
     [Header("技能类型为被动的时候设置")]
     public PassiveType passiveType;
@@ -133,8 +138,8 @@ public class Skill : ScriptableObject
                 {
                     while (GameManager.instance.pointNumber > GameManager.instance.pointUnit.Count)//添加目标
                     {
-                        System.Random r = new System.Random();
-                        int enemy = r.Next(GameManager.instance.enemyUnit.Count);                           
+
+                        int enemy = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, GameManager.instance.enemyUnit.Count - 1); 
                         if (!GameManager.instance.pointUnit.Contains(GameManager.instance.enemyUnit[enemy]) || reChoose)
                         {                 
                             GameManager.instance.pointUnit.Add(GameManager.instance.enemyUnit[enemy]);
@@ -165,8 +170,7 @@ public class Skill : ScriptableObject
                 {
                     while (GameManager.instance.pointNumber > GameManager.instance.pointUnit.Count)//添加目标
                     {
-                        System.Random r = new System.Random();
-                        int player = r.Next(GameManager.instance.playerUnit.Count);
+                        int player = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, GameManager.instance.playerUnit.Count - 1);
                         if (!GameManager.instance.pointUnit.Contains(GameManager.instance.playerUnit[player]) || reChoose)
                         {
                             GameManager.instance.pointUnit.Add(GameManager.instance.playerUnit[player]);
@@ -245,7 +249,8 @@ public class Skill : ScriptableObject
 
             if (damage > 0 && pointUnit.currentHP > 0)
             {
-                pointUnit.damger = turnUnit;//暂时记录伤害来源
+                if(!turnUnit.player)
+                   pointUnit.danger = turnUnit;//暂时记录伤害来源
                 pointUnit.currentHP -=  damage;
                 Debug.Log(pointUnit.unitName + "受到了" + damage + "点物理伤害");
                 pointUnit.floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().text = damage.ToString();
