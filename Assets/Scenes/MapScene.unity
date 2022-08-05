@@ -977,8 +977,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
-  level: 3
-  childLevel: 3
+  level: 1
+  childLevel: 1
   cardPosition:
   - {fileID: 0}
   - {fileID: 0}
@@ -1029,7 +1029,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  nightmareSharps: 5
+  nightmareSharps: 0
   isTurning: 0
 --- !u!4 &954399965
 Transform:

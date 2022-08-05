@@ -108,13 +108,12 @@ public class MapManager : MonoBehaviour
         bool isSet;//卡牌是否被设置好
         for (int i = 0; i < mapRow; i++)
         {
-            for(int j = 0; j < mapColumn; j++)
+            for (int j = 0; j < mapColumn; j++)
             {
                 isSet = false;
                 while (!isSet)
                 {
-                    System.Random random = new System.Random(Guid.NewGuid().GetHashCode());
-                    int randomNumber = random.Next(0,maxRandomNumber);
+                    int randomNumber = UnityEngine.Random.Range(0, maxRandomNumber);//随机函数需要被替换
                     Debug.Log(randomNumber);
                     CardType randomType = (CardType)randomNumber;
                     if (library[randomType] != 0)
@@ -129,7 +128,7 @@ public class MapManager : MonoBehaviour
         }
         if (level != 0)
         {
-            int method = UnityEngine.Random.Range(1, 3);//调节方法
+            int method = UnityEngine.Random.Range(1, 3);//调节方法 //随机函数需要被替换
             AdjustMap(method);
         }
         EmbedSharps();
@@ -138,7 +137,8 @@ public class MapManager : MonoBehaviour
     {
         if (level == 0)
         {
-            //*******BUG*******
+            mapRow = 3;
+            mapColumn = 3;
         }
         else
         {
@@ -178,7 +178,22 @@ public class MapManager : MonoBehaviour
         int z = 0;
         if (level == 0)
         {
-            //*******BUG*******
+            y = 3;
+            for (int i = 0; i < mapRow; i++)
+            {
+                x = -2;
+                for (int j = 0; j < mapColumn; j++)
+                {
+                    GameObject positionObject = new GameObject();
+                    positionObject.name = "Position" + positionIndex;
+                    positionObject.transform.position = new Vector3(x, y, z);
+                    positionObject.transform.SetParent(cardPositions.transform);
+                    cardPosition[positionIndex] = positionObject;
+                    positionIndex++;
+                    x += 2;
+                }
+                y -= 3;
+            }
         }
         else
         {
@@ -242,7 +257,14 @@ public class MapManager : MonoBehaviour
         library = new Dictionary<CardType, int>();
         if (level == 0)
         {
-            //*******BUG*******
+            library.Add(CardType.battle, 1);
+            library.Add(CardType.eliteBattle, 1);
+            library.Add(CardType.randomEvent, 1);
+            library.Add(CardType.shop, 1);
+            library.Add(CardType.inn, 1);
+            library.Add(CardType.treasure, 1);
+            library.Add(CardType.portal, 2);
+            library.Add(CardType.placeOfGod, 1);
         }
         else
         {
@@ -372,10 +394,10 @@ public class MapManager : MonoBehaviour
     {
         int row, column;
         GameObject target;
-        for(nightmareSharps = 5; nightmareSharps > 0; nightmareSharps--)
+        for(nightmareSharps = GetSharpNumber(); nightmareSharps > 0; nightmareSharps--)
         {
-            row = UnityEngine.Random.Range(0, mapRow - 1);
-            column = UnityEngine.Random.Range(0, mapColumn - 1);
+            row = UnityEngine.Random.Range(0, mapRow - 1);//随机函数需要被替换
+            column = UnityEngine.Random.Range(0, mapColumn - 1);//随机函数需要被替换
             target = map[row, column];
             if (target.GetComponent<PlaceCard>().isEmbedded)
             {
@@ -389,6 +411,35 @@ public class MapManager : MonoBehaviour
             }
         }
         Debug.Log("嵌入碎片成功");
+    }
+    int GetSharpNumber()
+    {
+        if(level == 0)
+        {
+            return 3;
+        }
+        else
+        {
+            switch (childLevel)
+            {
+                case 1:
+                    {
+                        return 5;
+                    }
+                case 2:
+                    {
+                        return 6;
+                    }
+                case 3:
+                    {
+                        return 7;
+                    }
+                default:
+                    {
+                        return 0;
+                    }
+            }
+        }
     }
     void CardStateListener()//卡牌状态监听器
     {
