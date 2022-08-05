@@ -8,7 +8,7 @@ public class MapManager : MonoBehaviour
 {
     public Player player;
     public int level;
-    public int childlevel;
+    public int childLevel;
     public GameObject[,] map;
     private int mapRow;
     private int mapColumn;
@@ -28,9 +28,9 @@ public class MapManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("Level:" + level + "ChildLevel:" + childLevel);
         CopyObject();
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        player.Load();//加载存档
         InitializeMap();
         map[0, 0].GetComponent<PlaceCard>().cardState = CardState.back;
         startListening = true;
@@ -44,6 +44,36 @@ public class MapManager : MonoBehaviour
         border = GameObject.FindGameObjectWithTag("Border");
         canvas = GameObject.FindGameObjectWithTag("Canvas");
         eventSystem = GameObject.FindGameObjectWithTag("EventSystem");
+        Debug.Log("获取成功");
+    }
+    public void BackUpMap()//备份地图
+    {
+        int k = 0;//一维数组下标
+        for(int i = 0; i < mapRow; i++)
+        {
+            for(int j = 0; j < mapColumn; j++)
+            {
+                player.cardStates[k] = map[i, j].GetComponent<PlaceCard>().cardState;
+                player.rotation[k] = map[i, j].transform.eulerAngles.y;
+                Debug.Log(player.rotation[k]);
+                k++;
+            }
+        }
+        Debug.Log("备份地图成功");
+    }
+    public void RecoverMap()//恢复地图
+    {
+        int k = 0;//一维数组下标
+        for (int i = 0; i < mapRow; i++)
+        {
+            for (int j = 0; j < mapColumn; j++)
+            {
+                map[i, j].GetComponent<PlaceCard>().cardState = player.cardStates[k];
+                map[i, j].transform.rotation = Quaternion.Euler(0, player.rotation[k], 0);
+                k++;
+            }
+        }
+        Debug.Log("恢复地图成功");
     }
     public void FreezeMap()//冻结地图物件
     {
@@ -69,6 +99,7 @@ public class MapManager : MonoBehaviour
     {
         InitializeMapSize();
         map = new GameObject[mapRow, mapColumn];
+        player.InitializeArray(mapRow*mapColumn);
         InitializeCardPosition();
         InitializeLibrary();
         int maxRandomNumber = library.Count;
@@ -107,14 +138,11 @@ public class MapManager : MonoBehaviour
     {
         if (level == 0)
         {
-            {
-                mapRow = 3;
-                mapColumn = 3;
-            }
+            //*******BUG*******
         }
         else
         {
-            switch (childlevel)
+            switch (childLevel)
             {
                 case 1:
                     {
@@ -140,6 +168,7 @@ public class MapManager : MonoBehaviour
                     }
             }
         }
+        Debug.Log("初始化地图大小 "+mapRow+" "+mapColumn+" 成功");
     }
     void InitializeCardPosition()//卡牌位置
     {
@@ -147,30 +176,13 @@ public class MapManager : MonoBehaviour
         GameObject cardPositions = GameObject.FindGameObjectWithTag("CardPosition");
         int x, y;
         int z = 0;
-        if(level == 0)
+        if (level == 0)
         {
-            {
-                y = 3;
-                for (int i = 0; i < mapRow; i++)
-                {
-                    x = -2;
-                    for (int j = 0; j < mapColumn; j++)
-                    {
-                        GameObject positionObject = new GameObject();
-                        positionObject.name = "Position" + positionIndex;
-                        positionObject.transform.position = new Vector3(x, y, z);
-                        positionObject.transform.SetParent(cardPositions.transform);
-                        cardPosition[positionIndex] = positionObject;
-                        positionIndex++;
-                        x += 2;
-                    }
-                    y -= 3;
-                }
-            }
+            //*******BUG*******
         }
         else
         {
-            switch (level)
+            switch (childLevel)
             {
                 case 1:
                     {
@@ -194,7 +206,8 @@ public class MapManager : MonoBehaviour
                     }
                 case 2:
                     {
-                        break ;
+                        //待补全
+                        break;
                     }
                 case 3:
                     {
@@ -222,24 +235,18 @@ public class MapManager : MonoBehaviour
                     }
             }
         }
+        Debug.Log("初始化卡牌位置成功");
     }
     void InitializeLibrary()//初始化牌库
     {
         library = new Dictionary<CardType, int>();
-        if(level == 0)
+        if (level == 0)
         {
-            library.Add(CardType.battle, 1);
-            library.Add(CardType.eliteBattle, 1);
-            library.Add(CardType.randomEvent, 1);
-            library.Add(CardType.shop, 1);
-            library.Add(CardType.inn, 1);
-            library.Add(CardType.treasure, 1);
-            library.Add(CardType.portal, 2);
-            library.Add(CardType.placeOfGod, 1);
+            //*******BUG*******
         }
         else
         {
-            switch (childlevel)
+            switch (childLevel)
             {
                 case 1:
                     {
@@ -283,6 +290,7 @@ public class MapManager : MonoBehaviour
                     }
             }
         }
+        Debug.Log("初始化牌库成功");
     }
     void InitializeCard(CardType cardType,GameObject cards,int positionIndex,int row,int column)//初始化卡牌
     {
@@ -313,12 +321,12 @@ public class MapManager : MonoBehaviour
             SwapPosition(map[mapRow - 2, 1], map[1, mapColumn - 2]);
             SwapCard(ref map[0, 2], ref map[mapRow - 1, mapColumn - 3]);
             SwapPosition(map[0, 2], map[mapRow - 1, mapColumn - 3]);
-            if (childlevel > 1)
+            if (childLevel > 1)
             {
                 SwapCard(ref map[0, 3], ref map[mapRow - 1, 2]);
                 SwapPosition(map[0, 3], map[mapRow - 1, 2]);
             }
-            if(childlevel > 2)
+            if(childLevel > 2)
             {
                 SwapCard(ref map[1, 3], ref map[5, 3]);
                 SwapPosition(map[1, 3], map[5, 3]);
@@ -336,17 +344,18 @@ public class MapManager : MonoBehaviour
             SwapPosition(map[mapRow - 1, 1], map[0, mapColumn - 2]);
             SwapCard(ref map[mapRow - 2, 0], ref map[1, mapColumn - 1]);
             SwapPosition(map[mapRow - 2, 0], map[1, mapColumn - 1]);
-            if(childlevel > 1)
+            if(childLevel > 1)
             {
                 SwapCard(ref map[1, 3], ref map[mapRow - 2, 2]);
                 SwapPosition(map[1, 3], map[mapRow - 2, 2]);
             }
-            if(childlevel > 2)
+            if(childLevel > 2)
             {
                 SwapCard(ref map[0, 3], ref map[6, 3]);
                 SwapPosition(map[0, 3], map[6, 3]);
             }
         }
+        Debug.Log("调节成功");
     }
     void SwapCard(ref GameObject a,ref GameObject b)//交换卡牌
     {
@@ -357,9 +366,7 @@ public class MapManager : MonoBehaviour
     }
     void SwapPosition(GameObject a, GameObject b)//交换卡牌位置
     {
-        Vector3 pos = a.transform.position;
-        a.transform.position = b.transform.position;
-        b.transform.position = pos;
+        (b.transform.position, a.transform.position) = (a.transform.position, b.transform.position);
     }
     void EmbedSharps()//嵌入梦魇碎片
     {
@@ -381,6 +388,7 @@ public class MapManager : MonoBehaviour
                 target.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("MapGraphics/Cardback_Nightmare");
             }
         }
+        Debug.Log("嵌入碎片成功");
     }
     void CardStateListener()//卡牌状态监听器
     {
@@ -435,9 +443,10 @@ public class MapManager : MonoBehaviour
     {
         if (player != null)
         {
-            if (player.GetComponent<Player>().globalStateValue == 1)
+            if (player.GetComponent<Player>().globalStateValue != 0)
             {
                 ActivateMap();
+                RecoverMap();
                 player.GetComponent<Player>().globalStateValue--;
             }
         }
@@ -447,5 +456,7 @@ public class MapManager : MonoBehaviour
     {
         CardStateListener();
         PlayerStateListener();
+        player.level = level;
+        player.childLevel = childLevel;
     }
 }

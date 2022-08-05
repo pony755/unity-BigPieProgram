@@ -7,21 +7,20 @@ using UnityEngine.UI;
 public class SaveLoadBtn : MonoBehaviour
 {
     GameObject player;
-    GameObject mapManager;
+    public MapManager mapManager;
     // Start is called before the first frame update
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        mapManager = GameObject.FindGameObjectWithTag("MapManager");
         GetComponent<Button>().onClick.AddListener(delegate ()
         {
-            SceneManager.LoadScene("SaveLoadScene", LoadSceneMode.Additive);
-            mapManager.GetComponent<MapManager>().FreezeMap();
+            SceneManager.LoadSceneAsync("SaveLoadScene", LoadSceneMode.Additive);
+            mapManager.BackUpMap();
+            mapManager.FreezeMap();
             Scene scene = SceneManager.GetSceneByName("SaveLoadScene");
             SceneManager.MoveGameObjectToScene(player, scene);
         });
     }
-
     // Update is called once per frame
     void Update()
     {

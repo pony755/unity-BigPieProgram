@@ -2,34 +2,48 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using static PlaceCard;
 
 public class Player : MonoBehaviour
 {
     public int globalStateValue;//全局状态值，0为位于地图，1为位于其他场景
-    [SerializeField] public int level;
-    [SerializeField] public int childlevel;
-    [SerializeField] public int BP;
-    [SerializeField] public int nightmareSharps;
-
-    public const string saveName = "SaveTest.sav";
+    public CardState[] cardStates;
+    public float[] rotation;
+    public int level;
+    public int childLevel;
+    public int BP;
+    public int nightmareSharps;
     [System.Serializable]protected class SaveData
     {
+        public CardState[] cardStates;
+        public float[] rotation;
         public int level;
-        public int childlevel;
+        public int childLevel;
         public int BP;
         public int nightmareSharps;
     }
-    public void Save()//保存存档
+    public void InitializeArray(int length)//初始化数组
     {
-        SaveData saveData = new SaveData();
-        saveData.level = level;
-        saveData.childlevel = childlevel;
-        saveData.BP = BP;
-        saveData.nightmareSharps = nightmareSharps;
+        cardStates = new CardState[length];
+        rotation = new float[length];
+    }
+    public void Save(string saveNumber)//保存存档
+    {
+        string saveName = "Save_" + saveNumber + ".sav";
+        SaveData saveData = new SaveData
+        {
+            cardStates = cardStates,
+            rotation = rotation,
+            level = level,
+            childLevel = childLevel,
+            BP = BP,
+            nightmareSharps = nightmareSharps
+        };
         SaveSystem.Save(saveName, saveData);
     }
-    public void Load()//加载存档
+    public void Load(string saveNumber)//加载存档
     {
+        string saveName = "Save_" + saveNumber + ".sav";
         SaveData saveData;
         if (File.Exists(Path.Combine(Application.persistentDataPath, saveName)))
         {
@@ -40,18 +54,20 @@ public class Player : MonoBehaviour
             saveData = new SaveData();
         }
         globalStateValue = 0;
+        cardStates = saveData.cardStates;
+        rotation = saveData.rotation;
         level = saveData.level;
-        childlevel = saveData.childlevel;
+        childLevel = saveData.childLevel;
         BP = saveData.BP;
         nightmareSharps = saveData.nightmareSharps;
         Debug.Log(level);
-        Debug.Log(childlevel);
+        Debug.Log(childLevel);
         Debug.Log(BP);
         Debug.Log(nightmareSharps);
     }
-    [UnityEditor.MenuItem("Developer/Delete player save file")]//开发者选项：删除存档
-    public static void Delete()
+    public void Delete(string saveNumber)//删除存档
     {
+        string saveName = "Save_" + saveNumber + ".sav";
         SaveSystem.Delete(saveName);
     }
     void Start()

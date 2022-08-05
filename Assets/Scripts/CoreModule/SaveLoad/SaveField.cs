@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class SaveField : MonoBehaviour
 {
     public Player player;
-    public int saveNumber;
+    public TextMeshProUGUI saveNumber;
     public TextMeshProUGUI saveInfor;
     public TextMeshProUGUI saveTime;
     public Button saveButton;
@@ -18,31 +18,35 @@ public class SaveField : MonoBehaviour
     public Button autoSaveButton;
     void Start()
     {
-        saveNumber = Convert.ToInt32(transform.GetChild(0).GetComponent<TextMeshProUGUI>().text);
-        saveInfor = transform.GetChild(1).GetComponent<TextMeshProUGUI>();
-        saveTime = transform.GetChild(2).GetComponent<TextMeshProUGUI>();
-        saveButton = transform.GetChild(3).GetComponent<Button>();
-        loadButton = transform.GetChild(4).GetComponent<Button>();
-        deleteButton = transform.GetChild(5).GetComponent<Button>();
-        autoSaveButton = transform.GetChild(6).GetComponent<Button>();
-        saveButton.onClick.AddListener(SaveGame);
+        saveButton.onClick.AddListener(Save);
+        loadButton.onClick.AddListener(Load);
+        deleteButton.onClick.AddListener(Delete);
     }
-    void SaveGame()
+    void Save()//保存游戏存档
     {
         SetInfor();
         SetTime();
-        player.Save();
+        player.Save(saveNumber.text);
     }
-    void SetInfor()
+    void SetInfor()//获取存档信息(待定)
     {
 
     }
     void SetTime()//获取保存时间
     {
         DateTime dt = DateTime.Now;
-        saveTime.text = dt.ToLongDateString();
+        saveTime.text = dt.ToString();
     }
-    
+    void Load()
+    {
+        player.Load(saveNumber.text);
+    }
+    void Delete()
+    {
+        saveInfor.text = null;
+        saveTime.text = null;
+        player.Delete(saveNumber.text);
+    }
     void Update()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();

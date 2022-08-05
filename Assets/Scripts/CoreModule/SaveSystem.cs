@@ -41,6 +41,7 @@ public static class SaveSystem
         try
         {
             File.Delete(path);
+            Debug.Log("´æµµÒÑÉ¾³ý");
         }
         catch(System.Exception e)
         {
