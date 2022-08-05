@@ -11,6 +11,7 @@ public class Unit : MonoBehaviour
     
     public Sprite normalSprite;
     public GameObject point;//指向
+    public GameObject cardPoint;//卡片指向
     public GameObject floatPoint;//伤害
     public GameObject floatSkill;//技能浮动
     public bool playerHero;//判断是不是己方角色
@@ -51,6 +52,10 @@ public class Unit : MonoBehaviour
 
     protected virtual void Update()
     {
+        if (GameManager.instance.state == BattleState.CARDTURNUNIT && playerHero&&tired==0)
+            cardPoint.SetActive(true);
+        else
+            cardPoint.SetActive(false);
         if (GameManager.instance. state != BattleState.POINTENEMY || GameManager.instance.state != BattleState.POINTPLAYER || GameManager.instance.state != BattleState.POINTALL)//非这三个阶段，灭图标
             point.SetActive(false);
         if((GameManager.instance.state == BattleState.POINTENEMY&&!playerHero)|| (GameManager.instance.state == BattleState.POINTPLAYER && playerHero)|| GameManager.instance.state == BattleState.POINTALL)
@@ -61,7 +66,8 @@ public class Unit : MonoBehaviour
             {
                 point.SetActive(false);
             }
-        }      
+        }  
+        
     }
     IEnumerator SetPassive()
     {
@@ -166,7 +172,7 @@ public class Unit : MonoBehaviour
             }
         }
     }
-    public void PassiveTurnEnd()//回合开始时
+    public void PassiveTurnEnd()//回合结束时
     {
         if (passiveTurnEndList.Count > 0)
         {
@@ -431,14 +437,14 @@ public class Unit : MonoBehaviour
     //——————————————————鼠标事件————————————————————————————
     private void OnMouseEnter()//进入选择动画
     {
-        if (GameManager.instance.backPanel.activeInHierarchy)
+        if (GameManager.instance.backPanel.activeInHierarchy|| GameManager.instance.AbandomCardCheck.activeInHierarchy)
             return;
         if (GameManager.instance.state == BattleState.PLAYERTURN && playerHero)//己方玩家回合
         {
             if (tired == 0)
                 anim.Play("choose");
         }
-        if (point.activeInHierarchy)
+        if (point.activeInHierarchy|| cardPoint.activeInHierarchy)
              anim.Play("choose");
 
         
@@ -448,11 +454,13 @@ public class Unit : MonoBehaviour
     {
         if (point.activeInHierarchy|| GameManager.instance.state == BattleState.PLAYERTURN)
            anim.Play("idle");
+        if (cardPoint.activeInHierarchy || GameManager.instance.state == BattleState.PLAYERTURN)
+            anim.Play("idle");
 
     }
     private void OnMouseDown()//点击
     {
-        if (GameManager.instance.backPanel.activeInHierarchy)
+        if (GameManager.instance.backPanel.activeInHierarchy || GameManager.instance.AbandomCardCheck.activeInHierarchy)
             return;
         if (tired == 0)
         {
@@ -470,7 +478,13 @@ public class Unit : MonoBehaviour
             if (!GameManager.instance.useSkill.reChoose)
                 anim.Play("idle");
         }
-   
+        if (cardPoint.activeInHierarchy)
+        {
+            GameManager.instance.turnUnit.Add(this);//传入对应预制体
+                anim.Play("idle");
+            StartCoroutine( GameManager.instance.useSkill.JudgePlayerSkill());
+        }
+
     }
 
 }

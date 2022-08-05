@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class AddCancleBtn : MonoBehaviour
 {
+    public GameObject AddCardNumImg;
     void Update()
     {
         if (GameManager.instance.state == BattleState.PLAYERTURNSTART)
@@ -19,7 +20,7 @@ public class AddCancleBtn : MonoBehaviour
             this.gameObject.transform.GetChild(0).GetComponent<Text>().color = Color.black;
         }
 
-        else if (GameManager.instance.state == BattleState.SKILL || GameManager.instance.state == BattleState.CARDTURNUNIT || GameManager.instance.state == BattleState.POINTALL || GameManager.instance.state == BattleState.POINTENEMY || GameManager.instance.state == BattleState.POINTPLAYER)
+        else if (GameManager.instance.state == BattleState.CARDTURNUNIT || GameManager.instance.state == BattleState.SKILL || GameManager.instance.state == BattleState.CARDTURNUNIT || GameManager.instance.state == BattleState.POINTALL || GameManager.instance.state == BattleState.POINTENEMY || GameManager.instance.state == BattleState.POINTPLAYER)
         {
             this.gameObject.transform.GetChild(0).GetComponent<Text>().text = "·µ»Ø";
             this.gameObject.transform.GetChild(0).GetComponent<Text>().color = Color.black;
@@ -41,6 +42,14 @@ public class AddCancleBtn : MonoBehaviour
             GetComponent<Button>().enabled = true;
         else
             GetComponent<Button>().enabled = false;
+
+        if (this.gameObject.transform.GetChild(0).GetComponent<Text>().text == "ÃþÅÆ")
+            AddCardNumImg.SetActive(true);
+        else
+            AddCardNumImg.SetActive(false);
+
+        AddCardNumImg.transform.GetChild(0).GetComponent<Text>().text = GameManager.instance.player.addCardNum.ToString();
+
     }
 
     public void Click()

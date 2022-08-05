@@ -43,7 +43,6 @@ public class FightPlayer : MonoBehaviour
             return;
         }    
         int index = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0,playerCards.Count-1);
-        Debug.Log(index);
         GameObject A = Instantiate(playerCards[index].gameObject, new Vector3(-300, 80, 0), Quaternion.identity, GameManager.instance.CardCanvas.transform);
         haveCards.Add(A.GetComponent<Cards>());//获取克隆体的脚本       
         playerCards.Remove(playerCards[index]);
@@ -73,8 +72,8 @@ public class FightPlayer : MonoBehaviour
 
     IEnumerator CardEmpyt()
     {
-        GameManager.instance.tips.text = "牌库已空";
-        yield return new WaitForSeconds(0.2f);
+        GameManager.instance.tips.text = "牌库抽空";
+        yield return new WaitForSeconds(0.4f);
         GameManager.instance.tips.text = "";
     }
 

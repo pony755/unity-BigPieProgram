@@ -7,18 +7,24 @@ public class Cards : MonoBehaviour
 
     public Image cardBase;
     public Sprite cardBaseSprite;
-    public Image cardPic;
+    public Image cardImage;
     public Sprite cardSkillSprite;
     public Skill cardSkill;
+    public Text cardName;
+    public Text cardText;
 
     public Vector3 cardAdress;
+    public Vector3 cardAbandomAdress;
     void Start()
     {
+        this.gameObject.GetComponent<Animator>().enabled = false;
         cardAdress.y = 80;
         cardAdress.z = 0;
         CardPosition();
         cardBase.sprite = cardBaseSprite;
-        cardPic.sprite = cardSkillSprite;
+        cardImage.sprite = cardSkillSprite;
+        cardName.text = cardSkill.skillName;
+        cardText.text = cardSkill.description;
         //LeanTween.move(this.gameObject, cardAdress, 0.5f);
     }
 
@@ -26,6 +32,7 @@ public class Cards : MonoBehaviour
     void Update()
     {
         CardPosition();
+        
     }
 
 
@@ -33,19 +40,124 @@ public class Cards : MonoBehaviour
 
     public void ScaleCard()
     {
-        if(GameManager.instance.state==BattleState.PLAYERTURN)
-        {
-            this.transform.SetAsLastSibling();
-            LeanTween.move(this.gameObject, new Vector3(cardAdress.x, cardAdress.y+100f,cardAdress.z), 0.3f);
+            if (GameManager.instance.state == BattleState.PLAYERTURN&&!GameManager.instance.player.abandomCards.Contains(this))
+            {
+                this.transform.SetAsLastSibling();
+                LeanTween.move(this.gameObject, new Vector3(cardAdress.x, cardAdress.y + 100f, cardAdress.z), 0.3f);
 
-        }
+            }
+
+        
         
     }
-    public void DownCard()
+    public void DownCard()//只在玩家回合有效
     {
-        this.transform.SetSiblingIndex(GameManager.instance.player.haveCards.IndexOf(this));
-        LeanTween.move(this.gameObject,cardAdress, 0.3f);
+            if (GameManager.instance.state == BattleState.PLAYERTURN&& !GameManager.instance.player.abandomCards.Contains(this))
+            {
+                this.transform.SetSiblingIndex(GameManager.instance.player.haveCards.IndexOf(this));
+                LeanTween.move(this.gameObject, cardAdress, 0.3f);
+            }
+
+        
  
+    }
+
+    public void BackCard()//卡牌归位
+    {
+        if (!GameManager.instance.player.abandomCards.Contains(this))
+        {
+            this.transform.SetSiblingIndex(GameManager.instance.player.haveCards.IndexOf(this));
+            LeanTween.move(this.gameObject, cardAdress, 0.2f);
+        }
+
+    }
+
+    public void ClickUseCard()
+    {
+            if (GameManager.instance.state == BattleState.PLAYERTURN&& !GameManager.instance.player.abandomCards.Contains(this))
+            {
+                for (int i = 0; i <= GameManager.instance.playerUnit.Count; i++)
+                {
+
+                    if (i == GameManager.instance.playerUnit.Count)
+                    {
+                        StartCoroutine(FalseTips());
+                        //预留音效
+                        return;
+                    }
+                    if (GameManager.instance.playerUnit[i].tired == 0)
+                        break;
+                }
+                LeanTween.move(this.gameObject, new Vector3(990f, 200f, 0), 0.3f);
+                GameManager.instance.useCard = this;
+                GameManager.instance.useSkill = cardSkill;
+                if (cardSkill.cardPointUnit)
+                {
+                    GameManager.instance.tips.text = "选择一名行动方";
+                    GameManager.instance.state = BattleState.CARDTURNUNIT;
+
+                }
+                else
+                {
+                    GameManager.instance.turnUnit.Add(GameManager.instance.player.playerObject);
+                    StartCoroutine(cardSkill.JudgePlayerSkill());
+                }
+            }
+        
+           
+    }
+    IEnumerator FalseTips()
+    {
+        GameManager.instance.tips.text = "所有己方角色处于疲劳";
+        yield return new WaitForSeconds(0.3f);
+        GameManager.instance.tips.text = "";
+    }
+
+    public void OrigenFloatCard()
+    {
+        this.gameObject.transform.localScale = new Vector3(1f,1f,1f);
+        cardBase.color = new Color(cardBase.color.r, cardBase.color.g, cardBase.color.b, 1);
+        cardImage.color = new Color(cardBase.color.r, cardBase.color.g, cardBase.color.b, 1);
+    }
+
+    public void CardDestory()
+    {
+
+        GameManager.instance.player.abandomCards.Add(this);
+        GameManager.instance.player.haveCards.Remove(this);
+        OrigenFloatCard();
+        this.gameObject.transform.SetParent(GameManager.instance.AbandomCardCheck.transform.GetChild(3).transform.GetChild(0).transform.GetChild(0));
+        this.cardAbandomAdress.x = 100 + ((GameManager.instance.player.abandomCards.IndexOf(this) % 5) * 160);
+        this.cardAbandomAdress.y = -150 - ((GameManager.instance.player.abandomCards.IndexOf(this) / 5) * 260);
+        //this.cardAbandomAdress.x = 0;
+        //this.cardAbandomAdress.y = 0;
+        this.cardAbandomAdress.z = 0;
+        
+        GameManager.instance.AbandomCardCheck.transform.GetChild(3).transform.GetChild(0).transform.GetChild(0).GetComponent<RectTransform>().sizeDelta=new Vector2(0,Mathf.Max(340f,(float)(280+(GameManager.instance.player.abandomCards.IndexOf(this) / 5) * 260)));
+        if(GameManager.instance.player.abandomCards.IndexOf(this) % 5==0)
+        {
+            foreach(var p in GameManager.instance.player.abandomCards)
+                p.gameObject.transform.localPosition= p.cardAbandomAdress;
+        }
+        else
+        {
+            this.gameObject.transform.localPosition = this.cardAbandomAdress;
+        }
+        this.gameObject.GetComponent<Animator>().enabled = false;
+    }
+
+
+    public void PressAbandomCard()
+    {
+        if (GameManager.instance.player.abandomCards.Contains(this))
+            LeanTween.scale(this.gameObject, new Vector3(1.2f, 1.2f, 1.2f), 0.2f);
+         
+    }
+    public void RealeaseAbandomCard()
+    {
+        if (GameManager.instance.player.abandomCards.Contains(this))
+            LeanTween.scale(this.gameObject, new Vector3(1f, 1f, 1f), 0.2f);
+
     }
 
     public void CardPosition()
@@ -77,4 +189,6 @@ public class Cards : MonoBehaviour
         else
             cardAdress.x = 428 + GameManager.instance.player.haveCards.IndexOf(this) * 25;
     }
+
+
 }

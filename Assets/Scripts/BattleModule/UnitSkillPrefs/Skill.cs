@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 using System;
 using Koubot.Tool;
-public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Mix,Delayed}//技能类型
+public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Mix,AttributeAdjust,Card}//技能类型
 public enum AnimType {Attack}//动画类型
 public enum SkillPoint { Myself,AllEnemy,AllPlayers,Players,Enemies }//技能指向
 public enum HeroAttribute {Atk,HP}//属性
@@ -89,7 +89,7 @@ public class Skill : ScriptableObject
 
 
         GameManager.instance.pointNumber = pointNum;//设定选择的目标数量为技能目标
-        if (GameManager.instance.state == BattleState.SKILL)
+        if (GameManager.instance.state == BattleState.SKILL|| GameManager.instance.state == BattleState.CARDTURNUNIT)
         {
             if (this.needMP > GameManager.instance.turnUnit[0].currentMP)
             {
