@@ -22,7 +22,6 @@ public class WinOrLost : MonoBehaviour
     private string lostText = "下次一定";
     private void Start()
     {
-
         heroIndex = 0;
         if (GameManager.instance.win == true)
         {
@@ -34,15 +33,13 @@ public class WinOrLost : MonoBehaviour
                 Heros[i].winHero = GameManager.instance.playerUnit[i];
                 Heros[i].gameObject.SetActive(true);
             }
-                
         }
-
         else
         {
             winLostImg.sprite = lostImg;
             tips.text = lostText;
             Lost.SetActive(true);
-        }          
+        }
     }
     private void Update()
     {
@@ -56,5 +53,4 @@ public class WinOrLost : MonoBehaviour
             next.gameObject.SetActive(true);
 
     }
-
 }

@@ -28,9 +28,9 @@ public class MapManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("Level:" + level + "ChildLevel:" + childLevel);
         CopyObject();
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        player.awakeCount = 1;//测试用
         InitializeMap();
         map[0, 0].GetComponent<PlaceCard>().cardState = CardState.back;
         startListening = true;
@@ -113,7 +113,7 @@ public class MapManager : MonoBehaviour
                 isSet = false;
                 while (!isSet)
                 {
-                    int randomNumber = UnityEngine.Random.Range(0, maxRandomNumber);//随机函数需要被替换
+                    int randomNumber = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, maxRandomNumber - 1);
                     Debug.Log(randomNumber);
                     CardType randomType = (CardType)randomNumber;
                     if (library[randomType] != 0)
@@ -128,7 +128,7 @@ public class MapManager : MonoBehaviour
         }
         if (level != 0)
         {
-            int method = UnityEngine.Random.Range(1, 3);//调节方法 //随机函数需要被替换
+            int method = Koubot.Tool.Random.RandomTool.GenerateRandomInt(1, 2);//调节方法
             AdjustMap(method);
         }
         EmbedSharps();
@@ -411,8 +411,8 @@ public class MapManager : MonoBehaviour
         GameObject target;
         for(nightmareSharps = GetSharpNumber(); nightmareSharps > 0; nightmareSharps--)
         {
-            row = UnityEngine.Random.Range(0, mapRow - 1);//随机函数需要被替换
-            column = UnityEngine.Random.Range(0, mapColumn - 1);//随机函数需要被替换
+            row = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, mapRow - 2);
+            column = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, mapColumn - 2);
             target = map[row, column];
             if (target.GetComponent<PlaceCard>().isEmbedded)
             {

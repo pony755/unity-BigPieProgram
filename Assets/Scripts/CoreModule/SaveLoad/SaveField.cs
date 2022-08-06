@@ -34,9 +34,9 @@ public class SaveField : MonoBehaviour
         SetTime();
         player.Save(saveNumber.text);
     }
-    void SetInfor()//获取存档信息(待定)
+    void SetInfor()//获取存档信息
     {
-
+        saveInfor.text = "第" + player.awakeCount + "次苏醒/" + player.level + "-" + player.childLevel;
     }
     void SetTime()//获取保存时间
     {

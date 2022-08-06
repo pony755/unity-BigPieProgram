@@ -48,7 +48,7 @@ public class PlaceCard : MonoBehaviour
         StartCoroutine(TurnAnimation());
         if (cardType.Equals(CardType.battle))
         {
-            //StartCoroutine(EnterBattle());
+            EnterCardScene("BattleScene");
         }
     }
     IEnumerator TurnAnimation()//翻牌动画
@@ -62,11 +62,13 @@ public class PlaceCard : MonoBehaviour
         }
         mapManager.isTurning = false;
     }
-    IEnumerator EnterBattle()//进入战斗
+    void EnterCardScene(string sceneName)
     {
-        yield return new WaitForSeconds(2f);
-        SceneManager.LoadScene("BattleScene", LoadSceneMode.Additive);
+        SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+        mapManager.BackUpMap();
         mapManager.FreezeMap();
+        Scene scene = SceneManager.GetSceneByName(sceneName);
+        SceneManager.MoveGameObjectToScene(player.gameObject, scene);
     }
     // Update is called once per frame
     void Update()

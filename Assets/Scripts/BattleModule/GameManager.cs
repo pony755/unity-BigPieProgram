@@ -87,7 +87,6 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         StartCoroutine(Load());       
-
     }
 
     
@@ -133,8 +132,6 @@ public class GameManager : MonoBehaviour
             AdjustCards=false;
             StartCoroutine(player.CardAdjustPosition());
         }
-            
-                        
     }
     IEnumerator ToAction()
     {
@@ -691,6 +688,5 @@ public class GameManager : MonoBehaviour
     {
         backPanel.SetActive(false);
     }
-
 
 }
