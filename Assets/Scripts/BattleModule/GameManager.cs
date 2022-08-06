@@ -3,20 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-public enum BattleState { NONE,START, PLAYERTURNSTART,PLAYERTURN, POINTALL,SKILL,CARD,POINTENEMY,POINTPLAYER,ACTION,ACTIONFINISH,ENEMYTURNSTART, ENEMYTURN,ENEMYFINISH,WIN, LOST,OVER }
+using Koubot.Tool;
+
+public enum BattleState { NONE,START, PLAYERTURNSTART,PLAYERTURN, POINTALL,SKILL,CARDTURNUNIT,POINTENEMY,POINTPLAYER,ACTION,ACTIONFINISH,ABANDOMCARD,ENEMYTURNSTART, ENEMYTURN,ENEMYFINISH,WIN, LOST,OVER }
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    [HideInInspector]public bool win = false;//胜利条件布尔值
+    [HideInInspector]public bool win = false;//胜利条件标志位
+    [HideInInspector] public bool AdjustCards = false;//调整卡牌位置标志位
+    [Header("玩家脚本体")]
+    public FightPlayer player;  
     [Header("技能画布设置")]
     public GameObject turnTipsObject;
     public Text turnNum;//回合数
     public Text tips;//提示框
     public GameObject backPanel;//返回画布
     public GameObject WinOrLost;//胜负画布
-    public GameObject skillImg;//技能画布
+    public GameObject CardCanvas;//卡牌画布
+    public GameObject AbandomCardCheck;//弃牌查看
+    public GameObject skillImg;//技能栏
     public GameObject skillText;//技能介绍
-    public GameObject backBtn;
+    public GameObject addCancleBtn;
     public List<GameObject> skillBtns;//技能按钮   
 
 
@@ -31,7 +38,6 @@ public class GameManager : MonoBehaviour
     [Header("战斗存档设置")]
     public FightPrefs fightPrefs;//战斗存档
     public EnemyPrefs enemyPrefs;//敌人列表
-
 
 
     [Header("——————CHECKING——————")]
@@ -57,6 +63,7 @@ public class GameManager : MonoBehaviour
     public int turn;
     public List<Unit> turnUnit;//当前回合技能发动方
     public Skill useSkill;//角色技能
+    public Cards useCard;//角色技能
     public int pointNumber;//目标数量
     public List<Unit> pointUnit;//当前回合技能目标方
     
@@ -79,9 +86,11 @@ public class GameManager : MonoBehaviour
     }
     private void Start()
     {
-        StartCoroutine(Load());
+        StartCoroutine(Load());       
 
     }
+
+    
     IEnumerator Load()
     {
         Debug.Log("加载游戏");
@@ -92,7 +101,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdateTips();    
+        UpdateTips();  
         if (playerUnit.Count== 0 && state!=BattleState.OVER)
         {
             state = BattleState.LOST;            
@@ -111,7 +120,20 @@ public class GameManager : MonoBehaviour
             StartCoroutine(ToAction());
         if (state == BattleState.ACTION)//当进入ACTION时，执行函数(携程）  
             StartCoroutine(Action());
-
+        if(state == BattleState.ABANDOMCARD)
+        {
+            if(player.haveCards.Count<=player.maxCard)
+            {
+                StartCoroutine(EnemyTurnStart());
+            }
+                
+        }
+        if (AdjustCards)
+        {
+            AdjustCards=false;
+            StartCoroutine(player.CardAdjustPosition());
+        }
+            
                         
     }
     IEnumerator ToAction()
@@ -152,7 +174,6 @@ public class GameManager : MonoBehaviour
     //————————————————————————UI——————————————————————————
     public void SkillShow(Unit unit)//显示技能栏(code为当前场上角色编号）
     {
-        backBtn.SetActive(true);
         skillImg.SetActive(true);
         turnUnit.Add(unit);
         state= BattleState.SKILL;//切换回合状态
@@ -176,17 +197,19 @@ public class GameManager : MonoBehaviour
     {
         BtnHide();
         tips.text = "";
-        backBtn.SetActive(false);
         pointNumber = 1;//默认值
         useSkill=null;//默认值
+        useCard=null;
         skillImg.SetActive(false);
+        CardCanvas.SetActive(true);
         turnUnit.Clear();
         pointUnit.Clear();
     }
 
+
+
     public void BtnHide()
     {
-        backBtn.SetActive(false);
         for (int i = 0; i < skillBtns.Count; i++)//隐藏按钮
         {
             skillBtns[i].SetActive(false);
@@ -197,14 +220,15 @@ public class GameManager : MonoBehaviour
     public void Back()//返回玩家回合
     {
         
-        if (state==BattleState.PLAYERTURN || state == BattleState.SKILL || state == BattleState.POINTENEMY || state == BattleState.POINTPLAYER)
+        if (GameManager.instance.state == BattleState.CARDTURNUNIT||state == BattleState.PLAYERTURN || state == BattleState.SKILL || state == BattleState.POINTENEMY || state == BattleState.POINTPLAYER)
         {
             
             GameReset();
             state = BattleState.PLAYERTURN;
             foreach(var o in playerUnit)
                 o.anim.Play("idle");
-        }     
+        }
+        CardCanvas.SetActive(true);    
     }
 
     IEnumerator DelayedPlayerSettle()
@@ -276,166 +300,209 @@ public class GameManager : MonoBehaviour
     //回合各阶段函数
     IEnumerator PlayerTurnStart()
     {
-        tips.text = "你的回合...";       
-        turnNum.text = turn.ToString();
-        state = BattleState.PLAYERTURNSTART;      
-        //结算状态
-        for (int i = 0; i < playerUnit.Count; i++)
-            playerUnit[i].PassiveTurnStart();
-        yield return new WaitForSeconds(0.5f);
-        StartCoroutine(DelayedPlayerSettle());        
-        yield return new WaitForSeconds(1f);
-        if (state != BattleState.OVER)
+        if (state == BattleState.OVER || state == BattleState.WIN || state == BattleState.LOST)
         {
-            state = BattleState.PLAYERTURN; 
+            yield return null;
         }
-        yield return new WaitForSeconds(1f);
-        tips.text = "";
+        else
+        {
+            tips.text = "你的回合...";
+            turnNum.text = turn.ToString();
+
+            player.cardsObject.transform.GetChild(0).gameObject.SetActive(false);
+            player.cardsObject.GetComponent<Animator>().Play("cards");
+            if (player.playerCards.Count == 0)
+                player.ResetCards();
+            state = BattleState.PLAYERTURNSTART;
+            //结算状态
+            for (int i = 0; i < playerUnit.Count; i++)
+                playerUnit[i].PassiveTurnStart();
+            yield return new WaitForSeconds(0.5f);
+            StartCoroutine(DelayedPlayerSettle());
+            yield return new WaitForSeconds(0.5f);
+            tips.text = "";
+            yield return new WaitForSeconds(0.5f);
+            state = BattleState.PLAYERTURN;
+
+        }
+
+
     }
     //使用技能的text提示在SkillBtn里
     IEnumerator Action()//行动阶段函数
     {
-        state = BattleState.ACTIONFINISH;//及时切换state,防止多次运行此函数     
-        BtnHide();
-        skillImg.SetActive(false);
-        //重置动画
-        foreach(var o in playerUnit)
+        if (state == BattleState.OVER || state == BattleState.WIN || state == BattleState.LOST)
         {
-            o.anim.Play("idle");
+            yield return null;
         }
-        foreach (var o in enemyUnit)
+        else
         {
-            o.anim.Play("idle");
-        }
-        TipsSkillPoint();
-        yield return new WaitForSeconds(1.5f);
-        System.Random r = new System.Random();
-        if (useSkill != null)
-        {
-            if (r.Next(101) < useSkill.precent)
-            {
-
-                tips.text = "欧不！ " + useSkill.skillName + " 发动失败";
-                yield return new WaitForSeconds(1f);
-            }
-            else
-            {
-                TurnUnitAnim();
-                yield return new WaitForSeconds(0.3f);
-                foreach (var o in pointUnit)
-                {
-                        o.SkillSettle(turnUnit[0], useSkill);
-                }
-
-            }
-        }       
-        if (state != BattleState.OVER)
-        {
-
-                yield return new WaitForSeconds(1.5f);
-                if (state == BattleState.ACTIONFINISH)
-                    StartCoroutine(ActionFinish());
-        }            
-    }
-
-    IEnumerator ActionFinish()
-    {
-        tips.text = "己方回合结束";
-        for (int i = 0; i < playerUnit.Count; i++)
-            playerUnit[i].PassiveTurnEnd();
-        yield return new WaitForSeconds(1f);        
-        if (state != BattleState.OVER)
-        {           
+            state = BattleState.ACTIONFINISH;//及时切换state,防止多次运行此函数     
+            BtnHide();
+            skillImg.SetActive(false);
+            CardCanvas.SetActive(true);
+            //重置动画
             foreach (var o in playerUnit)
             {
-                if (o.tired > 0&&!turnUnit.Contains(o))
+                o.anim.Play("idle");
+            }
+            foreach (var o in enemyUnit)
+            {
+                o.anim.Play("idle");
+            }
+            TipsSkillPoint();
+            yield return new WaitForSeconds(0.5f);
+            if (useSkill != null)
+            {
+                if (Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 100) < useSkill.precent)
                 {
-                    o.tired --;
+
+                    tips.text = "欧不！ " + useSkill.skillName + " 发动失败";
+                    yield return new WaitForSeconds(0.5f);
+                }
+                else
+                {
+                    TurnUnitAnim();
+                }
+            }
+            yield return new WaitForSeconds(1f);
+            if (state == BattleState.ACTIONFINISH)
+                StartCoroutine(ActionFinish());
+
+        }
+
+    }
+    public IEnumerator ActionFinish()
+    {
+        if (state == BattleState.OVER || state == BattleState.WIN || state == BattleState.LOST)
+        {
+            yield return null;
+        }
+        else
+        {
+            yield return new WaitForSeconds(1f);
+            tips.text = "己方回合结束";
+            for (int i = 0; i < playerUnit.Count; i++)
+                playerUnit[i].PassiveTurnEnd();
+            yield return new WaitForSeconds(1f);
+            foreach (var o in playerUnit)
+            {
+                if (o.tired > 0 && !turnUnit.Contains(o))
+                {
+                    o.tired--;
                     tips.text = o.unitName + " 减少1点疲劳";
                     yield return new WaitForSeconds(0.3f);
-                }               
+                }
             }
             GameReset();
             yield return new WaitForSeconds(1f);
-        StartCoroutine(EnemyTurnStart());
+            StartCoroutine(AbandomCard());
         }
-        
+       
+    }
+
+
+
+    IEnumerator AbandomCard()
+    {
+        if (state == BattleState.OVER || state == BattleState.WIN || state == BattleState.LOST)
+        {
+            yield return null;
+        }
+        else
+        {
+            if (player.haveCards.Count <= player.maxCard)
+                StartCoroutine(EnemyTurnStart());
+            else
+            {
+                state = BattleState.ABANDOMCARD;
+            }
+        }
+           
     }
     IEnumerator EnemyTurnStart()
-    {       
-        state = BattleState.ENEMYTURNSTART;
-        tips.text = "敌方回合";
-        //结算状态
-        for (int i = 0; i < enemyUnit.Count; i++)
-            enemyUnit[i].PassiveTurnStart();
-        yield return new WaitForSeconds(0.5f);
-        StartCoroutine(DelayedEnemySettle());
-        yield return new WaitForSeconds(0.5f);
-        StartCoroutine(EnemyTurn());
+    {
+        if (state == BattleState.OVER || state == BattleState.WIN || state == BattleState.LOST)
+        {
+            yield return null;
+        }
+        else
+        {
+            state = BattleState.ENEMYTURNSTART;
+            tips.text = "敌方回合";
+            //结算状态
+            for (int i = 0; i < enemyUnit.Count; i++)
+                enemyUnit[i].PassiveTurnStart();
+            yield return new WaitForSeconds(0.5f);
+            StartCoroutine(DelayedEnemySettle());
+            yield return new WaitForSeconds(1f);
+            if (state != BattleState.OVER || state != BattleState.WIN || state != BattleState.LOST)
+            {
+                StartCoroutine(EnemyTurn());
+            }
+        }
+     
     }
 
     IEnumerator EnemyTurn()
     {
-        state = BattleState.ENEMYTURN;
-        tips.text = "等待敌方行动...";
-        StartCoroutine( EnemyAI());
-        yield return new WaitForSeconds(2f);
-        TipsSkillPoint();
-        yield return new WaitForSeconds(0.5f);
-        System.Random r = new System.Random();
-        if (useSkill != null)
+        if (state == BattleState.OVER || state == BattleState.WIN || state == BattleState.LOST)
         {
-            if (r.Next(101) < useSkill.precent)
+            yield return null;
+        }
+        else
+        {
+            state = BattleState.ENEMYTURN;
+            tips.text = "等待敌方行动...";
+            StartCoroutine(EnemyAI());
+            yield return new WaitForSeconds(2f);
+            TipsSkillPoint();
+            yield return new WaitForSeconds(0.5f);
+            if (useSkill != null)
             {
-                tips.text = "欧不！ " + useSkill.skillName + " 发动失败";
-                yield return new WaitForSeconds(1f);
-            }
-
-            else
-            {
-                TurnUnitAnim();
-                yield return new WaitForSeconds(0.3f);
-                foreach (var o in pointUnit)
+                if (Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 100) < useSkill.precent)
                 {
-                    o.SkillSettle(turnUnit[0], useSkill);
+                    tips.text = "欧不！ " + useSkill.skillName + " 发动失败";
+                    yield return new WaitForSeconds(1f);
                 }
 
+                else
+                {
+                    TurnUnitAnim();
+                }
             }
+            yield return new WaitForSeconds(1f);
+            StartCoroutine(EnemyFinish());
         }
-        yield return new WaitForSeconds(1f);
-  
-           
-            if (state != BattleState.OVER)
-            {
-                StartCoroutine(EnemyFinish());
-            }
-
-        
+                   
 
     }
     IEnumerator EnemyFinish()
     {
-        tips.text = "敌方回合结束";
-        for (int i = 0; i < enemyUnit.Count; i++)
-            enemyUnit[i].PassiveTurnEnd();
-        yield return new WaitForSeconds(1f);
-        if (state != BattleState.OVER)
+        if (state == BattleState.OVER || state == BattleState.WIN || state == BattleState.LOST)
         {
+            yield return null;
+        }
+        else
+        {
+            tips.text = "敌方回合结束";
+            for (int i = 0; i < enemyUnit.Count; i++)
+                enemyUnit[i].PassiveTurnEnd();
+            yield return new WaitForSeconds(1f);
             foreach (var o in enemyUnit)
             {
                 if (o.tired > 0 && !turnUnit.Contains(o))
                 {
-                    o.tired --;
+                    o.tired--;
                     tips.text = o.unitName + " 减少1点疲劳";
                     yield return new WaitForSeconds(0.3f);
                 }
             }
             GameReset();
             yield return new WaitForSeconds(1f);
-            turn ++;
+            turn++;
             StartCoroutine(PlayerTurnStart());
-        }
-        
+        }       
     }
 
     IEnumerator Win()
@@ -467,11 +534,15 @@ public class GameManager : MonoBehaviour
             tips.transform.parent.gameObject.SetActive(true);
         }
         if(state==BattleState.POINTENEMY|| state == BattleState.POINTPLAYER|| state == BattleState.POINTALL)
-            GameManager.instance.tips.text = "选择 " + GameManager.instance.useSkill.skillName + " 的目标("+GameManager.instance.pointUnit.Count+"/"+ GameManager.instance.pointNumber+")";
+            GameManager.instance.tips.text = "选择 " + GameManager.instance.useSkill.skillName + " 的目标("+GameManager.instance.pointUnit.Count+"/"+ GameManager.instance.pointNumber+")";       
+        
+        if(state == BattleState.ABANDOMCARD)
+        {
+            GameManager.instance.tips.text = "弃掉" + (player.haveCards.Count - player.maxCard).ToString() + "张牌";
+        }
     }
     IEnumerator EnemyAI()
     {
-        System.Random r = new System.Random();
         List<Unit> tempEnemy = new List<Unit>();
         foreach (var o in enemyUnit)
         {
@@ -494,7 +565,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            turnUnit.Add(tempEnemy[r.Next(tempEnemy.Count)]);//随机添加一个敌方
+            turnUnit.Add(tempEnemy[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempEnemy.Count - 1)]);//随机添加一个敌方
             tempEnemy.Clear();
 
             List<Skill> tempSkill = new List<Skill>();
@@ -503,7 +574,7 @@ public class GameManager : MonoBehaviour
                 if (turnUnit[0].currentMP >= t.needMP&&t.passiveType==PassiveType.None)
                     tempSkill.Add(t);
             }
-            useSkill = tempSkill[r.Next(tempSkill.Count)];
+            useSkill = tempSkill[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempSkill.Count - 1)];
             tempSkill.Clear();
             pointNumber = useSkill.pointNum;//添加技能目标数量
             useSkill.EnemyUse();
@@ -513,15 +584,15 @@ public class GameManager : MonoBehaviour
                 while (pointNumber > pointUnit.Count)//添加玩家作为目标
                 {
                     if (!useSkill.reChoose)
-                    {
-                        int player = r.Next(playerUnit.Count);
+                    {                      
+                        int player = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, playerUnit.Count - 1);
                         if (!pointUnit.Contains(playerUnit[player]))
                             pointUnit.Add(playerUnit[player]);
                     }
                     else
                     {
                         yield return new WaitForSeconds(0.1f);
-                        pointUnit.Add(playerUnit[r.Next(playerUnit.Count)]);
+                        pointUnit.Add(playerUnit[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, playerUnit.Count - 1)]);
                     }
                 }
             }
@@ -531,14 +602,13 @@ public class GameManager : MonoBehaviour
                 {
                     if (!useSkill.reChoose)
                     {
-                        int player = r.Next(enemyUnit.Count);
+                        int player = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, enemyUnit.Count - 1);
                         if (!pointUnit.Contains(enemyUnit[player]))
                             pointUnit.Add(enemyUnit[player]);
                     }
                     else
                     {
-                        yield return new WaitForSeconds(0.1f);
-                        pointUnit.Add(enemyUnit[r.Next(playerUnit.Count)]);
+                        pointUnit.Add(enemyUnit[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, enemyUnit.Count - 1)]);
                     }
                 }
             }
@@ -551,6 +621,8 @@ public class GameManager : MonoBehaviour
         List<Unit> tempList = new List<Unit>(); 
         if (state == BattleState.WIN || state == BattleState.LOST|| state == BattleState.OVER)
             return;
+
+
         if (turnUnit.Count == 0)//为空时，可能是卡牌,可能是敌人无法使用技能
         {
             if(useSkill==null)
@@ -584,12 +656,30 @@ public class GameManager : MonoBehaviour
 
     public void TurnUnitAnim()//动画函数
     {
-        if (useSkill.animType==AnimType.Attack)
+        if (useCard != null)
         {
-            turnUnit[0].anim.Play("attack");
+            useCard.gameObject.GetComponent<Animator>().enabled=true;
+            useCard.gameObject.GetComponent<Animator>().Play("cardUse");
         }
+            
+        if(turnUnit[0].player==false)
+        {
+            if (useSkill.animType == AnimType.Attack)
+            {
+                turnUnit[0].anim.Play("attack");
+            }
+        }
+        StartCoroutine(SettleSkill());
     }
 
+    IEnumerator SettleSkill()
+    {
+        yield return new WaitForSeconds(0.3f);
+        foreach (var o in pointUnit)
+        {
+            o.SkillSettle(turnUnit[0], useSkill);
+        }
+    }
     public void ShowBackMenu()
     {
         backPanel.SetActive(true);
@@ -598,6 +688,6 @@ public class GameManager : MonoBehaviour
     {
         backPanel.SetActive(false);
     }
-   
-   
+
+
 }
