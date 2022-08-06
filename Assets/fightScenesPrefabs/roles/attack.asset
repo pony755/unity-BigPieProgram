@@ -24,10 +24,11 @@ MonoBehaviour:
   noMe: 0
   autoPoint: 0
   moreSkill: []
+  cardPointUnit: 0
   passiveType: 0
   passivePoint: 2
   passiveTurn: 1
-  baseInt: 10
+  baseInt: 1000
   attribute: 
   addition: []
   pointNum: 1

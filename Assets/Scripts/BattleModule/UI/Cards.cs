@@ -4,43 +4,48 @@ using UnityEngine;
 using UnityEngine.UI;
 public class Cards : MonoBehaviour
 {
-
+    [Header("Image")]
+    public Image cardFrame;  
     public Image cardBase;
-    public Sprite cardBaseSprite;
     public Image cardImage;
+
+    [Header("Sprite")]
+    public Sprite cardFrameSprite;
+    public Sprite cardBaseSprite;   
     public Sprite cardSkillSprite;
     public Skill cardSkill;
     public Text cardName;
     public Text cardText;
 
-    public Vector3 cardAdress;
-    public Vector3 cardAbandomAdress;
+    public Vector3 cardAdress;//手卡位置
+    public Vector3 cardAbandomAdress;//弃牌栏位置
     void Start()
     {
         this.gameObject.GetComponent<Animator>().enabled = false;
         cardAdress.y = 80;
         cardAdress.z = 0;
         CardPosition();
+        cardFrame.sprite = cardFrameSprite;
         cardBase.sprite = cardBaseSprite;
         cardImage.sprite = cardSkillSprite;
         cardName.text = cardSkill.skillName;
         cardText.text = cardSkill.description;
-        //LeanTween.move(this.gameObject, cardAdress, 0.5f);
     }
 
     // Update is called once per frame
     void Update()
     {
-        CardPosition();
+        if(GameManager.instance.player.haveCards.Contains(this))
+               CardPosition();
         
     }
 
 
 
 
-    public void ScaleCard()
+    public void ScaleCard()//鼠标进入事件
     {
-            if (GameManager.instance.state == BattleState.PLAYERTURN&&!GameManager.instance.player.abandomCards.Contains(this))
+            if ((GameManager.instance.state == BattleState.PLAYERTURN&&!GameManager.instance.player.abandomCards.Contains(this) )|| GameManager.instance.state == BattleState.ABANDOMCARD)
             {
                 this.transform.SetAsLastSibling();
                 LeanTween.move(this.gameObject, new Vector3(cardAdress.x, cardAdress.y + 100f, cardAdress.z), 0.3f);
@@ -50,29 +55,23 @@ public class Cards : MonoBehaviour
         
         
     }
-    public void DownCard()//只在玩家回合有效
+    public void DownCard()//只在玩家回合有效，鼠标退出事件
     {
-            if (GameManager.instance.state == BattleState.PLAYERTURN&& !GameManager.instance.player.abandomCards.Contains(this))
+            if ((GameManager.instance.state == BattleState.PLAYERTURN&& !GameManager.instance.player.abandomCards.Contains(this)) || GameManager.instance.state == BattleState.ABANDOMCARD)
+            {
+              if(!GameManager.instance.player.abandomCards.Contains(this))
             {
                 this.transform.SetSiblingIndex(GameManager.instance.player.haveCards.IndexOf(this));
                 LeanTween.move(this.gameObject, cardAdress, 0.3f);
             }
-
-        
+                
+            }     
  
     }
 
-    public void BackCard()//卡牌归位
-    {
-        if (!GameManager.instance.player.abandomCards.Contains(this))
-        {
-            this.transform.SetSiblingIndex(GameManager.instance.player.haveCards.IndexOf(this));
-            LeanTween.move(this.gameObject, cardAdress, 0.2f);
-        }
 
-    }
 
-    public void ClickUseCard()
+    public void ClickUseCard()//卡片点击事件
     {
             if (GameManager.instance.state == BattleState.PLAYERTURN&& !GameManager.instance.player.abandomCards.Contains(this))
             {
@@ -103,24 +102,27 @@ public class Cards : MonoBehaviour
                     StartCoroutine(cardSkill.JudgePlayerSkill());
                 }
             }
-        
-           
+            if(GameManager.instance.state==BattleState.ABANDOMCARD)
+                CardDestory();
+
+       
     }
-    IEnumerator FalseTips()
+
+    IEnumerator FalseTips()//显示tips
     {
         GameManager.instance.tips.text = "所有己方角色处于疲劳";
         yield return new WaitForSeconds(0.3f);
         GameManager.instance.tips.text = "";
     }
 
-    public void OrigenFloatCard()
+    public void OrigenFloatCard()//复原卡片样式
     {
         this.gameObject.transform.localScale = new Vector3(1f,1f,1f);
         cardBase.color = new Color(cardBase.color.r, cardBase.color.g, cardBase.color.b, 1);
         cardImage.color = new Color(cardBase.color.r, cardBase.color.g, cardBase.color.b, 1);
     }
 
-    public void CardDestory()
+    public void CardDestory()//弃牌
     {
 
         GameManager.instance.player.abandomCards.Add(this);
@@ -134,33 +136,25 @@ public class Cards : MonoBehaviour
         this.cardAbandomAdress.z = 0;
         
         GameManager.instance.AbandomCardCheck.transform.GetChild(3).transform.GetChild(0).transform.GetChild(0).GetComponent<RectTransform>().sizeDelta=new Vector2(0,Mathf.Max(340f,(float)(280+(GameManager.instance.player.abandomCards.IndexOf(this) / 5) * 260)));
-        if(GameManager.instance.player.abandomCards.IndexOf(this) % 5==0)
-        {
-            foreach(var p in GameManager.instance.player.abandomCards)
-                p.gameObject.transform.localPosition= p.cardAbandomAdress;
-        }
-        else
-        {
-            this.gameObject.transform.localPosition = this.cardAbandomAdress;
-        }
+
         this.gameObject.GetComponent<Animator>().enabled = false;
+        GameManager.instance.AdjustCards = true;
     }
 
-
-    public void PressAbandomCard()
+    public void PressAbandomCard()//按住弃牌堆的牌放大
     {
         if (GameManager.instance.player.abandomCards.Contains(this))
-            LeanTween.scale(this.gameObject, new Vector3(1.2f, 1.2f, 1.2f), 0.2f);
+            LeanTween.scale(this.gameObject, new Vector3(1.2f, 1.2f, 1.2f), 0.1f);
          
     }
-    public void RealeaseAbandomCard()
+    public void RealeaseAbandomCard()//按住弃牌堆的牌放大后松开恢复原样
     {
         if (GameManager.instance.player.abandomCards.Contains(this))
-            LeanTween.scale(this.gameObject, new Vector3(1f, 1f, 1f), 0.2f);
+            LeanTween.scale(this.gameObject, new Vector3(1f, 1f, 1f), 0.1f);
 
     }
-
-    public void CardPosition()
+    
+    public void CardPosition()//卡牌内置位置调整
     {
         if (GameManager.instance.player.haveCards.Count <= 5)
             cardAdress.x = 450 + GameManager.instance.player.haveCards.IndexOf(this) * 260;
