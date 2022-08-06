@@ -978,7 +978,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 0}
   level: 1
-  childLevel: 1
+  childLevel: 2
   cardPosition:
   - {fileID: 0}
   - {fileID: 0}
