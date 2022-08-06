@@ -47,7 +47,7 @@ public class SaveLoadManager : MonoBehaviour
         saveInfor = slData.saveInfor;
         saveTime = slData.saveTime;
     }
-    void SaveField()
+    void SaveField()//保存存档栏信息
     {
         GameObject saveField;
         TextMeshProUGUI infor;
@@ -61,7 +61,7 @@ public class SaveLoadManager : MonoBehaviour
             saveTime[i] = time.text;
         }
     }
-    void LoadField()
+    void LoadField()//加载存档栏信息
     {
         GameObject saveField;
         TextMeshProUGUI infor;
@@ -92,7 +92,6 @@ public class SaveLoadManager : MonoBehaviour
             SceneManager.UnloadSceneAsync("SaveLoadScene");
         });
     }
-
     // Update is called once per frame
     void Update()
     {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -16,11 +17,16 @@ public class SaveField : MonoBehaviour
     public Button loadButton;
     public Button deleteButton;
     public Button autoSaveButton;
+    public Image deleteComfirm;
+    public Button confirmButton;
+    public Button cancelButton;
     void Start()
     {
         saveButton.onClick.AddListener(Save);
         loadButton.onClick.AddListener(Load);
-        deleteButton.onClick.AddListener(Delete);
+        deleteButton.onClick.AddListener(DeleteConfirm);
+        confirmButton.onClick.AddListener(Confirm);
+        cancelButton.onClick.AddListener(Cancel);
     }
     void Save()//±£¥Ê”Œœ∑¥Êµµ
     {
@@ -37,18 +43,42 @@ public class SaveField : MonoBehaviour
         DateTime dt = DateTime.Now;
         saveTime.text = dt.ToString();
     }
-    void Load()
+    void Load()//º”‘ÿ”Œœ∑¥Êµµ
     {
         player.Load(saveNumber.text);
     }
-    void Delete()
+    void DeleteConfirm()//»∑»œ «∑Ò…æ≥˝¥Êµµ
+    {
+        deleteComfirm.gameObject.SetActive(true);
+    }
+    void Confirm()//»∑»œ…æ≥˝”Œœ∑¥Êµµ
     {
         saveInfor.text = null;
         saveTime.text = null;
         player.Delete(saveNumber.text);
+        deleteComfirm.gameObject.SetActive(false);
+    }
+    void Cancel()//»°œ˚…æ≥˝”Œœ∑¥Êµµ
+    {
+        deleteComfirm.gameObject.SetActive(false);
+    }
+    void ButtonViewListener()//∞¥≈•œ‘ æº‡Ã˝∆˜
+    {
+        string saveName = "Save_" + saveNumber.text + ".sav";
+        if (File.Exists(Path.Combine(Application.persistentDataPath,saveName)))
+        {
+            loadButton.gameObject.SetActive(true);
+            deleteButton.gameObject.SetActive(true);
+        }
+        else
+        {
+            loadButton.gameObject.SetActive(false);
+            deleteButton.gameObject.SetActive(false);
+        }
     }
     void Update()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        ButtonViewListener();
     }
 }

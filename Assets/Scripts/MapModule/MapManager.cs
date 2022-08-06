@@ -174,8 +174,8 @@ public class MapManager : MonoBehaviour
     {
         int positionIndex = 0;
         GameObject cardPositions = GameObject.FindGameObjectWithTag("CardPosition");
-        int x, y;
-        int z = 0;
+        float x, y;
+        float z = 0;
         if (level == 0)
         {
             y = 3;
@@ -221,7 +221,22 @@ public class MapManager : MonoBehaviour
                     }
                 case 2:
                     {
-                        //待补全
+                        y = 7.5f;
+                        for (int i = 0; i < mapRow; i++)
+                        {
+                            x = -5;
+                            for (int j = 0; j < mapColumn; j++)
+                            {
+                                GameObject positionObject = new GameObject();
+                                positionObject.name = "Position" + positionIndex;
+                                positionObject.transform.position = new Vector3(x, y, z);
+                                positionObject.transform.SetParent(cardPositions.transform);
+                                cardPosition[positionIndex] = positionObject;
+                                positionIndex++;
+                                x += 2;
+                            }
+                            y -= 3;
+                        }
                         break;
                     }
                 case 3:
@@ -412,7 +427,7 @@ public class MapManager : MonoBehaviour
         }
         Debug.Log("嵌入碎片成功");
     }
-    int GetSharpNumber()
+    int GetSharpNumber()//获取应嵌入地图的碎片数量
     {
         if(level == 0)
         {
