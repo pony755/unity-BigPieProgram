@@ -74,6 +74,7 @@ public class FightPlayer : MonoBehaviour
 
     public void ResetCards()//Ï´ÆúÅÆ¶ÑµÄÅÆ»ØÃşÅÆ¶Ñ
     {
+ 
         int count = abandomCards.Count;       
             for(int i=0; i<count; i++)
             {

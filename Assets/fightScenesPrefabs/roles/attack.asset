@@ -28,7 +28,7 @@ MonoBehaviour:
   passiveType: 0
   passivePoint: 2
   passiveTurn: 1
-  baseInt: 1000
+  baseInt: 10
   attribute: 
   addition: []
   pointNum: 1

@@ -309,10 +309,13 @@ public class GameManager : MonoBehaviour
             tips.text = "你的回合...";
             turnNum.text = turn.ToString();
 
-            player.cardsObject.transform.GetChild(0).gameObject.SetActive(false);
-            player.cardsObject.GetComponent<Animator>().Play("cards");
             if (player.playerCards.Count == 0)
+            {
+                GameManager.instance.player.cardsObject.transform.GetChild(0).gameObject.SetActive(false);
+                GameManager.instance.player.cardsObject.GetComponent<Animator>().Play("cards");
                 player.ResetCards();
+            }
+                
             state = BattleState.PLAYERTURNSTART;
             //结算状态
             for (int i = 0; i < playerUnit.Count; i++)
