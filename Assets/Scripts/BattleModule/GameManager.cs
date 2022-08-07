@@ -12,9 +12,10 @@ public class GameManager : MonoBehaviour
     [HideInInspector]public bool win = false;//胜利条件标志位
     [HideInInspector] public bool AdjustCards = false;//调整卡牌位置标志位
     [Header("玩家脚本体")]
-    public FightPlayer player;  
-    [Header("技能画布设置")]
-    public GameObject turnTipsObject;
+    public FightPlayer player;
+    [Header("画布设置")]
+    public GameObject battleBackGround;//战斗背景
+    public GameObject turnTipsObject;//提示框
     public Text turnNum;//回合数
     public Text tips;//提示框
     public GameObject backPanel;//返回画布
@@ -143,6 +144,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < fightPrefs.fightHeros.Length; i++)
         {
             playerPrefab[i]=Instantiate(fightPrefs.fightHeros[i],playerStations[i].position,playerStations[i].rotation);
+            playerPrefab[i].transform.SetParent(battleBackGround.transform);
             playerPrefab[i].GetComponent<SpriteRenderer>().sortingOrder = i;
             playerUnit.Add(playerPrefab[i].GetComponent<Unit>());//添加unit进列表
             //读取数据
@@ -153,6 +155,7 @@ public class GameManager : MonoBehaviour
         for (int j = 0; j < enemyPrefs.enemyHeros.Length; j++)
         {
             enemyPrefab[j] = Instantiate(enemyPrefs.enemyHeros[j], enemyStations[j].position, enemyStations[j].rotation);
+            enemyPrefab[j].transform.SetParent(battleBackGround.transform);
             enemyPrefab[j].GetComponent<SpriteRenderer>().sortingOrder = j;
             //读取数据
             enemyUnit.Add(enemyPrefab[j].GetComponent<Unit>());
