@@ -6,7 +6,7 @@ public class UnitChild : Unit
 {
     public override void LevelUp2()
     {
-        Atk += 10;
+        AD += 10;
     }
     
 }

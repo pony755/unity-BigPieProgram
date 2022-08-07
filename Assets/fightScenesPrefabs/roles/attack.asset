@@ -15,7 +15,7 @@ MonoBehaviour:
   skillImg: {fileID: 0}
   skillName: "\u5F7B\u5E95\u75AF\u72C2"
   description: 1
-  type: 0
+  type: 9
   animType: 0
   skillTired: 0
   needMP: 0
@@ -23,6 +23,7 @@ MonoBehaviour:
   point: 4
   noMe: 0
   autoPoint: 0
+  adjustAttribute: 14
   moreSkill: []
   cardPointUnit: 0
   passiveType: 0

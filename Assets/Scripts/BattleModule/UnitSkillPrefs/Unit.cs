@@ -15,23 +15,54 @@ public class Unit : MonoBehaviour
     public GameObject floatPoint;//伤害
     public GameObject floatSkill;//技能浮动
     public bool playerHero;//判断是不是己方角色
+
+    [Header("基础属性")]
     public string unitName;
     public int unitLevel;
-    public int tired;
-    public int Atk;
+    public int nextExp;
+    [Header("天")]
+    public int AP;
+    public int APDef;
+    public int maxMP;
+    [Header("地")]
+    public int AD;
     public int Def;
     public int maxHP;
+    [Header("人")]
+    public int Spirit;
+    public int Critical;
+    public int Dodge;
+
+    [Header("状态量")]
+    public int tired;
+    public int burn;
+    public int cold;
+    public int poison;
     public int currentHP;
-    public int maxMP;
     public int currentMP;
     public int currentExp;
-    public int nextExp;
     public int getExp;
+
+    [Header("内置抗性")]
+    public int ADDecrease;
+    public int ADPrecentDecrease;
+    public int APDecrease;
+    public int APPrecentDecrease;
+    public int BurnDecrease;
+    public int BurnPrecentDecrease;
+    public int PoisonDecrease;
+    public int PoisonPrecentDecrease;
+    public int ColdDecrease;
+    public int ColdPrecentDecrease;
+
+
+
+
+
+
 
     [Header("是否为玩家替身")]
     public bool player;
-
-
 
     [Header("技能")]
     public List<Skill> heroSkillList;
@@ -43,10 +74,15 @@ public class Unit : MonoBehaviour
     public List<Skill> passiveDeadList;//死亡触发
     public List<Skill> passiveGameBeginList;//死亡触发
 
-    protected virtual void Start()
+
+    private void Awake()//属性初始化
     {
         anim = GetComponent<Animator>();
         StartCoroutine(SetPassive());
+    }
+    protected virtual void Start()
+    {
+        
 
     }
 
@@ -100,6 +136,73 @@ public class Unit : MonoBehaviour
     }
 
     
+ 
+    private void AttributeSettle(Skill skill)//结算技能发动后属性变换
+    {
+        for (int i = 0; i < skill.attributeCost.Count; i++)
+        {
+            if (skill.attributeCost[i] == HeroAttribute.AP)
+                SingleSettle(ref AP, skill.skillCost[i]);               
+            else if (skill.attributeCost[i] == HeroAttribute.APDef)
+                SingleSettle(ref APDef, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.maxMP)
+                SingleSettle(ref maxMP, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.MP)
+                SingleSettle(ref currentMP, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.AD)
+                SingleSettle(ref AD, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.Def)
+                SingleSettle(ref Def, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.maxHP)
+                SingleSettle(ref maxHP, skill.skillCost[i]);           
+            else if (skill.attributeCost[i] == HeroAttribute.HP)
+                SingleSettle(ref currentHP, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.Spirit)
+                SingleSettle(ref Spirit, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.Critical)
+                SingleSettle(ref Critical, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.Dodge)
+                SingleSettle(ref Dodge, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.Tired)
+                SingleSettle(ref tired, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.Burn)
+                SingleSettle(ref burn, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.Cold)
+                SingleSettle(ref cold, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.Poison)
+                SingleSettle(ref poison, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.ADDecrease)
+                SingleSettle(ref ADDecrease, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.ADPrecentDecrease)
+                SingleSettle(ref ADPrecentDecrease, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.APDecrease)
+                SingleSettle(ref APDecrease, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.APPrecentDecrease)
+                SingleSettle(ref APPrecentDecrease, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.BurnDecrease)
+                SingleSettle(ref BurnDecrease, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.BurnPrecentDecrease)
+                SingleSettle(ref BurnPrecentDecrease, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.PoisonDecrease)
+                SingleSettle(ref PoisonDecrease, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.PoisonPrecentDecrease)
+                SingleSettle(ref PoisonPrecentDecrease, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.ColdDecrease)
+                SingleSettle(ref ColdDecrease, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.ColdPrecentDecrease)
+                SingleSettle(ref ColdPrecentDecrease, skill.skillCost[i]);
+
+        }
+    }
+
+    private void SingleSettle(ref int Attribute,int b)
+    {
+        Attribute += b;
+        if (Attribute < 0)
+            Attribute = 0;
+        
+    }
+
     IEnumerator Settle(Unit turnUnit, Skill skill)
     {
         if (skill.delayedTurn > 0 && !GameManager.instance.delayedSwitch)
@@ -112,28 +215,26 @@ public class Unit : MonoBehaviour
         }
         else
         {
-            skill.SkillSettleAD(turnUnit,this);
+            if (skill.type == SkillType.AD)
+                skill.SkillSettleAD(turnUnit, this);
+            if (skill.type == SkillType.AttributeAdjust)
+                skill.SkillSettleAdjust(turnUnit, this);
 
         }
         yield return null;
 
     }
-   
 
-       
-     
     public void SkillSettle(Unit turnUnit, Skill skill)//结算技能
     {
-        for (int i=0;i< skill.attributeCost.Count;i++)//结算发动代价
-        {
-            if (skill.attributeCost[i] == HeroAttribute.Atk)
-                turnUnit.Atk +=  skill.skillCost[i];
-            else if (skill.attributeCost[i] == HeroAttribute.HP)
-                turnUnit.currentHP +=  skill.skillCost[i];
-        }
-        turnUnit.currentMP -=  skill.needMP;
-        turnUnit.tired+=skill.skillTired;
-        
+
+         //结算发动代价
+         turnUnit.AttributeSettle(skill);
+         turnUnit.currentMP -= skill.needMP;
+         turnUnit.tired += skill.skillTired;
+
+               
+        //结算是否为延时
         if (skill.delayedTurn > 0&&!GameManager.instance.delayedSwitch)
         {
 
@@ -144,7 +245,9 @@ public class Unit : MonoBehaviour
         }
 
         else
-        {
+        {    
+            //结算闪避
+
             if (skill.type == SkillType.Mix)
             {
                 foreach (var o in skill.moreSkill)
@@ -363,6 +466,16 @@ public class Unit : MonoBehaviour
         
     }
 
+
+    //——————————————————————————字样浮动————————————————————————————
+
+    public void FloatPointShow(int number,Color color)
+    {
+        floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().text = number.ToString();
+        floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().color = color;
+        Instantiate(floatPoint, this.transform.position + new Vector3(0, 1, 0), Quaternion.identity);
+    }
+
     public void FloatSkillShow(Unit unit, Skill skill, Color color)//技能字样显示函数
     {
         unit.floatSkill.transform.GetChild(0).GetComponent<TMP_Text>().text = skill.skillName;
@@ -432,6 +545,20 @@ public class Unit : MonoBehaviour
     {
         return;
     }
+    //——————————————————技能计算函数——————————————————————————
+    public int Decrease(int final,int decrease,float decreasePrecent)
+    {
+        return (int)((final - decrease) * (float)(1 - decreasePrecent));
+    }
+
+    public void BurnDamage()
+    {
+
+    }
+
+
+
+
 
 
     //——————————————————鼠标事件————————————————————————————
