@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
 public class WinOrLost : MonoBehaviour
 {
+    public Player player;
     public GameObject levelUp;
     public Button next;
     public Image winLostImg;
@@ -22,6 +24,8 @@ public class WinOrLost : MonoBehaviour
     private string lostText = "下次一定";
     private void Start()
     {
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        next.onClick.AddListener(delegate () { ChangeScene(); });
         heroIndex = 0;
         if (GameManager.instance.win == true)
         {
@@ -33,6 +37,7 @@ public class WinOrLost : MonoBehaviour
                 Heros[i].winHero = GameManager.instance.playerUnit[i];
                 Heros[i].gameObject.SetActive(true);
             }
+            player.BP += 100;
         }
         else
         {
@@ -52,5 +57,19 @@ public class WinOrLost : MonoBehaviour
         if(heroIndex==Heros.Count)
             next.gameObject.SetActive(true);
 
+        if (player != null)
+        {
+            if (player.globalStateValue == 0)
+            {
+                player.globalStateValue++;
+            }
+        }
+
+    }
+    private void ChangeScene()
+    {
+        Scene scene = SceneManager.GetSceneByName("MapScene");
+        SceneManager.MoveGameObjectToScene(player.gameObject, scene);
+        SceneManager.UnloadSceneAsync("BattleScene");
     }
 }
