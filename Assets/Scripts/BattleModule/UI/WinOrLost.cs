@@ -25,7 +25,15 @@ public class WinOrLost : MonoBehaviour
     private void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        next.onClick.AddListener(delegate () { ChangeScene(); });
+        next.onClick.AddListener(delegate () {
+            if (player != null)
+            {
+                if (player.globalStateValue == 0)
+                {
+                    player.globalStateValue++;
+                }
+            }
+            ChangeScene(); });
         heroIndex = 0;
         if (GameManager.instance.win == true)
         {
@@ -57,13 +65,6 @@ public class WinOrLost : MonoBehaviour
         if(heroIndex==Heros.Count)
             next.gameObject.SetActive(true);
 
-        if (player != null)
-        {
-            if (player.globalStateValue == 0)
-            {
-                player.globalStateValue++;
-            }
-        }
 
     }
     private void ChangeScene()

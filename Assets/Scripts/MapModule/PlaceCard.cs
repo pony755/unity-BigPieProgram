@@ -25,7 +25,7 @@ public class PlaceCard : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         mapManager = GameObject.FindGameObjectWithTag("MapManager").GetComponent<MapManager>();
     }
-    private void OnMouseUp()//Êó±êµã»÷
+    private void OnMouseDown()//Êó±êµã»÷
     {
         if (mapManager.isTurning)
         {
@@ -35,9 +35,9 @@ public class PlaceCard : MonoBehaviour
         {
             return;
         }
-        TurnCard();
+        StartCoroutine(TurnCard());
     }
-    void TurnCard()//·­ÅÆ
+    IEnumerator TurnCard()//·­ÅÆ
     {
         mapManager.isTurning = true;
         cardState = CardState.face;
@@ -48,6 +48,7 @@ public class PlaceCard : MonoBehaviour
         StartCoroutine(TurnAnimation());
         if (cardType.Equals(CardType.battle))
         {
+            yield return new WaitForSeconds(2.5f);
             EnterCardScene("BattleScene");
         }
     }
