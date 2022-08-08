@@ -12,6 +12,7 @@ TagManager:
   - Canvas
   - EventSystem
   - Background
+  - Identification
   layers:
   - Default
   - TransparentFX

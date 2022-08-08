@@ -1075,8 +1075,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   globalStateValue: 0
+  autoSaveState: 0
   cardStates: 
   rotation: []
+  awakeCount: 0
   level: 0
   childLevel: 0
   BP: 0
