@@ -12,8 +12,17 @@ public class MapManager : MonoBehaviour
     public GameObject[,] map;
     private int mapRow;
     private int mapColumn;
-    public Dictionary<CardType, int> library;
     public GameObject[] cardPosition;
+    private int shopLimit;//商店最大生成数
+    private int shopCount = 0;//商店数量
+    private int innLimit;//旅馆最大生成数
+    private int innCount = 0;//旅馆数量
+    private int treasureLimit;//宝藏最大生成数
+    private int treasureCount = 0;//宝藏数量
+    private int portalLimit;//传送门最大生成数
+    private int portalCount = 0;//传送门数量
+    private int placeOfGodLimit;//神意之地最大生成数
+    private int placeOfGodCount = 0;//神意之地数量
     public int nightmareSharps;
     public bool isTurning = false;
     private bool startListening = false;
@@ -35,65 +44,12 @@ public class MapManager : MonoBehaviour
         map[0, 0].GetComponent<PlaceCard>().cardState = CardState.back;
         startListening = true;
     }
-    void CopyObject()//获取对象用于场景切换
+    void Update()
     {
-        mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
-        background = GameObject.FindGameObjectWithTag("Background");
-        cardPositions = GameObject.FindGameObjectWithTag("CardPosition");
-        cards = GameObject.FindGameObjectWithTag("Card");
-        border = GameObject.FindGameObjectWithTag("Border");
-        canvas = GameObject.FindGameObjectWithTag("Canvas");
-        eventSystem = GameObject.FindGameObjectWithTag("EventSystem");
-        Debug.Log("获取成功");
-    }
-    public void BackUpMap()//备份地图
-    {
-        int k = 0;//一维数组下标
-        for(int i = 0; i < mapRow; i++)
-        {
-            for(int j = 0; j < mapColumn; j++)
-            {
-                player.cardStates[k] = map[i, j].GetComponent<PlaceCard>().cardState;
-                player.rotation[k] = map[i, j].transform.eulerAngles.y;
-                Debug.Log(player.rotation[k]);
-                k++;
-            }
-        }
-        Debug.Log("备份地图成功");
-    }
-    public void RecoverMap()//恢复地图
-    {
-        int k = 0;//一维数组下标
-        for (int i = 0; i < mapRow; i++)
-        {
-            for (int j = 0; j < mapColumn; j++)
-            {
-                map[i, j].GetComponent<PlaceCard>().cardState = player.cardStates[k];
-                map[i, j].transform.rotation = Quaternion.Euler(0, player.rotation[k], 0);
-                k++;
-            }
-        }
-        Debug.Log("恢复地图成功");
-    }
-    public void FreezeMap()//冻结地图物件
-    {
-        mainCamera.SetActive(false);
-        background.SetActive(false);
-        cardPositions.SetActive(false);
-        cards.SetActive(false);
-        border.SetActive(false);
-        canvas.SetActive(false);
-        eventSystem.SetActive(false);
-    }
-    public void ActivateMap()//激活地图物件
-    {
-        mainCamera.SetActive(true);
-        background.SetActive(true);
-        cardPositions.SetActive(true);
-        cards.SetActive(true);
-        border.SetActive(true);
-        canvas.SetActive(true);
-        eventSystem.SetActive(true);
+        CardStateListener();
+        PlayerStateListener();
+        player.level = level;
+        player.childLevel = childLevel;
     }
     void InitializeMap()//初始化地图
     {
@@ -101,8 +57,8 @@ public class MapManager : MonoBehaviour
         map = new GameObject[mapRow, mapColumn];
         player.InitializeArray(mapRow*mapColumn);
         InitializeCardPosition();
-        InitializeLibrary();
-        int maxRandomNumber = library.Count;
+        SetCardLimit();
+        PresetSpecialCards();
         int positionIndex = 0;
         GameObject cards = GameObject.Find("Cards");
         bool isSet;//卡牌是否被设置好
@@ -113,23 +69,52 @@ public class MapManager : MonoBehaviour
                 isSet = false;
                 while (!isSet)
                 {
-                    int randomNumber = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, maxRandomNumber - 1);
-                    Debug.Log(randomNumber);
-                    CardType randomType = (CardType)randomNumber;
-                    if (library[randomType] != 0)
+                    CardType randomType = RamdomCardType(35, 40, 60, 70, 80, 90, 95);
+                    if(randomType == CardType.shop)
                     {
-                        library[randomType]--;
-                        InitializeCard(randomType, cards, positionIndex, i, j);
-                        positionIndex++;
-                        isSet = true;
+                        if (shopCount >= shopLimit)
+                        {
+                            continue;
+                        }
+                        shopCount++;
                     }
+                    else if(randomType == CardType.inn)
+                    {
+                        if(innCount >= innLimit)
+                        {
+                            continue;
+                        }
+                        innCount++;
+                    }
+                    else if(randomType == CardType.treasure)
+                    {
+                        if(treasureCount >= treasureLimit)
+                        {
+                            continue;
+                        }
+                        treasureCount++;
+                    }
+                    else if(randomType == CardType.portal)
+                    {
+                        if(portalCount >= portalLimit)
+                        {
+                            continue;
+                        }
+                        portalCount++;
+                    }
+                    else if(randomType == CardType.placeOfGod)
+                    {
+                        if(placeOfGodCount >= placeOfGodLimit)
+                        {
+                            continue;
+                        }
+                        placeOfGodCount++;
+                    }
+                    InitializeCard(randomType, cards, positionIndex, i, j);
+                    positionIndex++;
+                    isSet = true;
                 }
             }
-        }
-        if (level != 0)
-        {
-            int method = Koubot.Tool.Random.RandomTool.GenerateRandomInt(1, 2);//调节方法
-            AdjustMap(method);
         }
         EmbedSharps();
     }
@@ -267,67 +252,82 @@ public class MapManager : MonoBehaviour
         }
         Debug.Log("初始化卡牌位置成功");
     }
-    void InitializeLibrary()//初始化牌库
+    void SetCardLimit()//设置部分卡牌限制数量
     {
-        library = new Dictionary<CardType, int>();
-        if (level == 0)
+        switch (childLevel)
         {
-            library.Add(CardType.battle, 1);
-            library.Add(CardType.eliteBattle, 1);
-            library.Add(CardType.randomEvent, 1);
-            library.Add(CardType.shop, 1);
-            library.Add(CardType.inn, 1);
-            library.Add(CardType.treasure, 1);
-            library.Add(CardType.portal, 2);
-            library.Add(CardType.placeOfGod, 1);
+            case 1:
+                {
+                    shopLimit = 1;
+                    innLimit = 1;
+                    treasureLimit = 2;
+                    portalLimit = 1;
+                    placeOfGodLimit = 1;
+                    break;
+                }
+            case 2:
+                {
+                    shopLimit = 2;
+                    innLimit = 2;
+                    treasureLimit = 3;
+                    portalLimit = 2;
+                    placeOfGodLimit = 2;
+                    break;
+                }
+            case 3:
+                {
+                    shopLimit = 3;
+                    innLimit = 3;
+                    treasureLimit = 4;
+                    portalLimit = 3;
+                    placeOfGodCount = 3;
+                    break;
+                }
+            default:
+                {
+                    break;
+                }
+        }
+    }
+    void PresetSpecialCards()//预置特定卡牌
+    {
+
+    }
+    CardType RamdomCardType(double bp0, double bp1, double bp2, double bp3, double bp4, double bp5, double bp6)//随机卡牌类型
+    {
+        double randomNumber = Koubot.Tool.Random.RandomTool.GenerateRandomDouble(1, 100);
+        if (randomNumber >= 1 && randomNumber <= bp0)
+        {
+            return CardType.battle;
+        }
+        else if (randomNumber > bp0 && randomNumber <= bp1)
+        {
+            return CardType.eliteBattle;
+        }
+        else if (randomNumber > bp1 && randomNumber <= bp2)
+        {
+            return CardType.randomEvent;
+        }
+        else if(randomNumber > bp2 && randomNumber <= bp3)
+        {
+            return CardType.shop;
+        }
+        else if(randomNumber > bp3 && randomNumber <= bp4)
+        {
+            return CardType.inn;
+        }
+        else if(randomNumber > bp4 && randomNumber <= bp5)
+        {
+            return CardType.treasure;
+        }
+        else if(randomNumber > bp5 && randomNumber <= bp6)
+        {
+            return CardType.portal;
         }
         else
         {
-            switch (childLevel)
-            {
-                case 1:
-                    {
-                        library.Add(CardType.battle, 7);
-                        library.Add(CardType.eliteBattle, 2);
-                        library.Add(CardType.randomEvent, 7);
-                        library.Add(CardType.shop, 2);
-                        library.Add(CardType.inn, 2);
-                        library.Add(CardType.treasure, 2);
-                        library.Add(CardType.portal, 2);
-                        library.Add(CardType.placeOfGod, 1);
-                        break;
-                    }
-                case 2:
-                    {
-                        library.Add(CardType.battle, 10);
-                        library.Add(CardType.eliteBattle, 3);
-                        library.Add(CardType.randomEvent, 10);
-                        library.Add(CardType.shop, 3);
-                        library.Add(CardType.inn, 3);
-                        library.Add(CardType.treasure, 3);
-                        library.Add(CardType.portal, 2);
-                        library.Add(CardType.placeOfGod, 2);
-                        break;
-                    }
-                case 3:
-                    {
-                        library.Add(CardType.battle, 13);
-                        library.Add(CardType.eliteBattle, 5);
-                        library.Add(CardType.randomEvent, 13);
-                        library.Add(CardType.shop, 4);
-                        library.Add(CardType.inn, 4);
-                        library.Add(CardType.treasure, 4);
-                        library.Add(CardType.portal, 3);
-                        library.Add(CardType.placeOfGod, 3);
-                        break;
-                    }
-                default:
-                    {
-                        break;
-                    }
-            }
+            return CardType.placeOfGod;
         }
-        Debug.Log("初始化牌库成功");
     }
     void InitializeCard(CardType cardType,GameObject cards,int positionIndex,int row,int column)//初始化卡牌
     {
@@ -343,67 +343,6 @@ public class MapManager : MonoBehaviour
         cardFace.transform.eulerAngles = new Vector3(0, 180, 0);
         map[row, column] = card;
         card.transform.SetParent(cards.transform);
-    }
-    void AdjustMap(int method)//调整地图以适应随机需要
-    {
-        if (method == 1)
-        {
-            SwapCard(ref map[0, 0], ref map[mapRow - 1, mapColumn - 1]);
-            SwapPosition(map[0, 0], map[mapRow - 1, mapColumn - 1]);
-            SwapCard(ref map[0, mapColumn - 1], ref map[mapRow - 1, 0]);
-            SwapPosition(map[0, mapColumn - 1], map[mapRow - 1, 0]);
-            SwapCard(ref map[1, 1], ref map[mapRow - 2, mapColumn - 2]);
-            SwapPosition(map[1, 1], map[mapRow - 2, mapColumn - 2]);
-            SwapCard(ref map[mapRow - 2, 1], ref map[1, mapColumn - 2]);
-            SwapPosition(map[mapRow - 2, 1], map[1, mapColumn - 2]);
-            SwapCard(ref map[0, 2], ref map[mapRow - 1, mapColumn - 3]);
-            SwapPosition(map[0, 2], map[mapRow - 1, mapColumn - 3]);
-            if (childLevel > 1)
-            {
-                SwapCard(ref map[0, 3], ref map[mapRow - 1, 2]);
-                SwapPosition(map[0, 3], map[mapRow - 1, 2]);
-            }
-            if(childLevel > 2)
-            {
-                SwapCard(ref map[1, 3], ref map[5, 3]);
-                SwapPosition(map[1, 3], map[5, 3]);
-            }
-        }
-        else if(method == 2) 
-        {
-            SwapCard(ref map[1, 0], ref map[mapRow - 2, mapColumn - 1]);
-            SwapPosition(map[1, 0], map[mapRow - 2, mapColumn - 1]);
-            SwapCard(ref map[0, 1], ref map[mapRow - 1, mapColumn - 2]);
-            SwapPosition(map[0, 1], map[mapRow - 1, mapColumn - 2]);
-            SwapCard(ref map[1, 2], ref map[mapRow - 2, mapColumn - 3]);
-            SwapPosition(map[1, 2], map[mapRow - 2, mapColumn - 3]);
-            SwapCard(ref map[mapRow - 1, 1], ref map[0, mapColumn - 2]);
-            SwapPosition(map[mapRow - 1, 1], map[0, mapColumn - 2]);
-            SwapCard(ref map[mapRow - 2, 0], ref map[1, mapColumn - 1]);
-            SwapPosition(map[mapRow - 2, 0], map[1, mapColumn - 1]);
-            if(childLevel > 1)
-            {
-                SwapCard(ref map[1, 3], ref map[mapRow - 2, 2]);
-                SwapPosition(map[1, 3], map[mapRow - 2, 2]);
-            }
-            if(childLevel > 2)
-            {
-                SwapCard(ref map[0, 3], ref map[6, 3]);
-                SwapPosition(map[0, 3], map[6, 3]);
-            }
-        }
-        Debug.Log("调节成功");
-    }
-    void SwapCard(ref GameObject a,ref GameObject b)//交换卡牌
-    {
-        GameObject temp;
-        temp = a;
-        a = b;
-        b = temp;
-    }
-    void SwapPosition(GameObject a, GameObject b)//交换卡牌位置
-    {
-        (b.transform.position, a.transform.position) = (a.transform.position, b.transform.position);
     }
     void EmbedSharps()//嵌入梦魇碎片
     {
@@ -505,7 +444,7 @@ public class MapManager : MonoBehaviour
             map[newRow, newColumn].GetComponent<PlaceCard>().cardState = CardState.back;
         }
     }
-    void PlayerStateListener()
+    void PlayerStateListener()//玩家状态监听器
     {
         if (player != null)
         {
@@ -517,12 +456,64 @@ public class MapManager : MonoBehaviour
             }
         }
     }
-    // Update is called once per frame
-    void Update()
+    void CopyObject()//获取对象用于场景切换
     {
-        CardStateListener();
-        PlayerStateListener();
-        player.level = level;
-        player.childLevel = childLevel;
+        mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+        background = GameObject.FindGameObjectWithTag("Background");
+        cardPositions = GameObject.FindGameObjectWithTag("CardPosition");
+        cards = GameObject.FindGameObjectWithTag("Card");
+        border = GameObject.FindGameObjectWithTag("Border");
+        canvas = GameObject.FindGameObjectWithTag("Canvas");
+        eventSystem = GameObject.FindGameObjectWithTag("EventSystem");
+        Debug.Log("获取成功");
+    }
+    public void BackUpMap()//备份地图
+    {
+        int k = 0;//一维数组下标
+        for (int i = 0; i < mapRow; i++)
+        {
+            for (int j = 0; j < mapColumn; j++)
+            {
+                player.cardStates[k] = map[i, j].GetComponent<PlaceCard>().cardState;
+                player.rotation[k] = map[i, j].transform.eulerAngles.y;
+                Debug.Log(player.rotation[k]);
+                k++;
+            }
+        }
+        Debug.Log("备份地图成功");
+    }
+    public void RecoverMap()//恢复地图
+    {
+        int k = 0;//一维数组下标
+        for (int i = 0; i < mapRow; i++)
+        {
+            for (int j = 0; j < mapColumn; j++)
+            {
+                map[i, j].GetComponent<PlaceCard>().cardState = player.cardStates[k];
+                map[i, j].transform.rotation = Quaternion.Euler(0, player.rotation[k], 0);
+                k++;
+            }
+        }
+        Debug.Log("恢复地图成功");
+    }
+    public void FreezeMap()//冻结地图物件
+    {
+        mainCamera.SetActive(false);
+        background.SetActive(false);
+        cardPositions.SetActive(false);
+        cards.SetActive(false);
+        border.SetActive(false);
+        canvas.SetActive(false);
+        eventSystem.SetActive(false);
+    }
+    public void ActivateMap()//激活地图物件
+    {
+        mainCamera.SetActive(true);
+        background.SetActive(true);
+        cardPositions.SetActive(true);
+        cards.SetActive(true);
+        border.SetActive(true);
+        canvas.SetActive(true);
+        eventSystem.SetActive(true);
     }
 }

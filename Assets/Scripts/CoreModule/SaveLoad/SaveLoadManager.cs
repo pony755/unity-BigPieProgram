@@ -87,6 +87,13 @@ public class SaveLoadManager : MonoBehaviour
             SaveField();
             Save();
             player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                if (player.GetComponent<Player>().globalStateValue == 0)
+                {
+                    player.GetComponent<Player>().globalStateValue++;
+                }
+            }
             Scene scene = SceneManager.GetSceneByName("MapScene");
             SceneManager.MoveGameObjectToScene(player, scene);
             SceneManager.UnloadSceneAsync("SaveLoadScene");
@@ -95,12 +102,6 @@ public class SaveLoadManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(player != null)
-        {
-            if (player.GetComponent<Player>().globalStateValue == 0)
-            {
-                player.GetComponent<Player>().globalStateValue++;
-            }
-        }
+        
     }
 }
