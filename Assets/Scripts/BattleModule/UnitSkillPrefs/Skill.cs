@@ -4,10 +4,10 @@ using UnityEngine;
 using TMPro;
 using System;
 using Koubot.Tool;
-public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Mix,  AttributeAdjust,Card}//技能类型
+public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Mix,AttributeAdjust,Card}//技能类型
 public enum AnimType {Attack}//动画类型
 public enum SkillPoint { Myself,AllEnemy,AllPlayers,Players,Enemies }//技能指向
-public enum HeroAttribute { AP,APDef,maxMP,MP,AD,Def,maxHP,HP,Spirit,Critical,Dodge,Tired,Burn,Cold,Poison,ADDecrease,ADPrecentDecrease, APDecrease, APPrecentDecrease, BurnDecrease, BurnPrecentDecrease,PoisonDecrease,PoisonPrecentDecrease,ColdDecrease,ColdPrecentDecrease }//属性
+public enum HeroAttribute { AP,APDef,maxMP,MP,AD,Def,maxHP,HP,Spirit,Critical,Dodge,Tired, fragile, weakness, shieldDecrease, Burn,Cold,Poison,ADDecrease,ADPrecentDecrease, APDecrease, APPrecentDecrease, BurnDecrease, BurnPrecentDecrease,PoisonDecrease,PoisonPrecentDecrease,ColdDecrease,ColdPrecentDecrease }//属性
 public enum HeroSkillAttribute { AP, APDef, maxMP, MP, AD, Def, maxHP, HP, Spirit, Critical, Dodge, Burn, Cold, Poison}//属性
 public enum PassiveType {None,Hit,Dead,GameBegin,TurnStart,TurnEnd}//被动类型(决定触发时间)
 public enum PassivePoint {MDamager, MMyself,MAllEnemy,MAllPlayers,MEnemiesAuto, MPlayersAuto }//被动目标(M代表自己为技能使用方,结尾字母表示回合约束)
@@ -224,41 +224,44 @@ public class Skill : ScriptableObject
 
     //——————————————————————————————————————技能结算——————————————————————————————————
 
-    public int FinalPoint(Unit unit)//计算最终数值，在unit有函数负责判断类型然后执行对应操作
+    public int FinalPoint(Unit unit)//计算技能基础数值数值，在unit有函数负责判断类型然后执行对应操作
     {
-        if (attribute == null)
-            return 0;
         int sum = 0;
-        for (int i = 0; i < attribute.Count; i++)
+        if (attribute != null)
         {
-            if (attribute[i] == HeroSkillAttribute.AP)
-                Single(unit.AP,addition[i],ref sum);
-            else if (attribute[i] == HeroSkillAttribute.APDef)
-                Single(unit.APDef, addition[i], ref sum);
-            else if (attribute[i] == HeroSkillAttribute.maxMP)
-                Single(unit.maxMP, addition[i], ref sum);
-            else if (attribute[i] == HeroSkillAttribute.MP)
-                Single(unit.currentMP, addition[i], ref sum);
-            else if (attribute[i] == HeroSkillAttribute.AD)
-                Single(unit.AD, addition[i], ref sum);
-            else if (attribute[i] == HeroSkillAttribute.Def)
-                Single(unit.Def, addition[i], ref sum);
-            else if (attribute[i] == HeroSkillAttribute.maxHP)
-                Single(unit.maxHP, addition[i], ref sum);
-            else if (attribute[i] == HeroSkillAttribute.HP)
-                Single(unit.currentHP, addition[i], ref sum);
-            else if (attribute[i] == HeroSkillAttribute.Spirit)
-                Single(unit.Spirit, addition[i], ref sum);
-            else if (attribute[i] == HeroSkillAttribute.Critical)
-                Single(unit.Critical, addition[i], ref sum);
-            else if (attribute[i] == HeroSkillAttribute.Dodge)
-                Single(unit.Dodge, addition[i], ref sum);
-            else if (attribute[i] == HeroSkillAttribute.Burn)
-                Single(unit.burn, addition[i], ref sum);
-            else if (attribute[i] == HeroSkillAttribute.Cold)
-                Single(unit.cold, addition[i], ref sum);
-            else if (attribute[i] == HeroSkillAttribute.Poison)
-                Single(unit.poison, addition[i], ref sum);
+            
+            for (int i = 0; i < attribute.Count; i++)
+            {
+                if (attribute[i] == HeroSkillAttribute.AP)
+                    Single(unit.AP, addition[i], ref sum);
+                else if (attribute[i] == HeroSkillAttribute.APDef)
+                    Single(unit.APDef, addition[i], ref sum);
+                else if (attribute[i] == HeroSkillAttribute.maxMP)
+                    Single(unit.maxMP, addition[i], ref sum);
+                else if (attribute[i] == HeroSkillAttribute.MP)
+                    Single(unit.currentMP, addition[i], ref sum);
+                else if (attribute[i] == HeroSkillAttribute.AD)
+                    Single(unit.AD, addition[i], ref sum);
+                else if (attribute[i] == HeroSkillAttribute.Def)
+                    Single(unit.Def, addition[i], ref sum);
+                else if (attribute[i] == HeroSkillAttribute.maxHP)
+                    Single(unit.maxHP, addition[i], ref sum);
+                else if (attribute[i] == HeroSkillAttribute.HP)
+                    Single(unit.currentHP, addition[i], ref sum);
+                else if (attribute[i] == HeroSkillAttribute.Spirit)
+                    Single(unit.Spirit, addition[i], ref sum);
+                else if (attribute[i] == HeroSkillAttribute.Critical)
+                    Single(unit.Critical, addition[i], ref sum);
+                else if (attribute[i] == HeroSkillAttribute.Dodge)
+                    Single(unit.Dodge, addition[i], ref sum);
+                else if (attribute[i] == HeroSkillAttribute.Burn)
+                    Single(unit.burn, addition[i], ref sum);
+                else if (attribute[i] == HeroSkillAttribute.Cold)
+                    Single(unit.cold, addition[i], ref sum);
+                else if (attribute[i] == HeroSkillAttribute.Poison)
+                    Single(unit.poison, addition[i], ref sum);
+            }
+        
         }
 
         return baseInt+sum;
@@ -269,23 +272,184 @@ public class Skill : ScriptableObject
         sum = (int)(sum + (float)Attribute * add);
     }
 
+
     
     //————————————————————默认的实现技能函数（可以根据不同的需求在此重载）—————————————————————————
     public virtual void SkillSettleAD(Unit turnUnit,Unit pointUnit)
     {
- 
-            int damage = this.FinalPoint(turnUnit) -pointUnit. Def;
-            if (damage > 0 )
+            int damage = this.FinalPoint(turnUnit);//原始数据
+            if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        {
+            turnUnit.FloatStateShow(turnUnit,"会心",Color.yellow);
+            damage *= 2;
+        }
+         turnUnit.ColdDecreaseDamage(ref damage);//冰冻
+        damage -= turnUnit.weakness;
+        damage = (int)(((float)pointUnit.Decrease(damage, pointUnit.ADDecrease, pointUnit.ADPrecentDecrease) )* (float)(1-((float)pointUnit.Def / (float)(pointUnit.Def + 100)))) + pointUnit.fragile;//最终数值
+        if(damage>=pointUnit.shield)
+        {
+            damage-=pointUnit.shield;
+            pointUnit.shield = 0;
+        }
+        else
+        {
+            pointUnit.shield -= damage;
+            damage = 0;
+        }
+        if (damage > 0 )
             {
                 if(!turnUnit.player)
                    pointUnit.danger = turnUnit;//暂时记录伤害来源
-                pointUnit.currentHP -=  damage;
-                Debug.Log(pointUnit.unitName + "受到了" + damage + "点物理伤害");
-                pointUnit.FloatPointShow(damage,Color.red);
-                if(pointUnit.currentHP > 0)
-                     pointUnit.anim.Play("hit");
+                pointUnit.currentHP -=  damage;                
+                pointUnit.FloatPointShow(damage,Color.red);               
             }
-
+        pointUnit.BurnDamage();//烧伤
+        if (pointUnit.currentHP > 0)
+            pointUnit.anim.Play("hit");
+    }
+    public virtual void SkillSettleAP(Unit turnUnit, Unit pointUnit)
+    {
+        int damage = this.FinalPoint(turnUnit);//原始数据
+        if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        {
+            turnUnit.FloatStateShow(turnUnit, "会心", Color.yellow);
+            damage *= 2;
+        }
+        turnUnit.ColdDecreaseDamage(ref damage);//冰冻
+        damage -= turnUnit.weakness;
+        damage = (int)(((float)pointUnit.Decrease(damage, pointUnit.APDecrease, pointUnit.APPrecentDecrease)) * (float)(1 - ((float)pointUnit.APDef / (float)(pointUnit.APDef + 100)))) + pointUnit.fragile;//最终数值
+        if (damage >= pointUnit.shield)
+        {
+            damage -= pointUnit.shield;
+            pointUnit.shield = 0;
+        }
+        else
+        {
+            pointUnit.shield -= damage;
+            damage = 0;
+        }
+        if (damage > 0)
+        {
+            if (!turnUnit.player)
+                pointUnit.danger = turnUnit;//暂时记录伤害来源
+            pointUnit.currentHP -= damage;
+            pointUnit.FloatPointShow(damage, Color.blue);
+        }
+        pointUnit.BurnDamage();//烧伤
+        if (pointUnit.currentHP > 0)
+            pointUnit.anim.Play("hit");
+    }
+    public virtual void SkillSettleReallyDamage(Unit turnUnit, Unit pointUnit)
+    {
+        int damage = this.FinalPoint(turnUnit);//原始数据
+        if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        {
+            turnUnit.FloatStateShow(turnUnit, "会心", Color.yellow);
+            damage *= 2;
+        }
+        turnUnit.ColdDecreaseDamage(ref damage);//冰冻
+        damage -= turnUnit.weakness;
+        damage += pointUnit.fragile;//最终数值
+        if (damage > 0)
+        {
+            if (!turnUnit.player)
+                pointUnit.danger = turnUnit;//暂时记录伤害来源
+            pointUnit.currentHP -= damage;
+            pointUnit.FloatPointShow(damage, Color.white);
+        }
+        pointUnit.BurnDamage();//烧伤
+        if (pointUnit.currentHP > 0)
+            pointUnit.anim.Play("hit");
+    }
+    public virtual void SkillSettleHeal(Unit turnUnit, Unit pointUnit)
+    {
+        int heal = this.FinalPoint(turnUnit);//原始数据
+        if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        {
+            turnUnit.FloatStateShow(turnUnit, "会心", Color.yellow);
+            heal *= 2;
+        }
+        heal-= pointUnit.healDecrease;
+        if (heal <= 0)
+            heal = 0;
+        if(heal> 0)
+        {
+            pointUnit.currentHP += heal;
+            pointUnit.FloatPointShow(heal, Color.green);
+        }             
+    }
+    public virtual void SkillSettleShield(Unit turnUnit, Unit pointUnit)
+    {
+        int shield = this.FinalPoint(turnUnit);//原始数据
+        if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        {
+            turnUnit.FloatStateShow(turnUnit, "会心", Color.yellow);
+            shield *= 2;
+        }
+        shield -= pointUnit.shieldDecrease;
+        if (shield <= 0)
+            shield = 0;
+        if (shield > 0)
+        {
+            pointUnit.shield += shield;
+            pointUnit.FloatStateShow(pointUnit,"护盾",Color.white);
+            //pointUnit.FloatPointShow(shield, Color.grey);
+        }
+    }
+    public virtual void SkillSettleBurn(Unit turnUnit, Unit pointUnit)
+    {
+        int burn = this.FinalPoint(turnUnit);//原始数据
+        if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        {
+            turnUnit.FloatStateShow(turnUnit, "会心", Color.yellow);
+            burn *= 2;
+        }
+        pointUnit.burn += burn;
+        pointUnit.FloatStateShow(pointUnit, "烧伤", new Color32(231,115,49,225));
+    }
+    public virtual void SkillSettlePoison(Unit turnUnit, Unit pointUnit)
+    {
+        int poison = this.FinalPoint(turnUnit);//原始数据
+        if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        {
+            turnUnit.FloatStateShow(turnUnit, "会心", Color.yellow);
+            poison *= 2;
+        }
+        pointUnit.poison += poison;
+        pointUnit.FloatStateShow(pointUnit, "中毒", new Color32(157,207,73,255));
+    }
+    public virtual void SkillSettleCold(Unit turnUnit, Unit pointUnit)
+    {
+        int cold = this.FinalPoint(turnUnit);//原始数据
+        if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        {
+            turnUnit.FloatStateShow(turnUnit, "会心", Color.yellow);
+            cold *= 2;
+        }
+        pointUnit.cold += cold;
+        pointUnit.FloatStateShow(pointUnit, "冰冻", new Color32(97,198,236,255));
+    }
+    public virtual void SkillSettleCard(Unit turnUnit, Unit pointUnit)
+    {
+        int card = this.FinalPoint(turnUnit);//原始数据
+        if(card>0)
+        {
+            turnUnit.FloatStateShow(pointUnit, "抽卡", Color.magenta);
+            for(int i = 0; i < card; i++)
+            {
+                GameManager.instance.player.TakeCard();
+            }
+        }
+            
+        if (card < 0)
+        {
+            turnUnit.FloatStateShow(pointUnit, "弃卡", Color.black);
+            for (int i = 0; i < -card; i++)
+            {
+                GameManager.instance.player.haveCards[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, GameManager.instance.player.haveCards.Count-1)].CardDestory();
+            }
+        }
+            
     }
     public virtual void SkillSettleAdjust(Unit turnUnit, Unit pointUnit)//结算技能发动后属性变换
     {
@@ -314,6 +478,12 @@ public class Skill : ScriptableObject
             pointUnit.Dodge += FinalPoint(turnUnit);
         else if (adjustAttribute == HeroAttribute.Tired)
             pointUnit.tired += FinalPoint(turnUnit);
+        else if (adjustAttribute == HeroAttribute.fragile)
+            pointUnit.fragile += FinalPoint(turnUnit);
+        else if (adjustAttribute == HeroAttribute.weakness)
+            pointUnit.weakness += FinalPoint(turnUnit);
+        else if (adjustAttribute == HeroAttribute.shieldDecrease)
+            pointUnit.shieldDecrease += FinalPoint(turnUnit);
         else if (adjustAttribute == HeroAttribute.Burn)
             pointUnit.burn += FinalPoint(turnUnit);
         else if (adjustAttribute == HeroAttribute.Cold)

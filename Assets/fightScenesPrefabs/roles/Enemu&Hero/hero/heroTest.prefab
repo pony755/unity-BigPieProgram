@@ -125,22 +125,45 @@ MonoBehaviour:
   cardPoint: {fileID: 797833074067235859}
   floatPoint: {fileID: 2829554972175539950, guid: 86b7e4c54a2c7b34bbd22eff8f6a6d81, type: 3}
   floatSkill: {fileID: 851834931086582596, guid: 3661ff1d4713cb547bcacce0cf83a269, type: 3}
+  floatState: {fileID: 6679136902167881148, guid: d70e909c4c4edbb47989e9000722e1ee, type: 3}
   playerHero: 1
   unitName: SB
   unitLevel: 1
-  tired: 0
-  Atk: 110
+  nextExp: 50
+  AP: 0
+  APDef: 0
+  maxMP: 100
+  AD: 0
   Def: 0
   maxHP: 100
+  Spirit: 0
+  Critical: 0
+  Dodge: 0
+  tired: 0
+  shield: 0
+  fragile: 0
+  weakness: 0
+  shieldDecrease: 0
+  healDecrease: 0
+  burn: 0
+  cold: 0
+  poison: 0
   currentHP: 100
-  maxMP: 100
   currentMP: 100
   currentExp: 10
-  nextExp: 50
   getExp: 50
+  ADDecrease: 0
+  ADPrecentDecrease: 0
+  APDecrease: 0
+  APPrecentDecrease: 0
+  BurnDecrease: 0
+  BurnPrecentDecrease: 0
+  PoisonDecrease: 0
+  PoisonPrecentDecrease: 0
+  ColdDecrease: 0
+  ColdPrecentDecrease: 0
   player: 0
   heroSkillList:
-  - {fileID: 11400000, guid: 9267ee7e3409ebe4f8c6ba5bc847a88b, type: 2}
   - {fileID: 11400000, guid: 77d83fb875a8e8a42ab0710d5d099f49, type: 2}
   passiveTurnEndList: []
   passiveTurnStartList: []

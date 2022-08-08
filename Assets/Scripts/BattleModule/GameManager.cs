@@ -6,6 +6,8 @@ using TMPro;
 using Koubot.Tool;
 
 public enum BattleState { NONE,START, PLAYERTURNSTART,PLAYERTURN, POINTALL,SKILL,CARDTURNUNIT,POINTENEMY,POINTPLAYER,ACTION,ACTIONFINISH,ABANDOMCARD,ENEMYTURNSTART, ENEMYTURN,ENEMYFINISH,WIN, LOST,OVER }
+
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
@@ -319,6 +321,9 @@ public class GameManager : MonoBehaviour
             state = BattleState.PLAYERTURNSTART;
             //潤麻彜蓑
             for (int i = 0; i < playerUnit.Count; i++)
+                playerUnit[i].PoisonDamage();
+            yield return new WaitForSeconds(0.5f);
+            for (int i = 0; i < playerUnit.Count; i++)
                 playerUnit[i].PassiveTurnStart();
             yield return new WaitForSeconds(0.5f);
             StartCoroutine(DelayedPlayerSettle());
@@ -434,15 +439,16 @@ public class GameManager : MonoBehaviour
             state = BattleState.ENEMYTURNSTART;
             tips.text = "黍圭指栽";
             //潤麻彜蓑
+            for (int i = 0; i < playerUnit.Count; i++)
+                enemyUnit[i].PoisonDamage();
+            yield return new WaitForSeconds(0.5f);
             for (int i = 0; i < enemyUnit.Count; i++)
                 enemyUnit[i].PassiveTurnStart();
             yield return new WaitForSeconds(0.5f);
             StartCoroutine(DelayedEnemySettle());
             yield return new WaitForSeconds(1f);
-            if (state != BattleState.OVER || state != BattleState.WIN || state != BattleState.LOST)
-            {
-                StartCoroutine(EnemyTurn());
-            }
+            StartCoroutine(EnemyTurn());
+
         }
      
     }
@@ -692,4 +698,14 @@ public class GameManager : MonoBehaviour
         backPanel.SetActive(false);
     }
 
+
+
+    //！！！！！！！！！！！！！！！！！！！！！！！！！！弌孔嬬！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+    public bool Probility(int a)//撹孔楕
+    {
+        if (Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99) < a)
+            return true;
+        else
+            return false;
+    }
 }

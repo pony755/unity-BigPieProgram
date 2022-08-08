@@ -14,6 +14,7 @@ public class Unit : MonoBehaviour
     public GameObject cardPoint;//卡片指向
     public GameObject floatPoint;//伤害
     public GameObject floatSkill;//技能浮动
+    public GameObject floatState;//技能浮动
     public bool playerHero;//判断是不是己方角色
 
     [Header("基础属性")]
@@ -35,6 +36,11 @@ public class Unit : MonoBehaviour
 
     [Header("状态量")]
     public int tired;
+    public int shield;//盾
+    public int fragile;//易伤
+    public int weakness;//虚弱
+    public int shieldDecrease;//削盾
+    public int healDecrease;//削恢复
     public int burn;
     public int cold;
     public int poison;
@@ -82,7 +88,7 @@ public class Unit : MonoBehaviour
     }
     protected virtual void Start()
     {
-        
+        //初始化数据
 
     }
 
@@ -165,6 +171,12 @@ public class Unit : MonoBehaviour
                 SingleSettle(ref Dodge, skill.skillCost[i]);
             else if (skill.attributeCost[i] == HeroAttribute.Tired)
                 SingleSettle(ref tired, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.fragile)
+                SingleSettle(ref fragile, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.weakness)
+                SingleSettle(ref weakness, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.shieldDecrease)
+                SingleSettle(ref shieldDecrease, skill.skillCost[i]);
             else if (skill.attributeCost[i] == HeroAttribute.Burn)
                 SingleSettle(ref burn, skill.skillCost[i]);
             else if (skill.attributeCost[i] == HeroAttribute.Cold)
@@ -217,6 +229,22 @@ public class Unit : MonoBehaviour
         {
             if (skill.type == SkillType.AD)
                 skill.SkillSettleAD(turnUnit, this);
+            if (skill.type == SkillType.AP)
+                skill.SkillSettleAP(turnUnit, this);
+            if (skill.type == SkillType.ReallyDamage)
+                skill.SkillSettleReallyDamage(turnUnit, this);
+            if (skill.type == SkillType.Heal)
+                skill.SkillSettleHeal(turnUnit, this);
+            if (skill.type == SkillType.Shield)
+                skill.SkillSettleShield(turnUnit, this);
+            if (skill.type == SkillType.Burn)
+                skill.SkillSettleBurn(turnUnit, this);
+            if (skill.type == SkillType.Cold)
+                skill.SkillSettleCold(turnUnit, this);
+            if (skill.type == SkillType.Poison)
+                skill.SkillSettlePoison(turnUnit, this);
+            if (skill.type == SkillType.Card)
+                skill.SkillSettleCard(turnUnit, this);
             if (skill.type == SkillType.AttributeAdjust)
                 skill.SkillSettleAdjust(turnUnit, this);
 
@@ -246,7 +274,11 @@ public class Unit : MonoBehaviour
 
         else
         {    
-            //结算闪避
+            if(GameManager.instance.Probility(Dodge))
+            {
+                FloatStateShow(this, "闪避", Color.white);
+                return;
+            }
 
             if (skill.type == SkillType.Mix)
             {
@@ -342,7 +374,7 @@ public class Unit : MonoBehaviour
 
         if(Go)
         {        
-            FloatSkillShow(this, o, new Color32(190, 190, 190, 255));
+            FloatTextShow(this, o.skillName, new Color32(190, 190, 190, 255));
 
             if (o.passivePoint == PassivePoint.MDamager)
                 if (danger != null)
@@ -476,11 +508,17 @@ public class Unit : MonoBehaviour
         Instantiate(floatPoint, this.transform.position + new Vector3(0, 1, 0), Quaternion.identity);
     }
 
-    public void FloatSkillShow(Unit unit, Skill skill, Color color)//技能字样显示函数
+    public void FloatTextShow(Unit unit, string text, Color color)//技能字样显示函数
     {
-        unit.floatSkill.transform.GetChild(0).GetComponent<TMP_Text>().text = skill.skillName;
+        unit.floatSkill.transform.GetChild(0).GetComponent<TMP_Text>().text = text;
         unit.floatSkill.transform.GetChild(0).GetComponent<TMP_Text>().color = color;
         Instantiate(unit.floatSkill, unit.transform.position, Quaternion.identity);
+    }
+    public void FloatStateShow(Unit unit, string text, Color color)//技能字样显示函数
+    {
+        unit.floatState.transform.GetChild(0).GetComponent<TMP_Text>().text = text;
+        unit.floatState.transform.GetChild(0).GetComponent<TMP_Text>().color = color;
+        Instantiate(unit.floatState, this.transform.position + new Vector3(0, 1, 0), Quaternion.identity);
     }
 
     //——————————————————————————角色升级————————————————————————————————
@@ -548,14 +586,44 @@ public class Unit : MonoBehaviour
     //——————————————————技能计算函数——————————————————————————
     public int Decrease(int final,int decrease,float decreasePrecent)
     {
-        return (int)((final - decrease) * (float)(1 - decreasePrecent));
+        int a = (int)((final - decrease) * (float)(100 - decreasePrecent) / 100);
+        if (a < 0)
+            a = 0;
+        return a;
     }
 
+    //——————————————————状态函数——————————————————————————
     public void BurnDamage()
     {
-
+        if (burn == 0)
+            return;
+        currentHP -= Decrease(burn,BurnDecrease,BurnPrecentDecrease);
+        FloatPointShow(Decrease(burn, BurnDecrease, BurnPrecentDecrease), new Color32(231, 115, 49, 255));
+        burn -= 3;
+        if(burn < 0)
+            burn = 0;
     }
-
+    public void PoisonDamage()
+    {
+        if (poison == 0)
+            return;
+        currentHP -= Decrease(poison, PoisonDecrease,PoisonPrecentDecrease);
+        FloatPointShow(Decrease(poison, PoisonDecrease, PoisonPrecentDecrease), new Color32(157,207,73, 255));
+        poison -= 2;
+        if (poison < 0)
+            poison = 0;
+    }
+    public void ColdDecreaseDamage(ref int damage)
+    {
+        if (cold == 0)
+            return;
+        damage-= Decrease(cold, ColdDecrease, ColdPrecentDecrease);
+        Debug.Log(damage);
+        FloatStateShow(this,"冻僵",new Color32(97,198,236,255));
+        cold -= 5;
+        if (cold < 0)
+            cold = 0;
+    }
 
 
 
