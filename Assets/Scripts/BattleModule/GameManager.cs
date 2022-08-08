@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     [Header("玩家脚本体")]
     public FightPlayer player;
     [Header("画布设置")]
+    public TipsDelayed tipsDelayed;//延迟技能提示框
     public GameObject battleBackGround;//战斗背景
     public GameObject turnTipsObject;//提示框
     public Text turnNum;//回合数
@@ -236,62 +237,99 @@ public class GameManager : MonoBehaviour
     IEnumerator DelayedPlayerSettle()
     {
         int tempDelayedCount = delayedTurn.Count;
+        int temp = 0;
         for (int j = 0; j < tempDelayedCount; j++)
         {
-            int temp=0;
-            if (delayedTurn[temp] == turn && delayedTurnUnit[temp].playerHero)
+            if (delayedTurn[temp] == turn)
             {
-                if (delayedTurnUnit[temp].currentHP > 0)
+                if (delayedTurnUnit[temp].playerHero && (delayedSkill[temp].type != SkillType.AttributeAdjust))
                 {
-                    tips.text = delayedTurnUnit[temp].unitName + " 结算 " + delayedSkill[temp].skillName;
-                    delayedSwitch = true;
-                    delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
-                    delayedSwitch = false;
+                    if (delayedTurnUnit[temp].currentHP > 0)
+                    {
+                        tips.text = delayedTurnUnit[temp].unitName + " 结算 " + delayedSkill[temp].skillName;
+                        delayedSwitch = true;
+                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
+                        delayedSwitch = false;
+                    }
+                    else
+                        tips.text = delayedTurnUnit[temp].unitName + " 已死亡, " + delayedSkill[temp].skillName + " 结算失败 ";
+                    delayedTurn.Remove(delayedTurn[temp]);
+                    delayedTurnUnit.Remove(delayedTurnUnit[temp]);
+                    delayedSkill.Remove(delayedSkill[temp]);
+                    delayedPointUnit.Remove(delayedPointUnit[temp]);
+                    yield return new WaitForSeconds(0.1f);
+                }
+                else if (delayedPointUnit[temp].playerHero && (delayedSkill[temp].type == SkillType.AttributeAdjust))
+                {
+                    if (delayedPointUnit[temp].currentHP > 0)
+                    {
+                        tips.text = delayedTurnUnit[temp].unitName + " " + delayedSkill[temp].skillName;
+                        delayedSwitch = true;
+                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
+                        delayedSwitch = false;
+                    }
+                    delayedTurn.Remove(delayedTurn[temp]);
+                    delayedTurnUnit.Remove(delayedTurnUnit[temp]);
+                    delayedSkill.Remove(delayedSkill[temp]);
+                    delayedPointUnit.Remove(delayedPointUnit[temp]);
                 }
                 else
-                    tips.text = delayedTurnUnit[temp].unitName + " 已死亡, " + delayedSkill[temp].skillName + " 结算失败 ";
-                delayedTurn.Remove(delayedTurn[temp]);
-                delayedTurnUnit.Remove(delayedTurnUnit[temp]);
-                delayedSkill.Remove(delayedSkill[temp]);
-                delayedPointUnit.Remove(delayedPointUnit[temp]);
-                yield return new WaitForSeconds(0.1f);
+                {
+                    temp = temp + 1;
+                }
+
             }
             else
-            {
-                temp ++;
-            }
+                temp += 1;
         }
     }
     IEnumerator DelayedEnemySettle()
     {
         int tempDelayedCount = delayedTurn.Count;
+        int temp = 0;
         for (int j = 0; j < tempDelayedCount; j++)
         {
-            int temp = 0;
-            if (delayedTurn[temp] == turn && !delayedTurnUnit[temp].playerHero)
+            if (delayedTurn[temp] == turn)
             {
-                if(delayedTurnUnit[temp].currentHP > 0)
+                if (!delayedTurnUnit[temp].playerHero && (delayedSkill[temp].type != SkillType.AttributeAdjust))
                 {
-                    tips.text = delayedTurnUnit[temp].unitName + " 结算 " + delayedSkill[temp].skillName;
-                    delayedSwitch = true;
-                    delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
-                    delayedSwitch = false;
+                    if (delayedTurnUnit[temp].currentHP > 0)
+                    {
+                        tips.text = delayedTurnUnit[temp].unitName + " 结算 " + delayedSkill[temp].skillName;
+                        delayedSwitch = true;
+                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
+                        delayedSwitch = false;
+                    }
+                    else
+                        tips.text = delayedTurnUnit[temp].unitName + " 已死亡, " + delayedSkill[temp].skillName + " 结算失败 ";
+                    delayedTurn.Remove(delayedTurn[temp]);
+                    delayedTurnUnit.Remove(delayedTurnUnit[temp]);
+                    delayedSkill.Remove(delayedSkill[temp]);
+                    delayedPointUnit.Remove(delayedPointUnit[temp]);
+                    yield return new WaitForSeconds(0.1f);
+                }
+                else if (!delayedPointUnit[temp].playerHero && (delayedSkill[temp].type == SkillType.AttributeAdjust))
+                {
+                    if (delayedPointUnit[temp].currentHP > 0)
+                    {
+                        tips.text = delayedTurnUnit[temp].unitName + " " + delayedSkill[temp].skillName;
+                        delayedSwitch = true;
+                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
+                        delayedSwitch = false;
+                    }
+                    delayedTurn.Remove(delayedTurn[temp]);
+                    delayedTurnUnit.Remove(delayedTurnUnit[temp]);
+                    delayedSkill.Remove(delayedSkill[temp]);
+                    delayedPointUnit.Remove(delayedPointUnit[temp]);
                 }
                 else
-                    tips.text = delayedTurnUnit[temp].unitName + " 已死亡, " + delayedSkill[temp].skillName+" 结算失败 ";
-
-
-                delayedTurn.Remove(delayedTurn[temp]);
-                delayedTurnUnit.Remove(delayedTurnUnit[temp]);
-                delayedSkill.Remove(delayedSkill[temp]);
-                delayedPointUnit.Remove(delayedPointUnit[temp]);
-                yield return new WaitForSeconds(0.3f);
+                {
+                    temp = temp + 1;
+                }
 
             }
             else
-            {
-                temp ++;
-            }
+                temp += 1;
         }
 
     }
@@ -439,7 +477,7 @@ public class GameManager : MonoBehaviour
             state = BattleState.ENEMYTURNSTART;
             tips.text = "敌方回合";
             //结算状态
-            for (int i = 0; i < playerUnit.Count; i++)
+            for (int i = 0; i < enemyUnit.Count; i++)
                 enemyUnit[i].PoisonDamage();
             yield return new WaitForSeconds(0.5f);
             for (int i = 0; i < enemyUnit.Count; i++)

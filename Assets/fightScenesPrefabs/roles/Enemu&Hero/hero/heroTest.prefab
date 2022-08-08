@@ -165,6 +165,7 @@ MonoBehaviour:
   player: 0
   heroSkillList:
   - {fileID: 11400000, guid: 77d83fb875a8e8a42ab0710d5d099f49, type: 2}
+  - {fileID: 11400000, guid: 9267ee7e3409ebe4f8c6ba5bc847a88b, type: 2}
   passiveTurnEndList: []
   passiveTurnStartList: []
   passiveHitList: []
