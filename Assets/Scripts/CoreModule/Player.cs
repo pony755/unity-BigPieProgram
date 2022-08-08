@@ -8,8 +8,10 @@ public class Player : MonoBehaviour
 {
     public int globalStateValue;//全局状态值，0为位于地图，1为位于其他场景
     public bool autoSaveState;//自动存档标志
+    public CardType[] cardTypes;//当前地图卡牌类型
     public CardState[] cardStates;//当前地图卡牌状态
     public float[] rotation;//当前地图卡牌翻转
+    public bool[] embededFlags;//当前地图碎片嵌入情况
     public int awakeCount;//苏醒计数器，记录第几次从头开始游戏
     public int level;//关卡数
     public int childLevel;//子关卡数
@@ -18,8 +20,10 @@ public class Player : MonoBehaviour
     [System.Serializable]protected class SaveData
     {
         public bool autoSaveState;
+        public CardType[] cardTypes;
         public CardState[] cardStates;
         public float[] rotation;
+        public bool[] embededFlags;
         public int awakeCount;
         public int level;
         public int childLevel;
@@ -28,8 +32,10 @@ public class Player : MonoBehaviour
     }
     public void InitializeArray(int length)//初始化数组
     {
+        cardTypes = new CardType[length];
         cardStates = new CardState[length];
         rotation = new float[length];
+        embededFlags = new bool[length];
     }
     public void Save(string saveNumber)//保存存档
     {
@@ -37,8 +43,10 @@ public class Player : MonoBehaviour
         SaveData saveData = new SaveData
         {
             autoSaveState = autoSaveState,
+            cardTypes = cardTypes,
             cardStates = cardStates,
             rotation = rotation,
+            embededFlags = embededFlags,
             awakeCount = awakeCount,
             level = level,
             childLevel = childLevel,
@@ -61,8 +69,10 @@ public class Player : MonoBehaviour
         }
         globalStateValue = 0;
         autoSaveState = saveData.autoSaveState;
+        cardTypes = saveData.cardTypes;
         cardStates = saveData.cardStates;
         rotation = saveData.rotation;
+        embededFlags = saveData.embededFlags;
         awakeCount = saveData.awakeCount;
         level = saveData.level;
         childLevel = saveData.childLevel;

@@ -1,12 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using static PlaceCard;
 
 public class MapManager : MonoBehaviour
 {
     public Player player;
+    public string saveNumber;
     public int level;
     public int childLevel;
     public GameObject[,] map;
@@ -37,6 +39,7 @@ public class MapManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        GetSaveNumber();
         CopyObject();
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         player.awakeCount = 1;//测试用
@@ -50,6 +53,11 @@ public class MapManager : MonoBehaviour
         PlayerStateListener();
         player.level = level;
         player.childLevel = childLevel;
+    }
+    void GetSaveNumber()//获取存档编号
+    {
+        string locatorName = "SaveLocator.sav";
+        saveNumber = File.ReadAllText(Path.Combine(Application.persistentDataPath, locatorName));
     }
     void InitializeMap()//初始化地图
     {
@@ -474,8 +482,10 @@ public class MapManager : MonoBehaviour
         {
             for (int j = 0; j < mapColumn; j++)
             {
+                player.cardTypes[k] = map[i, j].GetComponent<PlaceCard>().cardType;
                 player.cardStates[k] = map[i, j].GetComponent<PlaceCard>().cardState;
                 player.rotation[k] = map[i, j].transform.eulerAngles.y;
+                player.embededFlags[k] = map[i, j].GetComponent<PlaceCard>().isEmbedded;
                 Debug.Log(player.rotation[k]);
                 k++;
             }
@@ -489,8 +499,19 @@ public class MapManager : MonoBehaviour
         {
             for (int j = 0; j < mapColumn; j++)
             {
+                map[i, j].GetComponent<PlaceCard>().cardType = player.cardTypes[k];
+                map[i, j].transform.GetChild(1).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("MapGraphics/Cardface_" + player.cardTypes[k].ToString());
                 map[i, j].GetComponent<PlaceCard>().cardState = player.cardStates[k];
                 map[i, j].transform.rotation = Quaternion.Euler(0, player.rotation[k], 0);
+                map[i, j].GetComponent<PlaceCard>().isEmbedded = player.embededFlags[k];
+                if(map[i, j].GetComponent<PlaceCard>().isEmbedded)
+                {
+                    map[i, j].transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("MapGraphics/Cardback_Nightmare");
+                }
+                else
+                {
+                    map[i, j].transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("MapGraphics/Cardback");
+                }
                 k++;
             }
         }

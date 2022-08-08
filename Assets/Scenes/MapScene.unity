@@ -977,8 +977,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
+  saveNumber: 
   level: 1
-  childLevel: 2
+  childLevel: 1
   cardPosition:
   - {fileID: 0}
   - {fileID: 0}

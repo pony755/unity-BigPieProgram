@@ -35,6 +35,8 @@ public class PlaceCard : MonoBehaviour
         {
             return;
         }
+        mapManager.BackUpMap();
+        player.Save(mapManager.saveNumber);
         StartCoroutine(TurnCard());
     }
     IEnumerator TurnCard()//·­ÅÆ
