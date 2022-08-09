@@ -149,7 +149,7 @@ MonoBehaviour:
   cold: 0
   poison: 0
   currentHP: 100
-  currentMP: 100
+  currentMP: 50
   currentExp: 10
   getExp: 50
   ADDecrease: 0
@@ -162,10 +162,9 @@ MonoBehaviour:
   PoisonPrecentDecrease: 0
   ColdDecrease: 0
   ColdPrecentDecrease: 0
+  heroSkillListCode: 0000000001000000
+  heroSkillList: []
   player: 0
-  heroSkillList:
-  - {fileID: 11400000, guid: 77d83fb875a8e8a42ab0710d5d099f49, type: 2}
-  - {fileID: 11400000, guid: 9267ee7e3409ebe4f8c6ba5bc847a88b, type: 2}
   passiveTurnEndList: []
   passiveTurnStartList: []
   passiveHitList: []

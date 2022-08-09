@@ -5,17 +5,23 @@ using UnityEngine.UI;
 
 public class FightPrefs : MonoBehaviour
 {
-    
-    public GameObject[] fightHeros;
-    
+
+    public List<GameObject> fightHeros;
+    public List<GameObject> fightPrepareHeros;
+
     void Start()
     {
-        StartCoroutine(Load());
+        BeginSetHeros();
     } 
 
-    IEnumerator Load()
-    {       
+
+   public void BeginSetHeros()
+    {
+        foreach(var hero in GameManager.instance.tempPlayer.GetComponent<FightPlayer>().fightHeroCode)
+            fightHeros.Add(GameManager.instance.allListObject.GetComponent<AllList>().allHero[hero]);
+        foreach (var hero2 in GameManager.instance.tempPlayer.GetComponent<FightPlayer>().fightPrepareHeroCode)
+            fightPrepareHeros.Add(GameManager.instance.allListObject.GetComponent<AllList>().allHero[hero2]);
+
         StartCoroutine(GameManager.instance.SetHeros());
-        yield return null;
     }
 }

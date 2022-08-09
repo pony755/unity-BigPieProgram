@@ -73,9 +73,9 @@ public class BattleHub : MonoBehaviour
         if (hubUnit.currentHP == 0)
         {
             hubUnit.GetComponent<BoxCollider>().enabled = false;//关闭碰撞体脚本
-            if (GameManager.instance.playerUnit.Contains(hubUnit))
+            if (GameManager.instance.heroUnit.Contains(hubUnit))
             {
-                GameManager.instance.playerUnit.Remove(hubUnit);
+                GameManager.instance.heroUnit.Remove(hubUnit);
             }
             if (GameManager.instance.enemyUnit.Contains(hubUnit))
             {

@@ -61,17 +61,16 @@ public class Unit : MonoBehaviour
     public int ColdDecrease;
     public int ColdPrecentDecrease;
 
+    [Header("技能编号列表")]
+    public List<int> heroSkillListCode;
 
-
-
+    [Header("技能")]
+    public List<Skill> heroSkillList;
 
 
 
     [Header("是否为玩家替身")]
     public bool player;
-
-    [Header("技能")]
-    public List<Skill> heroSkillList;
 
     [Header("被动技能列表")]
     public List<Skill> passiveTurnEndList;//回合开始时触发
@@ -83,13 +82,14 @@ public class Unit : MonoBehaviour
 
     private void Awake()//属性初始化
     {
-        anim = GetComponent<Animator>();
-        StartCoroutine(SetPassive());
+        SetSkill();
+        //初始化数据
     }
     protected virtual void Start()
     {
-        //初始化数据
-
+        
+        anim = GetComponent<Animator>();
+        StartCoroutine(SetPassive());
     }
 
     protected virtual void Update()
@@ -247,6 +247,8 @@ public class Unit : MonoBehaviour
                 skill.SkillSettleCard(turnUnit, this);
             if (skill.type == SkillType.AttributeAdjust)
                 skill.SkillSettleAdjust(turnUnit, this);
+            if (skill.type == SkillType.Excharge)
+                skill.SkillSettleExchange(turnUnit, this);
 
         }
         yield return null;
@@ -395,9 +397,9 @@ public class Unit : MonoBehaviour
                     }
                     else
                     {
-                        for (int i = 0; i < GameManager.instance.playerUnit.Count; i++)
+                        for (int i = 0; i < GameManager.instance.heroUnit.Count; i++)
                         {
-                            GameManager.instance.playerUnit[i].SkillSettle(this, o);
+                            GameManager.instance.heroUnit[i].SkillSettle(this, o);
                         }
                     }
                 
@@ -413,9 +415,9 @@ public class Unit : MonoBehaviour
                     }
                     else
                     {
-                        for (int i = 0; i < GameManager.instance.playerUnit.Count; i++)
+                        for (int i = 0; i < GameManager.instance.heroUnit.Count; i++)
                         {
-                            GameManager.instance.playerUnit[i].SkillSettle(this, o);
+                            GameManager.instance.heroUnit[i].SkillSettle(this, o);
                         }
                     }
 
@@ -427,8 +429,8 @@ public class Unit : MonoBehaviour
                 {
                     if (playerHero && (o.pointNum > GameManager.instance.enemyUnit.Count))
                         tempPointNum = GameManager.instance.enemyUnit.Count;
-                    else if (!playerHero && (o.pointNum > GameManager.instance.playerUnit.Count))
-                        tempPointNum = GameManager.instance.playerUnit.Count;
+                    else if (!playerHero && (o.pointNum > GameManager.instance.heroUnit.Count))
+                        tempPointNum = GameManager.instance.heroUnit.Count;
                 }
 
                 if (playerHero)
@@ -441,7 +443,7 @@ public class Unit : MonoBehaviour
                 }
                 else
                 {
-                    foreach (var i in GameManager.instance.playerUnit)
+                    foreach (var i in GameManager.instance.heroUnit)
                     {
                         tempUnits.Add(i);
                     }
@@ -462,8 +464,8 @@ public class Unit : MonoBehaviour
             {
                 if (!o.reChoose)
                 {
-                    if (playerHero && (o.pointNum > GameManager.instance.playerUnit.Count))
-                        tempPointNum = GameManager.instance.playerUnit.Count;
+                    if (playerHero && (o.pointNum > GameManager.instance.heroUnit.Count))
+                        tempPointNum = GameManager.instance.heroUnit.Count;
                     else if (!playerHero && (o.pointNum > GameManager.instance.enemyUnit.Count))
                         tempPointNum = GameManager.instance.enemyUnit.Count;
                 }
@@ -478,7 +480,7 @@ public class Unit : MonoBehaviour
                 }
                 else
                 {
-                    foreach (var i in GameManager.instance.playerUnit)
+                    foreach (var i in GameManager.instance.heroUnit)
                     {
                         tempUnits.Add(i);
                     }
@@ -503,6 +505,10 @@ public class Unit : MonoBehaviour
 
     public void FloatPointShow(int number,Color color)
     {
+        if(this.player)
+        {
+            return;
+        }
         floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().text = number.ToString();
         floatPoint.transform.GetChild(0).GetComponent<TMP_Text>().color = color;
         Instantiate(floatPoint, this.transform.position + new Vector3(0, 1, 0), Quaternion.identity);
@@ -510,12 +516,20 @@ public class Unit : MonoBehaviour
 
     public void FloatTextShow(Unit unit, string text, Color color)//技能字样显示函数
     {
+        if (this.player)
+        {
+            return;
+        }
         unit.floatSkill.transform.GetChild(0).GetComponent<TMP_Text>().text = text;
         unit.floatSkill.transform.GetChild(0).GetComponent<TMP_Text>().color = color;
         Instantiate(unit.floatSkill, unit.transform.position, Quaternion.identity);
     }
     public void FloatStateShow(Unit unit, string text, Color color)//技能字样显示函数
     {
+        if (this.player)
+        {
+            return;
+        }
         unit.floatState.transform.GetChild(0).GetComponent<TMP_Text>().text = text;
         unit.floatState.transform.GetChild(0).GetComponent<TMP_Text>().color = color;
         Instantiate(unit.floatState, this.transform.position + new Vector3(0, 1, 0), Quaternion.identity);
@@ -682,4 +696,14 @@ public class Unit : MonoBehaviour
 
     }
 
+
+
+    //—————————————————————————初始化———————————————————————————
+    public void SetSkill()
+    {
+        foreach(var code in heroSkillListCode)
+        {
+            heroSkillList.Add(GameManager.instance.allListObject.GetComponent<AllList>().allSkillList[code]);
+        }
+    }
 }

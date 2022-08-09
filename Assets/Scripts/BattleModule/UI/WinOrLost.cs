@@ -40,9 +40,9 @@ public class WinOrLost : MonoBehaviour
             winLostImg.sprite = winImg;
             tips.text = winText;
             Win.SetActive(true);
-            for(int i=0; i < GameManager.instance.playerUnit.Count; i++)
+            for(int i=0; i < GameManager.instance.heroUnit.Count; i++)
             {
-                Heros[i].winHero = GameManager.instance.playerUnit[i];
+                Heros[i].winHero = GameManager.instance.heroUnit[i];
                 Heros[i].gameObject.SetActive(true);
             }
             player.BP += 100;

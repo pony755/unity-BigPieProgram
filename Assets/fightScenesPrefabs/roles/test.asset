@@ -19,7 +19,7 @@ MonoBehaviour:
   animType: 0
   skillTired: 0
   needMP: 0
-  delayedTurn: 0
+  delayedTurn: 2
   point: 1
   noMe: 0
   autoPoint: 0
