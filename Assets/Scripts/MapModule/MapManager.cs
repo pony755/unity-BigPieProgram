@@ -40,11 +40,12 @@ public class MapManager : MonoBehaviour
     void Start()
     {
         GetSaveNumber();
+        GetLevel();
         CopyObject();
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         player.awakeCount = 1;//测试用
         InitializeMap();
         map[0, 0].GetComponent<PlaceCard>().cardState = CardState.back;
+        //RecoverMap();
         startListening = true;
     }
     void Update()
@@ -53,6 +54,14 @@ public class MapManager : MonoBehaviour
         PlayerStateListener();
         player.level = level;
         player.childLevel = childLevel;
+    }
+    void GetLevel()//获取关卡号
+    {
+        Debug.Log(saveNumber);
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        player.Load(saveNumber);
+        level = player.level;
+        childLevel = player.childLevel;
     }
     void GetSaveNumber()//获取存档编号
     {

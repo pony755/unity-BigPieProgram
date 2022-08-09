@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class StartManager : MonoBehaviour
 {
     public GameObject mainMenu;
-    public GameObject saveSelect;
+    public GameObject saveFields;
     public Button startBtn;
     public Button continueBtn;
     public Button settingsBtn;
@@ -15,6 +15,7 @@ public class StartManager : MonoBehaviour
     void Start()
     {
         startBtn.onClick.AddListener(StartGame);
+        continueBtn.onClick.AddListener(ContinueGame);
         quitBtn.onClick.AddListener(QuitGame);
     }
 
@@ -26,9 +27,21 @@ public class StartManager : MonoBehaviour
     void StartGame()
     {
         mainMenu.SetActive(false);
-        saveSelect.SetActive(true);
+        saveFields.SetActive(true);
+        for(int i = 0; i < saveFields.transform.childCount; i++)
+        {
+            saveFields.transform.GetChild(i).GetComponent<SaveField>().fieldStateValue = 0;
+        }
     }
-
+    void ContinueGame()
+    {
+        mainMenu.SetActive(false);
+        saveFields.SetActive(true);
+        for (int i = 0; i < saveFields.transform.childCount; i++)
+        {
+            saveFields.transform.GetChild(i).GetComponent<SaveField>().fieldStateValue = 1;
+        }
+    }
     void QuitGame()
     {
     #if UNITY_EDITOR

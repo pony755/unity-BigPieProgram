@@ -20,7 +20,7 @@ public class SaveLoadManager : MonoBehaviour
         public string[] saveInfor;
         public string[] saveTime;
     }
-    public void Save()//保存存档
+    public void Save()//保存存档界面信息
     {
         SLData slData = new SLData
         {
@@ -29,7 +29,7 @@ public class SaveLoadManager : MonoBehaviour
         };
         SaveSystem.Save(saveName, slData);
     }
-    public void Load()//加载存档
+    public void Load()//加载存档界面信息
     {
         SLData slData;
         if (File.Exists(Path.Combine(Application.persistentDataPath, saveName)))
@@ -77,10 +77,13 @@ public class SaveLoadManager : MonoBehaviour
     }
     void Start()
     {
-        saveFields = GameObject.Find("Save Fields");
         fieldCount = saveFields.transform.childCount;
         saveInfor = new string[fieldCount];
         saveTime = new string[fieldCount];
+        for(int i = 0; i < fieldCount; i++)
+        {
+            saveFields.transform.GetChild(i).GetComponent<SaveField>().fieldStateValue = 2;
+        }
         Load();
         LoadField();
         backButton.onClick.AddListener(delegate () {

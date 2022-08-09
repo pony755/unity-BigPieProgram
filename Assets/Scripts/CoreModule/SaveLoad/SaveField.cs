@@ -9,30 +9,50 @@ using UnityEngine.UI;
 
 public class SaveField : MonoBehaviour
 {
+    public int fieldStateValue;//存档栏状态值，0为开始，1为加载，2为游戏中
     public Player player;
     public TextMeshProUGUI saveNumber;
     public TextMeshProUGUI saveInfor;
     public TextMeshProUGUI saveTime;
-    public Button saveButton;
+    public Button startButton;
     public Button loadButton;
     public Button deleteButton;
     public Button autoSaveButton;
     public Image deleteComfirm;
     public Button confirmButton;
     public Button cancelButton;
+    private bool saveExist = false;
+    private string saveName;
+    private string locatorName;
+    private string locatorPath;
     void Start()
     {
-        saveButton.onClick.AddListener(Save);
-        loadButton.onClick.AddListener(Load);
+        saveName = "Save_" + saveNumber.text + ".sav";
+        LocatorCheck();
+        SetOnClickEvent();
+    }
+    void LocatorCheck()//定位器检测
+    {
+        locatorName = "SaveLocator.sav";
+        locatorPath = Path.Combine(Application.persistentDataPath, locatorName);
+        if (!File.Exists(locatorPath))
+        {
+            File.Create(locatorPath);
+        }
+    }
+    void SetOnClickEvent()//设置点击事件
+    {
+        startButton.onClick.AddListener(StartGame);
+        loadButton.onClick.AddListener(LoadGame);
         deleteButton.onClick.AddListener(DeleteConfirm);
         confirmButton.onClick.AddListener(Confirm);
         cancelButton.onClick.AddListener(Cancel);
     }
-    void Save()//保存游戏存档
+    void StartGame()//开始游戏
     {
-        SetInfor();
-        SetTime();
-        player.Save(saveNumber.text);
+        File.Create(Path.Combine(Application.persistentDataPath, saveName));
+        File.WriteAllText(locatorPath, saveNumber.text);
+        SceneManager.LoadSceneAsync("MapScene");
     }
     void SetInfor()//获取存档信息
     {
@@ -43,9 +63,18 @@ public class SaveField : MonoBehaviour
         DateTime dt = DateTime.Now;
         saveTime.text = dt.ToString();
     }
-    void Load()//加载游戏存档
+    void LoadGame()//加载游戏存档
     {
-        player.Load(saveNumber.text);
+        if(fieldStateValue == 1)
+        {
+            File.WriteAllText(locatorPath, saveNumber.text);
+            SceneManager.LoadSceneAsync("MapScene");
+        }
+        else
+        {
+            Debug.Log("LoadInGame");
+            player.Load(saveNumber.text);
+        }
     }
     void DeleteConfirm()//确认是否删除存档
     {
@@ -57,6 +86,8 @@ public class SaveField : MonoBehaviour
         saveTime.text = null;
         player.Delete(saveNumber.text);
         deleteComfirm.gameObject.SetActive(false);
+        loadButton.gameObject.SetActive(false);
+        deleteButton.gameObject.SetActive(false);
     }
     void Cancel()//取消删除游戏存档
     {
@@ -64,21 +95,44 @@ public class SaveField : MonoBehaviour
     }
     void ButtonViewListener()//按钮显示监听器
     {
-        string saveName = "Save_" + saveNumber.text + ".sav";
-        if (File.Exists(Path.Combine(Application.persistentDataPath,saveName)))
+        if(fieldStateValue == 0)
         {
-            loadButton.gameObject.SetActive(true);
-            deleteButton.gameObject.SetActive(true);
+            if (saveExist)
+            {
+                startButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                startButton.gameObject.SetActive(true);
+            }
+            loadButton.gameObject.SetActive(false);
+            deleteButton.gameObject.SetActive(false);
         }
         else
         {
-            loadButton.gameObject.SetActive(false);
-            deleteButton.gameObject.SetActive(false);
+            if (saveExist)
+            {
+                loadButton.gameObject.SetActive(true);
+                deleteButton.gameObject.SetActive(true);
+            }
+            else
+            {
+                loadButton.gameObject.SetActive(false);
+                deleteButton.gameObject.SetActive(false);
+            }
+            startButton.gameObject.SetActive(false);
         }
     }
     void Update()
     {
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        if (fieldStateValue == 2)
+        {
+            player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        }
+        if (File.Exists(Path.Combine(Application.persistentDataPath, saveName)))
+        {
+            saveExist = true;
+        }
         ButtonViewListener();
     }
 }
