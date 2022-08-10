@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 using System;
 using Koubot.Tool;
-public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Mix,AttributeAdjust,Card}//技能类型
+public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Mix,AttributeAdjust,Card,Excharge}//技能类型
 public enum AnimType {Attack}//动画类型
 public enum SkillPoint { Myself,AllEnemy,AllPlayers,Players,Enemies }//技能指向
 public enum HeroAttribute { AP,APDef,maxMP,MP,AD,Def,maxHP,HP,Spirit,Critical,Dodge,Tired, fragile, weakness, shieldDecrease, Burn,Cold,Poison,ADDecrease,ADPrecentDecrease, APDecrease, APPrecentDecrease, BurnDecrease, BurnPrecentDecrease,PoisonDecrease,PoisonPrecentDecrease,ColdDecrease,ColdPrecentDecrease }//属性
@@ -26,8 +26,8 @@ public class Skill : ScriptableObject
     public int skillTired;//技能疲劳
     public int needMP;//MP消耗
     public int delayedTurn;//延时回合
-    
 
+    [Header("若技能类型为exchange，下面无需设置")]
     [Header("技能指向(若为被动则随便设置),noMe仅针对玩家有约束")]
     public SkillPoint point;//技能指向类型
     public bool noMe;//选择时不会包含自己
@@ -76,105 +76,116 @@ public class Skill : ScriptableObject
             this.JudgePlayerSkill();
         }
 
-
-        GameManager.instance.pointNumber = pointNum;//设定选择的目标数量为技能目标
-        if (GameManager.instance.state == BattleState.SKILL|| GameManager.instance.state == BattleState.CARDTURNUNIT)
+        if(type==SkillType.Excharge)
         {
-            if (this.needMP > GameManager.instance.turnUnit[0].currentMP)
+            GameManager.instance.skillImg.SetActive(false);
+            GameManager.instance.CardCanvas.SetActive(false);
+            GameManager.instance.exchange.SetActive(true);
+            GameManager.instance.tips.text = "选择交换角色";
+            GameManager.instance.state = BattleState.POINTPREPAREHERO;
+        }
+        else
+        {
+            GameManager.instance.pointNumber = pointNum;//设定选择的目标数量为技能目标
+            if (GameManager.instance.state == BattleState.SKILL || GameManager.instance.state == BattleState.CARDTURNUNIT)
             {
-                Debug.Log("mp不足");
-                yield return null;
-            }             
-            if (point==SkillPoint.Myself)
-            {           
-                GameManager.instance.pointNumber = 1;
-                GameManager.instance.pointUnit.Add(GameManager.instance.turnUnit[0]);//添加自己作为目标
-                GameManager.instance.state = BattleState.ACTION;//直接进入action
-            }
-
-            else if (point==SkillPoint.AllEnemy)
-            {
-                GameManager.instance.pointNumber = GameManager.instance.enemyUnit.Count;//目标数量为敌人数
-                foreach (var o in GameManager.instance.enemyUnit)//添加所有敌人作为目标
+                if (this.needMP > GameManager.instance.turnUnit[0].currentMP)
                 {
-                    GameManager.instance.pointUnit.Add(o);
+                    Debug.Log("mp不足");
+                    yield return null;
                 }
-                GameManager.instance.state = BattleState.ACTION;//直接进入action
-            }
-            else if (point == SkillPoint.AllPlayers)
-            {
-                GameManager.instance.pointNumber = GameManager.instance.playerUnit.Count;//目标数量为敌人数
-                foreach (var o in GameManager.instance.playerUnit)//添加所有敌人作为目标
+                if (point == SkillPoint.Myself)
                 {
-                    GameManager.instance.pointUnit.Add(o);
+                    GameManager.instance.pointNumber = 1;
+                    GameManager.instance.pointUnit.Add(GameManager.instance.turnUnit[0]);//添加自己作为目标
+                    GameManager.instance.state = BattleState.ACTION;//直接进入action
                 }
-                GameManager.instance.state = BattleState.ACTION;//直接进入action
-            }
 
-            else if (point==SkillPoint.Enemies)
-            {
-                if (!reChoose)
+                else if (point == SkillPoint.AllEnemy)
                 {
-                    if (pointNum > GameManager.instance.enemyUnit.Count)//目标数量大于敌人数
+                    GameManager.instance.pointNumber = GameManager.instance.enemyUnit.Count;//目标数量为敌人数
+                    foreach (var o in GameManager.instance.enemyUnit)//添加所有敌人作为目标
                     {
-                        GameManager.instance.pointNumber = GameManager.instance.enemyUnit.Count;//设定选择的目标为敌人数量
-                    }                   
-                }
-                
-
-
-                if (autoPoint)
-                {
-                    while (GameManager.instance.pointNumber > GameManager.instance.pointUnit.Count)//添加目标
-                    {
-
-                        int enemy = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, GameManager.instance.enemyUnit.Count - 1); 
-                        if (!GameManager.instance.pointUnit.Contains(GameManager.instance.enemyUnit[enemy]) || reChoose)
-                        {                 
-                            GameManager.instance.pointUnit.Add(GameManager.instance.enemyUnit[enemy]);
-                            yield return new WaitForSeconds(0.05f);
-                        }                                                
+                        GameManager.instance.pointUnit.Add(o);
                     }
                     GameManager.instance.state = BattleState.ACTION;//直接进入action
                 }
-                else
+                else if (point == SkillPoint.AllPlayers)
                 {
-                    GameManager.instance.state = BattleState.POINTENEMY;
-                }                       
-            }
-            else if (point == SkillPoint.Players)
-            {
-                if (!reChoose)
-                {
-                    if (pointNum > GameManager.instance.playerUnit.Count)//目标数量大于敌人数
+                    GameManager.instance.pointNumber = GameManager.instance.heroUnit.Count;//目标数量为敌人数
+                    foreach (var o in GameManager.instance.heroUnit)//添加所有敌人作为目标
                     {
-                        GameManager.instance.pointNumber = GameManager.instance.playerUnit.Count;//设定选择的目标为敌人数量
+                        GameManager.instance.pointUnit.Add(o);
                     }
+                    GameManager.instance.state = BattleState.ACTION;//直接进入action
                 }
-                else
-                    GameManager.instance.pointNumber = pointNum;//设定选择的目标数量为技能目标
 
-
-                if (autoPoint)
+                else if (point == SkillPoint.Enemies)
                 {
-                    while (GameManager.instance.pointNumber > GameManager.instance.pointUnit.Count)//添加目标
+                    if (!reChoose)
                     {
-                        int player = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, GameManager.instance.playerUnit.Count - 1);
-                        if (!GameManager.instance.pointUnit.Contains(GameManager.instance.playerUnit[player]) || reChoose)
+                        if (pointNum > GameManager.instance.enemyUnit.Count)//目标数量大于敌人数
                         {
-                            GameManager.instance.pointUnit.Add(GameManager.instance.playerUnit[player]);
-                            yield return new WaitForSeconds(0.05f);
+                            GameManager.instance.pointNumber = GameManager.instance.enemyUnit.Count;//设定选择的目标为敌人数量
                         }
                     }
-                    GameManager.instance.state = BattleState.ACTION;//直接进入action
+
+
+
+                    if (autoPoint)
+                    {
+                        while (GameManager.instance.pointNumber > GameManager.instance.pointUnit.Count)//添加目标
+                        {
+
+                            int enemy = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, GameManager.instance.enemyUnit.Count - 1);
+                            if (!GameManager.instance.pointUnit.Contains(GameManager.instance.enemyUnit[enemy]) || reChoose)
+                            {
+                                GameManager.instance.pointUnit.Add(GameManager.instance.enemyUnit[enemy]);
+                                yield return new WaitForSeconds(0.05f);
+                            }
+                        }
+                        GameManager.instance.state = BattleState.ACTION;//直接进入action
+                    }
+                    else
+                    {
+                        GameManager.instance.state = BattleState.POINTENEMY;
+                    }
                 }
-                else
+                else if (point == SkillPoint.Players)
                 {
-                    GameManager.instance.state = BattleState.POINTPLAYER;
+                    if (!reChoose)
+                    {
+                        if (pointNum > GameManager.instance.heroUnit.Count)//目标数量大于敌人数
+                        {
+                            GameManager.instance.pointNumber = GameManager.instance.heroUnit.Count;//设定选择的目标为敌人数量
+                        }
+                    }
+                    else
+                        GameManager.instance.pointNumber = pointNum;//设定选择的目标数量为技能目标
+
+
+                    if (autoPoint)
+                    {
+                        while (GameManager.instance.pointNumber > GameManager.instance.pointUnit.Count)//添加目标
+                        {
+                            int player = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, GameManager.instance.heroUnit.Count - 1);
+                            if (!GameManager.instance.pointUnit.Contains(GameManager.instance.heroUnit[player]) || reChoose)
+                            {
+                                GameManager.instance.pointUnit.Add(GameManager.instance.heroUnit[player]);
+                                yield return new WaitForSeconds(0.05f);
+                            }
+                        }
+                        GameManager.instance.state = BattleState.ACTION;//直接进入action
+                    }
+                    else
+                    {
+                        GameManager.instance.state = BattleState.POINTPLAYER;
+                    }
                 }
+
             }
-            
         }
+        
     }
 
     public void EnemyUse()
@@ -184,9 +195,9 @@ public class Skill : ScriptableObject
             GameManager.instance.pointNumber = pointNum;
             if (point == SkillPoint.Enemies && !reChoose)
             {
-                if (pointNum > GameManager.instance.playerUnit.Count)//目标数量大于敌人数
+                if (pointNum > GameManager.instance.heroUnit.Count)//目标数量大于敌人数
                 {
-                    GameManager.instance.pointNumber = GameManager.instance.playerUnit.Count;//设定选择的目标为敌人数量
+                    GameManager.instance.pointNumber = GameManager.instance.heroUnit.Count;//设定选择的目标为敌人数量
                 }            
             }
             if (point == SkillPoint.Players && !reChoose)
@@ -204,8 +215,8 @@ public class Skill : ScriptableObject
 
             else if (point == SkillPoint.AllEnemy)
             {
-                GameManager.instance.pointNumber = GameManager.instance.playerUnit.Count;//目标数量为己方数
-                foreach (var o in GameManager.instance.playerUnit)//添加所有敌人作为目标
+                GameManager.instance.pointNumber = GameManager.instance.heroUnit.Count;//目标数量为己方数
+                foreach (var o in GameManager.instance.heroUnit)//添加所有敌人作为目标
                 {
                     GameManager.instance.pointUnit.Add(o);
                 }
@@ -286,7 +297,23 @@ public class Skill : ScriptableObject
          turnUnit.ColdDecreaseDamage(ref damage);//冰冻
         damage -= turnUnit.weakness;
         damage = (int)(((float)pointUnit.Decrease(damage, pointUnit.ADDecrease, pointUnit.ADPrecentDecrease) )* (float)(1-((float)pointUnit.Def / (float)(pointUnit.Def + 100)))) + pointUnit.fragile;//最终数值
-        if(damage>=pointUnit.shield)
+        if (pointUnit.playerHero)
+        {
+            if (damage >= GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield)
+            {
+
+                damage -= GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield;
+                GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield = 0;
+            }
+            else
+            {
+                GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield -= damage;
+                damage = 0;
+            }
+        }
+
+
+        if (damage>=pointUnit.shield)
         {
             damage-=pointUnit.shield;
             pointUnit.shield = 0;
@@ -304,7 +331,7 @@ public class Skill : ScriptableObject
                 pointUnit.FloatPointShow(damage,Color.red);               
             }
         pointUnit.BurnDamage();//烧伤
-        if (pointUnit.currentHP > 0)
+        if (pointUnit.currentHP > 0&&pointUnit.player==false)
             pointUnit.anim.Play("hit");
     }
     public virtual void SkillSettleAP(Unit turnUnit, Unit pointUnit)
@@ -318,6 +345,20 @@ public class Skill : ScriptableObject
         turnUnit.ColdDecreaseDamage(ref damage);//冰冻
         damage -= turnUnit.weakness;
         damage = (int)(((float)pointUnit.Decrease(damage, pointUnit.APDecrease, pointUnit.APPrecentDecrease)) * (float)(1 - ((float)pointUnit.APDef / (float)(pointUnit.APDef + 100)))) + pointUnit.fragile;//最终数值
+        if (pointUnit.playerHero)
+        {
+            if (damage >= GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield)
+            {
+
+                damage -= GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield;
+                GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield = 0;
+            }
+            else
+            {
+                GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield -= damage;
+                damage = 0;
+            }
+        }
         if (damage >= pointUnit.shield)
         {
             damage -= pointUnit.shield;
@@ -437,7 +478,7 @@ public class Skill : ScriptableObject
             turnUnit.FloatStateShow(pointUnit, "抽卡", Color.magenta);
             for(int i = 0; i < card; i++)
             {
-                GameManager.instance.player.TakeCard();
+                GameManager.instance.fightPlayerCards.TakeCard();
             }
         }
             
@@ -446,7 +487,7 @@ public class Skill : ScriptableObject
             turnUnit.FloatStateShow(pointUnit, "弃卡", Color.black);
             for (int i = 0; i < -card; i++)
             {
-                GameManager.instance.player.haveCards[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, GameManager.instance.player.haveCards.Count-1)].CardDestory();
+                GameManager.instance.fightPlayerCards.haveCards[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, GameManager.instance.fightPlayerCards.haveCards.Count-1)].CardDestory();
             }
         }
             
@@ -513,7 +554,28 @@ public class Skill : ScriptableObject
 
     }
 
-
+    public virtual void SkillSettleExchange(Unit turnUnit,Unit pointUnit)
+    {
+        //交换存档体信息
+        int temp;
+        int index = GameManager.instance.heroUnit.IndexOf(turnUnit);//获取发动方位置索引
+        temp=GameManager.instance.tempPlayer.GetComponent<FightPlayer>().fightHeroCode[index];
+        GameManager.instance.tempPlayer.GetComponent<FightPlayer>().fightHeroCode[index] = GameManager.instance.tempPlayer.GetComponent<FightPlayer>().fightPrepareHeroCode[GameManager.instance.heroPreparePrefab.IndexOf(pointUnit.gameObject)];
+        GameManager.instance.tempPlayer.GetComponent<FightPlayer>().fightPrepareHeroCode[GameManager.instance.heroPreparePrefab.IndexOf(pointUnit.gameObject)] = temp;
+        
+        //交换实际克隆体
+        GameManager.instance.heroPrefab[index] = pointUnit.gameObject;
+        GameManager.instance.heroPrefab[index].transform.SetParent(GameManager.instance.battleBackGround.transform);
+        GameManager.instance.heroPrefab[index].transform.localPosition = GameManager.instance.playerStations[index].position;
+        GameManager.instance.heroPrefab[index].GetComponent<SpriteRenderer>().sortingOrder = index;
+        GameManager.instance.heroUnit[index]= GameManager.instance.heroPrefab[index].GetComponent<Unit>();//替换unit进列表
+        //读取数据
+        GameManager.instance.Hub[index].SetHub(GameManager.instance.heroUnit[index]);
+        GameManager.instance.Hub[index].gameObject.SetActive(true);//显示对应角色状态栏
+        turnUnit.gameObject.transform.SetParent(GameManager.instance.heroPrepare.transform);
+        turnUnit.gameObject.transform.localPosition=new Vector3(0,0,0);
+        GameManager.instance.heroPreparePrefab[GameManager.instance.heroPreparePrefab.IndexOf(pointUnit.gameObject)] = turnUnit.gameObject;
+    }
 
 
 

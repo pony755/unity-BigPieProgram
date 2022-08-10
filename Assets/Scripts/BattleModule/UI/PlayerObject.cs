@@ -5,6 +5,10 @@ using UnityEngine;
 public class PlayerObject : Unit
 {
     // Start is called before the first frame update
+    override protected void Awake()
+    {
+        
+    }
     override protected void Start()
     {
         //¶ÁÈ¡Êý¾Ý

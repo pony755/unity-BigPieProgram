@@ -1,20 +1,20 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Koubot.Tool;
+using UnityEngine.UI;
 using System.Collections;
 
-public class FightPlayer : MonoBehaviour
+public class FightPlayerCards : MonoBehaviour
 {
     private bool startTakeCardSwitch;//判断是否为开始阶段抽卡
-    public Unit playerObject;
-    public GameObject cardsObject;
+    public GameObject playerShield;
+    public GameObject playerObject;//玩家替身
+    public GameObject cardsObject;//卡牌图片
     public GameObject cardsInCards;//接收克隆的卡牌
     [Header("卡组")]
     public int startCard;
     public int maxCard;
     public int addCardNum;
-    public List<Cards> playerCardsPrefabs;//卡组
     public List<Cards> playerCards;//卡组
     public List<Cards> haveCards;//手牌
     public List<Cards> abandomCards;//弃牌堆
@@ -23,9 +23,12 @@ public class FightPlayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        foreach(var card in playerCardsPrefabs)
+        startCard =GameManager.instance. tempPlayer.GetComponent<FightPlayer>().PstartCard;
+        maxCard = GameManager.instance.tempPlayer.GetComponent<FightPlayer>().PmaxCard;
+        addCardNum = GameManager.instance.tempPlayer.GetComponent<FightPlayer>().PaddCardNum;
+        foreach (var cardIndex in GameManager.instance.tempPlayer.GetComponent<FightPlayer>().cardCode)
         {
-            GameObject A = Instantiate(card.gameObject,new Vector3(0, 0, 0), Quaternion.identity, cardsInCards.transform);
+            GameObject A = Instantiate(GameManager.instance.allListObject.GetComponent<AllList>().allCardList[cardIndex].gameObject,new Vector3(0, 0, 0), Quaternion.identity, cardsInCards.transform);
             A.transform.localPosition = new Vector3(-300, 0, 0);
             playerCards.Add(A.transform. GetComponent<Cards>());
         }    
@@ -38,7 +41,13 @@ public class FightPlayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield > 0)
+        {
+            playerShield.SetActive(true);
+            playerShield.transform.GetChild(0).GetComponent<Text>().text = GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield.ToString();
+        }
+        else
+            playerShield.SetActive(false);
     }
 
 
@@ -79,7 +88,7 @@ public class FightPlayer : MonoBehaviour
             for(int i=0; i<count; i++)
             {
                 playerCards.Add(abandomCards[i]);
-                abandomCards[i].gameObject.transform.SetParent(GameManager.instance.player.cardsInCards.transform);
+                abandomCards[i].gameObject.transform.SetParent(GameManager.instance.fightPlayerCards.cardsInCards.transform);
             abandomCards[i].gameObject.transform.localPosition=new Vector3(0,0,0);
             }    
             abandomCards.Clear();

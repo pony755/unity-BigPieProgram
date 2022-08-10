@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UnitChild : Unit
+public class Hero000 : Unit
 {
 
-    
 }

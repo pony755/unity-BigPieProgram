@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using Koubot.Tool;
 
-public enum BattleState { NONE,START, PLAYERTURNSTART,PLAYERTURN, POINTALL,SKILL,CARDTURNUNIT,POINTENEMY,POINTPLAYER,ACTION,ACTIONFINISH,ABANDOMCARD,ENEMYTURNSTART, ENEMYTURN,ENEMYFINISH,WIN, LOST,OVER }
+public enum BattleState { NONE,START, PLAYERTURNSTART,PLAYERTURN, POINTALL,SKILL,CARDTURNUNIT,POINTENEMY,POINTPLAYER,POINTPREPAREHERO,ACTION,ACTIONFINISH,ABANDOMCARD,ENEMYTURNSTART, ENEMYTURN,ENEMYFINISH,WIN, LOST,OVER }
 
 
 public class GameManager : MonoBehaviour
@@ -13,10 +13,15 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
     [HideInInspector]public bool win = false;//胜利条件标志位
     [HideInInspector] public bool AdjustCards = false;//调整卡牌位置标志位
-    [Header("玩家脚本体")]
-    public FightPlayer player;
+
+    [Header("全物体List")]   
+    public GameObject allListObject;
+    public GameObject tempPlayer;
     [Header("画布设置")]
+    public FightPlayerCards fightPlayerCards;//卡牌设置
+    public TipsDelayed tipsDelayed;//延迟技能提示框
     public GameObject battleBackGround;//战斗背景
+    public GameObject heroPrepare;//存放小队的地方
     public GameObject turnTipsObject;//提示框
     public Text turnNum;//回合数
     public Text tips;//提示框
@@ -24,9 +29,10 @@ public class GameManager : MonoBehaviour
     public GameObject WinOrLost;//胜负画布
     public GameObject CardCanvas;//卡牌画布
     public GameObject AbandomCardCheck;//弃牌查看
+    public GameObject exchange;//换人栏
     public GameObject skillImg;//技能栏
     public GameObject skillText;//技能介绍
-    public GameObject addCancleBtn;
+    public GameObject addCancleBtn;//摸牌按钮
     public List<GameObject> skillBtns;//技能按钮   
 
 
@@ -48,11 +54,12 @@ public class GameManager : MonoBehaviour
     public BattleState state;
 
     [Header("Heros")]
-    public GameObject[] playerPrefab;//接收战斗列表角色
-    public List<Unit> playerUnit;//获取战斗列表角色Unit脚本
+    public List<GameObject> heroPrefab;//接收战斗列表角色
+    public List<Unit> heroUnit;//获取战斗列表角色Unit脚本
+    public List<GameObject> heroPreparePrefab;//接收小队列表角色
 
     [Header("enemyHeros")]
-    public GameObject[] enemyPrefab;//接收敌人列表角色
+    public List<GameObject> enemyPrefab;//接收敌人列表角色
     public List<Unit> enemyUnit;//获取敌人列表角色Unit脚本
     // Start is called before the first frame update
     [Header("——————延时结算——————")]
@@ -104,7 +111,7 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         UpdateTips();  
-        if (playerUnit.Count== 0 && state!=BattleState.OVER)
+        if (heroUnit.Count== 0 && state!=BattleState.OVER)
         {
             state = BattleState.LOST;            
             StartCoroutine(Lost());
@@ -118,13 +125,13 @@ public class GameManager : MonoBehaviour
             GameReset();
         }
 
-        if((state == BattleState.POINTPLAYER|| state == BattleState.POINTENEMY|| state == BattleState.POINTALL)&&pointNumber==pointUnit.Count)
+        if((state == BattleState.POINTPLAYER|| state == BattleState.POINTENEMY|| state == BattleState.POINTALL||state==BattleState.POINTPREPAREHERO) &&pointNumber==pointUnit.Count)
             StartCoroutine(ToAction());
         if (state == BattleState.ACTION)//当进入ACTION时，执行函数(携程）  
             StartCoroutine(Action());
         if(state == BattleState.ABANDOMCARD)
         {
-            if(player.haveCards.Count<=player.maxCard)
+            if(fightPlayerCards.haveCards.Count<= fightPlayerCards.maxCard)
             {
                 StartCoroutine(EnemyTurnStart());
             }
@@ -133,7 +140,7 @@ public class GameManager : MonoBehaviour
         if (AdjustCards)
         {
             AdjustCards=false;
-            StartCoroutine(player.CardAdjustPosition());
+            StartCoroutine(fightPlayerCards.CardAdjustPosition());
         }
     }
     IEnumerator ToAction()
@@ -143,33 +150,53 @@ public class GameManager : MonoBehaviour
     }
     public IEnumerator SetHeros()//在对应位置设置战斗队伍预置体以及状态栏
     {
-        for (int i = 0; i < fightPrefs.fightHeros.Length; i++)
+        for (int i = 0; i < fightPrefs.fightHeros.Count; i++)
         {
-            playerPrefab[i]=Instantiate(fightPrefs.fightHeros[i],playerStations[i].position,playerStations[i].rotation);
-            playerPrefab[i].transform.SetParent(battleBackGround.transform);
-            playerPrefab[i].GetComponent<SpriteRenderer>().sortingOrder = i;
-            playerUnit.Add(playerPrefab[i].GetComponent<Unit>());//添加unit进列表
-            //读取数据
-            Hub[i].SetHub(playerUnit[i]);
-            Hub[i].gameObject.SetActive(true);//显示对应角色状态栏
-            LeanTween.move(Hub[i].gameObject, new Vector3(Hub[i].gameObject.transform.position.x+350f, Hub[i].gameObject.transform.position.y, Hub[i].gameObject.transform.position.z), 0.8f);
+            SetSingleHeros(i);
         }
-        for (int j = 0; j < enemyPrefs.enemyHeros.Length; j++)
+        for (int j = 0; j < fightPrefs.fightPrepareHeros.Count; j++)
         {
-            enemyPrefab[j] = Instantiate(enemyPrefs.enemyHeros[j], enemyStations[j].position, enemyStations[j].rotation);
+            SetSinglePrepareHeros(j);
+        }
+        yield return null;
+    }
+
+    public void SetSingleHeros(int i)
+    {
+        heroPrefab.Add(Instantiate(fightPrefs.fightHeros[i], playerStations[i].position, playerStations[i].rotation));
+        heroPrefab[i].transform.SetParent(battleBackGround.transform);
+        heroPrefab[i].GetComponent<SpriteRenderer>().sortingOrder = i;
+        heroUnit.Add(heroPrefab[i].GetComponent<Unit>());//添加unit进列表
+                                                             //读取数据
+        Hub[i].SetHub(heroUnit[i]);
+        Hub[i].gameObject.SetActive(true);//显示对应角色状态栏
+        LeanTween.move(Hub[i].gameObject, new Vector3(Hub[i].gameObject.transform.position.x + 350f, Hub[i].gameObject.transform.position.y, Hub[i].gameObject.transform.position.z), 0.8f);
+    }
+    public void SetSinglePrepareHeros(int i)
+    {
+        heroPreparePrefab.Add(Instantiate(fightPrefs.fightPrepareHeros[i], heroPrepare.transform.position, playerStations[i].rotation));
+        heroPreparePrefab[i].transform.SetParent(heroPrepare.transform);
+
+    }
+
+    public IEnumerator SetEnemyHeros()//在对应位置设置战斗队伍预置体以及状态栏
+    {
+        for (int j = 0; j < enemyPrefs.enemyHeros.Count; j++)
+        {
+            enemyPrefab.Add(Instantiate(enemyPrefs.enemyHeros[j], enemyStations[j].position, enemyStations[j].rotation));
             enemyPrefab[j].transform.SetParent(battleBackGround.transform);
             enemyPrefab[j].GetComponent<SpriteRenderer>().sortingOrder = j;
             //读取数据
             enemyUnit.Add(enemyPrefab[j].GetComponent<Unit>());
             enemyHub[j].SetHub(enemyUnit[j]);
             enemyHub[j].gameObject.SetActive(true);//显示对应角色状态栏
-            LeanTween.move(enemyHub[j].gameObject, new Vector3(enemyHub[j].gameObject.transform.position.x -350f, enemyHub[j].gameObject.transform.position.y, enemyHub[j].gameObject.transform.position.z), 0.8f);
+            LeanTween.move(enemyHub[j].gameObject, new Vector3(enemyHub[j].gameObject.transform.position.x - 350f, enemyHub[j].gameObject.transform.position.y, enemyHub[j].gameObject.transform.position.z), 0.8f);
         }
         yield return null;
     }
 
 
-    
+
 
 
 
@@ -202,7 +229,10 @@ public class GameManager : MonoBehaviour
         pointNumber = 1;//默认值
         useSkill=null;//默认值
         useCard=null;
+        foreach(var btn in exchange.GetComponent<Exchange>().herosBtn)
+            btn.gameObject.SetActive(false);
         skillImg.SetActive(false);
+        exchange.SetActive(false);
         CardCanvas.SetActive(true);
         turnUnit.Clear();
         pointUnit.Clear();
@@ -227,7 +257,7 @@ public class GameManager : MonoBehaviour
             
             GameReset();
             state = BattleState.PLAYERTURN;
-            foreach(var o in playerUnit)
+            foreach(var o in heroUnit)
                 o.anim.Play("idle");
         }
         CardCanvas.SetActive(true);    
@@ -236,62 +266,99 @@ public class GameManager : MonoBehaviour
     IEnumerator DelayedPlayerSettle()
     {
         int tempDelayedCount = delayedTurn.Count;
+        int temp = 0;
         for (int j = 0; j < tempDelayedCount; j++)
         {
-            int temp=0;
-            if (delayedTurn[temp] == turn && delayedTurnUnit[temp].playerHero)
+            if (delayedTurn[temp] == turn)
             {
-                if (delayedTurnUnit[temp].currentHP > 0)
+                if (delayedTurnUnit[temp].playerHero && (delayedSkill[temp].type != SkillType.AttributeAdjust))
                 {
-                    tips.text = delayedTurnUnit[temp].unitName + " 结算 " + delayedSkill[temp].skillName;
-                    delayedSwitch = true;
-                    delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
-                    delayedSwitch = false;
+                    if (delayedTurnUnit[temp].currentHP > 0)
+                    {
+                        tips.text = delayedTurnUnit[temp].unitName + " 结算 " + delayedSkill[temp].skillName;
+                        delayedSwitch = true;
+                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
+                        delayedSwitch = false;
+                    }
+                    else
+                        tips.text = delayedTurnUnit[temp].unitName + " 已死亡, " + delayedSkill[temp].skillName + " 结算失败 ";
+                    delayedTurn.Remove(delayedTurn[temp]);
+                    delayedTurnUnit.Remove(delayedTurnUnit[temp]);
+                    delayedSkill.Remove(delayedSkill[temp]);
+                    delayedPointUnit.Remove(delayedPointUnit[temp]);
+                    yield return new WaitForSeconds(0.1f);
+                }
+                else if (delayedPointUnit[temp].playerHero && (delayedSkill[temp].type == SkillType.AttributeAdjust))
+                {
+                    if (delayedPointUnit[temp].currentHP > 0)
+                    {
+                        tips.text = delayedTurnUnit[temp].unitName + " " + delayedSkill[temp].skillName;
+                        delayedSwitch = true;
+                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
+                        delayedSwitch = false;
+                    }
+                    delayedTurn.Remove(delayedTurn[temp]);
+                    delayedTurnUnit.Remove(delayedTurnUnit[temp]);
+                    delayedSkill.Remove(delayedSkill[temp]);
+                    delayedPointUnit.Remove(delayedPointUnit[temp]);
                 }
                 else
-                    tips.text = delayedTurnUnit[temp].unitName + " 已死亡, " + delayedSkill[temp].skillName + " 结算失败 ";
-                delayedTurn.Remove(delayedTurn[temp]);
-                delayedTurnUnit.Remove(delayedTurnUnit[temp]);
-                delayedSkill.Remove(delayedSkill[temp]);
-                delayedPointUnit.Remove(delayedPointUnit[temp]);
-                yield return new WaitForSeconds(0.1f);
+                {
+                    temp = temp + 1;
+                }
+
             }
             else
-            {
-                temp ++;
-            }
+                temp += 1;
         }
     }
     IEnumerator DelayedEnemySettle()
     {
         int tempDelayedCount = delayedTurn.Count;
+        int temp = 0;
         for (int j = 0; j < tempDelayedCount; j++)
         {
-            int temp = 0;
-            if (delayedTurn[temp] == turn && !delayedTurnUnit[temp].playerHero)
+            if (delayedTurn[temp] == turn)
             {
-                if(delayedTurnUnit[temp].currentHP > 0)
+                if (!delayedTurnUnit[temp].playerHero && (delayedSkill[temp].type != SkillType.AttributeAdjust))
                 {
-                    tips.text = delayedTurnUnit[temp].unitName + " 结算 " + delayedSkill[temp].skillName;
-                    delayedSwitch = true;
-                    delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
-                    delayedSwitch = false;
+                    if (delayedTurnUnit[temp].currentHP > 0)
+                    {
+                        tips.text = delayedTurnUnit[temp].unitName + " 结算 " + delayedSkill[temp].skillName;
+                        delayedSwitch = true;
+                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
+                        delayedSwitch = false;
+                    }
+                    else
+                        tips.text = delayedTurnUnit[temp].unitName + " 已死亡, " + delayedSkill[temp].skillName + " 结算失败 ";
+                    delayedTurn.Remove(delayedTurn[temp]);
+                    delayedTurnUnit.Remove(delayedTurnUnit[temp]);
+                    delayedSkill.Remove(delayedSkill[temp]);
+                    delayedPointUnit.Remove(delayedPointUnit[temp]);
+                    yield return new WaitForSeconds(0.1f);
+                }
+                else if (!delayedPointUnit[temp].playerHero && (delayedSkill[temp].type == SkillType.AttributeAdjust))
+                {
+                    if (delayedPointUnit[temp].currentHP > 0)
+                    {
+                        tips.text = delayedTurnUnit[temp].unitName + " " + delayedSkill[temp].skillName;
+                        delayedSwitch = true;
+                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
+                        delayedSwitch = false;
+                    }
+                    delayedTurn.Remove(delayedTurn[temp]);
+                    delayedTurnUnit.Remove(delayedTurnUnit[temp]);
+                    delayedSkill.Remove(delayedSkill[temp]);
+                    delayedPointUnit.Remove(delayedPointUnit[temp]);
                 }
                 else
-                    tips.text = delayedTurnUnit[temp].unitName + " 已死亡, " + delayedSkill[temp].skillName+" 结算失败 ";
-
-
-                delayedTurn.Remove(delayedTurn[temp]);
-                delayedTurnUnit.Remove(delayedTurnUnit[temp]);
-                delayedSkill.Remove(delayedSkill[temp]);
-                delayedPointUnit.Remove(delayedPointUnit[temp]);
-                yield return new WaitForSeconds(0.3f);
+                {
+                    temp = temp + 1;
+                }
 
             }
             else
-            {
-                temp ++;
-            }
+                temp += 1;
         }
 
     }
@@ -311,20 +378,20 @@ public class GameManager : MonoBehaviour
             tips.text = "你的回合...";
             turnNum.text = turn.ToString();
 
-            if (player.playerCards.Count == 0)
+            if (fightPlayerCards.playerCards.Count == 0)
             {
-                GameManager.instance.player.cardsObject.transform.GetChild(0).gameObject.SetActive(false);
-                GameManager.instance.player.cardsObject.GetComponent<Animator>().Play("cards");
-                player.ResetCards();
+                GameManager.instance.fightPlayerCards.cardsObject.transform.GetChild(0).gameObject.SetActive(false);
+                GameManager.instance.fightPlayerCards.cardsObject.GetComponent<Animator>().Play("cards");
+                fightPlayerCards.ResetCards();
             }
                 
             state = BattleState.PLAYERTURNSTART;
             //结算状态
-            for (int i = 0; i < playerUnit.Count; i++)
-                playerUnit[i].PoisonDamage();
+            for (int i = 0; i < heroUnit.Count; i++)
+                heroUnit[i].PoisonDamage();
             yield return new WaitForSeconds(0.5f);
-            for (int i = 0; i < playerUnit.Count; i++)
-                playerUnit[i].PassiveTurnStart();
+            for (int i = 0; i < heroUnit.Count; i++)
+                heroUnit[i].PassiveTurnStart();
             yield return new WaitForSeconds(0.5f);
             StartCoroutine(DelayedPlayerSettle());
             yield return new WaitForSeconds(0.5f);
@@ -347,10 +414,11 @@ public class GameManager : MonoBehaviour
         {
             state = BattleState.ACTIONFINISH;//及时切换state,防止多次运行此函数     
             BtnHide();
+            exchange.SetActive(false);
             skillImg.SetActive(false);
             CardCanvas.SetActive(true);
             //重置动画
-            foreach (var o in playerUnit)
+            foreach (var o in heroUnit)
             {
                 o.anim.Play("idle");
             }
@@ -390,10 +458,10 @@ public class GameManager : MonoBehaviour
         {
             yield return new WaitForSeconds(1f);
             tips.text = "己方回合结束";
-            for (int i = 0; i < playerUnit.Count; i++)
-                playerUnit[i].PassiveTurnEnd();
+            for (int i = 0; i < heroUnit.Count; i++)
+                heroUnit[i].PassiveTurnEnd();
             yield return new WaitForSeconds(1f);
-            foreach (var o in playerUnit)
+            foreach (var o in heroUnit)
             {
                 if (o.tired > 0 && !turnUnit.Contains(o))
                 {
@@ -419,7 +487,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            if (player.haveCards.Count <= player.maxCard)
+            if (fightPlayerCards.haveCards.Count <= fightPlayerCards.maxCard)
                 StartCoroutine(EnemyTurnStart());
             else
             {
@@ -439,7 +507,7 @@ public class GameManager : MonoBehaviour
             state = BattleState.ENEMYTURNSTART;
             tips.text = "敌方回合";
             //结算状态
-            for (int i = 0; i < playerUnit.Count; i++)
+            for (int i = 0; i < enemyUnit.Count; i++)
                 enemyUnit[i].PoisonDamage();
             yield return new WaitForSeconds(0.5f);
             for (int i = 0; i < enemyUnit.Count; i++)
@@ -547,7 +615,7 @@ public class GameManager : MonoBehaviour
         
         if(state == BattleState.ABANDOMCARD)
         {
-            GameManager.instance.tips.text = "弃掉" + (player.haveCards.Count - player.maxCard).ToString() + "张牌";
+            GameManager.instance.tips.text = "弃掉" + (fightPlayerCards.haveCards.Count - fightPlayerCards.maxCard).ToString() + "张牌";
         }
     }
     IEnumerator EnemyAI()
@@ -594,14 +662,14 @@ public class GameManager : MonoBehaviour
                 {
                     if (!useSkill.reChoose)
                     {                      
-                        int player = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, playerUnit.Count - 1);
-                        if (!pointUnit.Contains(playerUnit[player]))
-                            pointUnit.Add(playerUnit[player]);
+                        int player = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, heroUnit.Count - 1);
+                        if (!pointUnit.Contains(heroUnit[player]))
+                            pointUnit.Add(heroUnit[player]);
                     }
                     else
                     {
                         yield return new WaitForSeconds(0.1f);
-                        pointUnit.Add(playerUnit[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, playerUnit.Count - 1)]);
+                        pointUnit.Add(heroUnit[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, heroUnit.Count - 1)]);
                     }
                 }
             }
@@ -644,6 +712,10 @@ public class GameManager : MonoBehaviour
         if(pointUnit.Count==1&&pointUnit[0]==turnUnit[0])//对自己使用
         {
             tips.text= turnUnit[0].unitName + " 对自己使用了 " + useSkill.skillName;
+        }
+        else if(useSkill.type==SkillType.Excharge)
+        {
+            tips.text = turnUnit[0].unitName + "准备跑路";
         }
         else
         {
