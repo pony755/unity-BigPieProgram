@@ -109,6 +109,7 @@ MonoBehaviour:
   floatState: {fileID: 6679136902167881148, guid: d70e909c4c4edbb47989e9000722e1ee, type: 3}
   playerHero: 0
   unitName: 2B
+  skillNum: 0
   unitLevel: 2
   nextExp: 0
   AP: 0
@@ -143,7 +144,7 @@ MonoBehaviour:
   PoisonPrecentDecrease: 0
   ColdDecrease: 0
   ColdPrecentDecrease: 0
-  heroSkillListCode: 00000000
+  heroSkillListCode: 
   heroSkillList: []
   player: 0
   passiveTurnEndList: []

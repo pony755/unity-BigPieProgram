@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using Koubot.Tool;
+using System.IO;
 public class Unit : MonoBehaviour
 {
     [HideInInspector]public Animator anim;//动画
@@ -17,8 +17,11 @@ public class Unit : MonoBehaviour
     public GameObject floatState;//技能浮动
     public bool playerHero;//判断是不是己方角色
 
-    [Header("基础属性")]
+
+    [Header("角色名")]
     public string unitName;
+    [Header("基础属性")]
+    public int skillNum;
     public int unitLevel;
     public int nextExp;
     [Header("天")]
@@ -68,7 +71,6 @@ public class Unit : MonoBehaviour
     public List<Skill> heroSkillList;
 
 
-
     [Header("是否为玩家替身")]
     public bool player;
 
@@ -80,10 +82,63 @@ public class Unit : MonoBehaviour
     public List<Skill> passiveGameBeginList;//死亡触发
 
 
-    private void Awake()//属性初始化
+
+    [System.Serializable]
+    class SaveUnitData
     {
-        SetSkill();
+        public int skillNum;
+        public int unitLevel;
+        public int nextExp;
+
+        public int AP;
+        public int APDef;
+        public int maxMP;
+
+        public int AD;
+        public int Def;
+        public int maxHP;
+
+        public int Spirit;
+        public int Critical;
+        public int Dodge;
+
+
+        public int tired;
+        public int shield;//盾
+        public int fragile;//易伤
+        public int weakness;//虚弱
+        public int shieldDecrease;//削盾
+        public int healDecrease;//削恢复
+        public int burn;
+        public int cold;
+        public int poison;
+        public int currentHP;
+        public int currentMP;
+        public int currentExp;
+        public int getExp;
+
+
+        public int ADDecrease;
+        public int ADPrecentDecrease;
+        public int APDecrease;
+        public int APPrecentDecrease;
+        public int BurnDecrease;
+        public int BurnPrecentDecrease;
+        public int PoisonDecrease;
+        public int PoisonPrecentDecrease;
+        public int ColdDecrease;
+        public int ColdPrecentDecrease;
+
+
+        public List<int> heroSkillListCode;
+    }
+    protected virtual void Awake()//属性初始化
+    {
         //初始化数据
+        if (playerHero)
+            UnitLoad();
+        SetSkill();
+        
     }
     protected virtual void Start()
     {
@@ -701,9 +756,128 @@ public class Unit : MonoBehaviour
     //—————————————————————————初始化———————————————————————————
     public void SetSkill()
     {
-        foreach(var code in heroSkillListCode)
+        foreach (var code in heroSkillListCode)
         {
             heroSkillList.Add(GameManager.instance.allListObject.GetComponent<AllList>().allSkillList[code]);
         }
     }
+
+    //——————————————————————————存取删————————————————————————————————
+
+    /*string GetSaveNumber()
+    {
+        string saveNumber;
+        string locatorName = "SaveLocator.sav";
+        saveNumber = File.ReadAllText(Path.Combine(Application.persistentDataPath, locatorName));
+        return saveNumber;
+    }*/
+    public void UnitCreat()//保存存档
+    {
+        string unitSaveName = "Save_BattleHero_" + unitName + ".sav";
+        SaveUnitData saveData = new SaveUnitData
+        {
+        skillNum = skillNum,
+        unitLevel = unitLevel,
+        nextExp= nextExp,
+
+        AP= AP,
+        APDef= APDef,
+        maxMP= maxMP,
+
+        AD= AD,
+        Def= Def,
+        maxHP= maxHP,
+
+        Spirit= Spirit,
+        Critical= Critical,
+        Dodge= Dodge,
+
+
+
+        currentHP= currentHP,
+        currentMP= currentMP,
+        currentExp= currentExp,
+        getExp= getExp,
+
+
+        ADDecrease = ADDecrease,
+        ADPrecentDecrease= ADPrecentDecrease,
+        APDecrease= APDecrease,
+        APPrecentDecrease= APPrecentDecrease,
+        BurnDecrease= BurnDecrease,
+        BurnPrecentDecrease= BurnPrecentDecrease,
+        PoisonDecrease= PoisonDecrease,
+        PoisonPrecentDecrease= PoisonPrecentDecrease,
+        ColdDecrease = ColdDecrease,
+        ColdPrecentDecrease= ColdPrecentDecrease,
+        heroSkillListCode= heroSkillListCode
+        };
+
+        SaveSystem.Save(unitSaveName, saveData);
+    }
+
+    public void UnitLoad()//加载存档
+    {
+        string saveUnitName = "Save_BattleHero_" + unitName + ".sav";
+        SaveUnitData saveData;
+        if (File.Exists(Path.Combine(Application.persistentDataPath, saveUnitName)))
+        {
+            saveData = SaveSystem.Load<SaveUnitData>(saveUnitName);
+            skillNum = saveData.skillNum;
+            unitLevel = saveData.unitLevel;
+            nextExp = saveData.nextExp;
+
+            AP = saveData.AP;
+            APDef = saveData.APDef;
+            maxMP = saveData.maxMP;
+
+            AD = saveData.AD;
+            Def = saveData.Def;
+            maxHP = saveData.maxHP;
+
+            Spirit = saveData.Spirit;
+            Critical = saveData.Critical;
+            Dodge = saveData.Dodge;
+
+
+            tired = saveData.tired;
+            shield = saveData.shield;//盾
+            fragile = saveData.fragile;//易伤
+            weakness = saveData.weakness;//虚弱
+            shieldDecrease = saveData.shieldDecrease;//削盾
+            healDecrease = saveData.healDecrease;//削恢复
+            burn = saveData.burn;
+            cold = saveData.cold;
+            poison = saveData.poison;
+            currentHP = saveData.currentHP;
+            currentMP = saveData.currentMP;
+            currentExp = saveData.currentExp;
+            getExp = saveData.getExp;
+
+
+            ADDecrease = saveData.ADDecrease;
+            ADPrecentDecrease = saveData.ADPrecentDecrease;
+            APDecrease = saveData.APDecrease;
+            APPrecentDecrease = saveData.APPrecentDecrease;
+            BurnDecrease = saveData.BurnDecrease;
+            BurnPrecentDecrease = saveData.BurnPrecentDecrease;
+            PoisonDecrease = saveData.PoisonDecrease;
+            PoisonPrecentDecrease = saveData.PoisonPrecentDecrease;
+            ColdDecrease = saveData.ColdDecrease;
+            ColdPrecentDecrease = saveData.ColdPrecentDecrease;
+            heroSkillListCode = saveData.heroSkillListCode;
+        }
+        else
+        {
+            UnitCreat();
+        }
+
+    }
+
+    public void UnitDelete()//删除存档
+    {
+        string saveUnitName = "Save_BattleHero_" + unitName + ".sav";
+        SaveSystem.Delete(saveUnitName);
+    }
+
 }

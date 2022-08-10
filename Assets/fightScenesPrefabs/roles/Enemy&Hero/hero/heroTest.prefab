@@ -128,6 +128,7 @@ MonoBehaviour:
   floatState: {fileID: 6679136902167881148, guid: d70e909c4c4edbb47989e9000722e1ee, type: 3}
   playerHero: 1
   unitName: SB
+  skillNum: 0
   unitLevel: 1
   nextExp: 50
   AP: 0
@@ -162,7 +163,7 @@ MonoBehaviour:
   PoisonPrecentDecrease: 0
   ColdDecrease: 0
   ColdPrecentDecrease: 0
-  heroSkillListCode: 0000000001000000
+  heroSkillListCode: 
   heroSkillList: []
   player: 0
   passiveTurnEndList: []
@@ -192,7 +193,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1329045295607464399, guid: 1e9f4e9f6f3fd33439a067131343e76e, type: 3}
       propertyPath: m_Name
-      value: count
+      value: cardPoint
       objectReference: {fileID: 0}
     - target: {fileID: 1329045295607464399, guid: 1e9f4e9f6f3fd33439a067131343e76e, type: 3}
       propertyPath: m_IsActive
