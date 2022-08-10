@@ -1032,6 +1032,13 @@ MonoBehaviour:
   - {fileID: 0}
   nightmareSharps: 0
   isTurning: 0
+  mainCamera: {fileID: 1908932578}
+  background: {fileID: 1340140746}
+  cardPositions: {fileID: 943373308}
+  cards: {fileID: 1313433663}
+  border: {fileID: 1825704298}
+  canvas: {fileID: 519609978}
+  eventSystem: {fileID: 2110007787}
 --- !u!4 &954399965
 Transform:
   m_ObjectHideFlags: 0
@@ -1076,9 +1083,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   globalStateValue: 0
-  autoSaveState: 0
+  cardTypes: 
   cardStates: 
   rotation: []
+  embededFlags: 
   awakeCount: 0
   level: 0
   childLevel: 0

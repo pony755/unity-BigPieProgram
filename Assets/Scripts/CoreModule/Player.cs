@@ -7,7 +7,6 @@ using static PlaceCard;
 public class Player : MonoBehaviour
 {
     public int globalStateValue;//全局状态值，0为位于地图，1为位于其他场景
-    public bool autoSaveState;//自动存档标志
     public CardType[] cardTypes;//当前地图卡牌类型
     public CardState[] cardStates;//当前地图卡牌状态
     public float[] rotation;//当前地图卡牌翻转
@@ -42,7 +41,6 @@ public class Player : MonoBehaviour
         string saveName = "Save_" + saveNumber + ".sav";
         SaveData saveData = new SaveData
         {
-            autoSaveState = autoSaveState,
             cardTypes = cardTypes,
             cardStates = cardStates,
             rotation = rotation,
@@ -68,7 +66,6 @@ public class Player : MonoBehaviour
             saveData = new SaveData();
         }
         globalStateValue = 0;
-        autoSaveState = saveData.autoSaveState;
         cardTypes = saveData.cardTypes;
         cardStates = saveData.cardStates;
         rotation = saveData.rotation;

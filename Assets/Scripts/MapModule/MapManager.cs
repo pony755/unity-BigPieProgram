@@ -28,24 +28,37 @@ public class MapManager : MonoBehaviour
     public int nightmareSharps;
     public bool isTurning = false;
     private bool startListening = false;
-    private GameObject mainCamera;
-    private GameObject background;
-    private GameObject cardPositions;
-    private GameObject cards;
-    private GameObject border;
-    private GameObject canvas;
-    private GameObject eventSystem;
+    [Header("地图物件")]
+    public GameObject mainCamera;
+    public GameObject background;
+    public GameObject cardPositions;
+    public GameObject cards;
+    public GameObject border;
+    public GameObject canvas;
+    public GameObject eventSystem;
 
     // Start is called before the first frame update
     void Start()
     {
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         GetSaveNumber();
-        GetLevel();
-        CopyObject();
-        player.awakeCount = 1;//测试用
+        int mode = Convert.ToInt32(GetConstructionMode());//获取构造模式，0为完全初始化，1为读取记录
+        if(mode == 1)
+        {
+            GetLevel();
+
+        }
         InitializeMap();
+        player.awakeCount = 1;//测试用
         map[0, 0].GetComponent<PlaceCard>().cardState = CardState.back;
-        //RecoverMap();
+        if(mode == 1)
+        {
+            player.Load(saveNumber);
+            //Test();
+            RecoverMap();
+        }
+        BackUpMap();
+        player.Save(saveNumber);
         startListening = true;
     }
     void Update()
@@ -55,10 +68,27 @@ public class MapManager : MonoBehaviour
         player.level = level;
         player.childLevel = childLevel;
     }
+    void Test()//测试函数
+    {
+        int k = 0;//一维数组下标
+        for (int i = 0; i < mapRow; i++)
+        {
+            for (int j = 0; j < mapColumn; j++)
+            {
+                Debug.Log(player.cardTypes[k]);
+                Debug.Log(player.cardStates[k]);
+                Debug.Log(player.rotation[k]);
+                Debug.Log(player.embededFlags[k]);
+                k++;
+            }
+        }
+        Debug.Log("Level:" + player.level);
+        Debug.Log("ChildLevel:" + player.childLevel);
+        Debug.Log("BP:" + player.BP);
+    }
     void GetLevel()//获取关卡号
     {
         Debug.Log(saveNumber);
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         player.Load(saveNumber);
         level = player.level;
         childLevel = player.childLevel;
@@ -67,6 +97,12 @@ public class MapManager : MonoBehaviour
     {
         string locatorName = "SaveLocator.sav";
         saveNumber = File.ReadAllText(Path.Combine(Application.persistentDataPath, locatorName));
+    }
+    string GetConstructionMode()
+    {
+        string selectorName = "ConstructionModeSelector.sav";
+        string mode = File.ReadAllText(Path.Combine(Application.persistentDataPath, selectorName));
+        return mode;
     }
     void InitializeMap()//初始化地图
     {
@@ -473,17 +509,6 @@ public class MapManager : MonoBehaviour
             }
         }
     }
-    void CopyObject()//获取对象用于场景切换
-    {
-        mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
-        background = GameObject.FindGameObjectWithTag("Background");
-        cardPositions = GameObject.FindGameObjectWithTag("CardPosition");
-        cards = GameObject.FindGameObjectWithTag("Card");
-        border = GameObject.FindGameObjectWithTag("Border");
-        canvas = GameObject.FindGameObjectWithTag("Canvas");
-        eventSystem = GameObject.FindGameObjectWithTag("EventSystem");
-        Debug.Log("获取成功");
-    }
     public void BackUpMap()//备份地图
     {
         int k = 0;//一维数组下标
@@ -499,6 +524,8 @@ public class MapManager : MonoBehaviour
                 k++;
             }
         }
+        player.level = level;
+        player.childLevel = childLevel;
         Debug.Log("备份地图成功");
     }
     public void RecoverMap()//恢复地图

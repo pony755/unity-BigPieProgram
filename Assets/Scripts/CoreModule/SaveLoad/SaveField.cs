@@ -25,10 +25,13 @@ public class SaveField : MonoBehaviour
     private string saveName;
     private string locatorName;
     private string locatorPath;
+    private string selectorName;
+    private string selectorPath;
     void Start()
     {
         saveName = "Save_" + saveNumber.text + ".sav";
         LocatorCheck();
+        SelectorCheck();
         SetOnClickEvent();
     }
     void LocatorCheck()//定位器检测
@@ -38,6 +41,15 @@ public class SaveField : MonoBehaviour
         if (!File.Exists(locatorPath))
         {
             File.Create(locatorPath);
+        }
+    }
+    void SelectorCheck()//选择器检测
+    {
+        selectorName = "ConstructionModeSelector.sav";
+        selectorPath = Path.Combine(Application.persistentDataPath, selectorName);
+        if (!File.Exists(selectorPath))
+        {
+            File.Create(selectorPath);
         }
     }
     void SetOnClickEvent()//设置点击事件
@@ -52,6 +64,7 @@ public class SaveField : MonoBehaviour
     {
         File.Create(Path.Combine(Application.persistentDataPath, saveName));
         File.WriteAllText(locatorPath, saveNumber.text);
+        File.WriteAllText(selectorPath, "0");
         SceneManager.LoadSceneAsync("MapScene");
     }
     void SetInfor()//获取存档信息
@@ -68,11 +81,11 @@ public class SaveField : MonoBehaviour
         if(fieldStateValue == 1)
         {
             File.WriteAllText(locatorPath, saveNumber.text);
+            File.WriteAllText(selectorPath, "1");
             SceneManager.LoadSceneAsync("MapScene");
         }
         else
         {
-            Debug.Log("LoadInGame");
             player.Load(saveNumber.text);
         }
     }
