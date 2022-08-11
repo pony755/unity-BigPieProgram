@@ -701,10 +701,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   allHero:
-  - {fileID: 0}
+  - {fileID: 4233717831000331530, guid: 9c031639c00ea9248b1149e8c4b3747a, type: 3}
   allEnemyHero:
   - {fileID: 2638177141171392284, guid: a09e42edf4fccd2479cd80acfed7cde8, type: 3}
-  allSkillList: []
+  allSkillList:
+  - {fileID: 11400000, guid: ffdbfd91d7418d24da089bc8bf62e97b, type: 2}
+  - {fileID: 11400000, guid: ede24e4733a44304283e0f5c5f3afd75, type: 2}
+  - {fileID: 11400000, guid: 1a4a5030ae2f92e4781f20e3aedd88ad, type: 2}
   allCardList:
   - {fileID: 4906730213105727576, guid: 1ec398c82f20fb9429655968569cfead, type: 3}
 --- !u!1 &253944202
@@ -1241,11 +1244,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &582426039 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 797833074067235859, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-  m_PrefabInstance: {fileID: 971843136}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &602149835
 GameObject:
   m_ObjectHideFlags: 0
@@ -8776,139 +8774,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 6183738410745620058, guid: 56b0f4794f429be4bbeaa27abc7b9744, type: 3}
   m_PrefabInstance: {fileID: 6183738410978214634}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &922944032 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4075235541484765314, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-  m_PrefabInstance: {fileID: 971843136}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &971843136
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 6892929640723013963, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-      propertyPath: m_RootOrder
-      value: 17
-      objectReference: {fileID: 0}
-    - target: {fileID: 6892929640723013963, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6892929640723013963, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6892929640723013963, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6892929640723013963, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6892929640723013963, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6892929640723013963, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6892929640723013963, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6892929640723013963, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6892929640723013963, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6892929640723013963, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6892929640723014069, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-      propertyPath: m_Name
-      value: hero000
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 3748680341008811948, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-  m_SourcePrefab: {fileID: 100100000, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
---- !u!1 &971843137 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6892929640723014069, guid: bbf6394e974885a49bdfd92839d24027, type: 3}
-  m_PrefabInstance: {fileID: 971843136}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &971843138
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 971843137}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7424dde788deff84488af86f17680e33, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  anim: {fileID: 0}
-  danger: {fileID: 0}
-  normalSprite: {fileID: 21300000, guid: d7eff56572525a5438ca69c9676b50e6, type: 3}
-  point: {fileID: 922944032}
-  cardPoint: {fileID: 582426039}
-  floatPoint: {fileID: 2829554972175539950, guid: 86b7e4c54a2c7b34bbd22eff8f6a6d81, type: 3}
-  floatSkill: {fileID: 851834931086582596, guid: 3661ff1d4713cb547bcacce0cf83a269, type: 3}
-  floatState: {fileID: 6679136902167881148, guid: d70e909c4c4edbb47989e9000722e1ee, type: 3}
-  playerHero: 0
-  unitName: "\u82F1\u96C41\u53F7"
-  skillNum: 3
-  unitLevel: 1
-  nextExp: 50
-  AP: 100
-  APDef: 0
-  maxMP: 0
-  AD: 0
-  Def: 0
-  maxHP: 0
-  Spirit: 0
-  Critical: 0
-  Dodge: 0
-  tired: 0
-  shield: 0
-  fragile: 0
-  weakness: 0
-  shieldDecrease: 0
-  healDecrease: 0
-  burn: 0
-  cold: 0
-  poison: 0
-  currentHP: 0
-  currentMP: 0
-  currentExp: 0
-  getExp: 0
-  ADDecrease: 0
-  ADPrecentDecrease: 0
-  APDecrease: 0
-  APPrecentDecrease: 0
-  BurnDecrease: 0
-  BurnPrecentDecrease: 0
-  PoisonDecrease: 0
-  PoisonPrecentDecrease: 0
-  ColdDecrease: 0
-  ColdPrecentDecrease: 0
-  heroSkillListCode: 
-  heroSkillList: []
-  player: 0
-  passiveTurnEndList: []
-  passiveTurnStartList: []
-  passiveHitList: []
-  passiveDeadList: []
-  passiveGameBeginList: []
 --- !u!1 &997912823 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2755713011091869927, guid: 326867527a5a0574f9fa055a9eb872a4, type: 3}
@@ -10672,10 +10537,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fightHeroCode: 00000000
   fightPrepareHeroCode: 
-  enemyBundleCode: 2
+  enemyBundleCode: 1
   PstartCard: 5
   PmaxCard: 5
-  PaddCardNum: 10
+  PaddCardNum: 2
   cardCode: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 --- !u!1 &1521421562
 GameObject:

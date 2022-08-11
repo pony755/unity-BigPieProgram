@@ -27,7 +27,10 @@ public class SkillBtn : MonoBehaviour
             StartCoroutine(MixTypeTextColor());
         GameManager.instance.skillText.GetComponent<SkillText>().skillImg.sprite=skillImg.sprite;
         GameManager.instance.skillText.GetComponent<SkillText>().skillName.text=skillInfo.skillName;
-        GameManager.instance.skillText.GetComponent<SkillText>().skillText.text ="         "+ skillInfo.description;
+        GameManager.instance.skillText.GetComponent<SkillText>().skillText.text =skillInfo.description;
+        GameManager.instance.skillText.GetComponent<SkillText>().TextMP.text = "ºÄÀ¶:" + skillInfo.needMP.ToString();
+        GameManager.instance.skillText.GetComponent<SkillText>().TextTired.text = "Æ£ÀÍ:" + skillInfo.skillTired.ToString();
+        GameManager.instance.skillText.GetComponent<SkillText>().TextFail.text = "Ê§°ÜÂÊ:" + skillInfo.precent.ToString()+"%";
         if (GameManager.instance.state == BattleState.SKILL)
             GameManager.instance.skillText.SetActive(true);
     }
@@ -108,7 +111,7 @@ public class SkillBtn : MonoBehaviour
         if (skillInMix.type == SkillType.Shield)
         {
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].text = "[»¤¶Ü]";
-            GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].color = Color.grey;
+            GameManager.instance.skillText.GetComponent<SkillText>().skillType[index].color = Color.white;
         }
         if (skillInMix.type == SkillType.Burn)
         {

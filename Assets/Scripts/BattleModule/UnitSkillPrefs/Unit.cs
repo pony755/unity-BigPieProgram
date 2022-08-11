@@ -135,9 +135,11 @@ public class Unit : MonoBehaviour
     protected virtual void Awake()//属性初始化
     {
         //初始化数据
-        if (playerHero)
-            UnitLoad();
-        SetSkill();
+        //if (playerHero)
+            //UnitLoad();
+            SetSkill();
+
+            
         
     }
     protected virtual void Start()
@@ -310,15 +312,18 @@ public class Unit : MonoBehaviour
 
     }
 
+    public void SkillCost(Skill skill)
+    {
+        //结算发动代价
+        AttributeSettle(skill);
+        currentMP -= skill.needMP;
+        tired += skill.skillTired;
+    }
+
     public void SkillSettle(Unit turnUnit, Skill skill)//结算技能
     {
 
-         //结算发动代价
-         turnUnit.AttributeSettle(skill);
-         turnUnit.currentMP -= skill.needMP;
-         turnUnit.tired += skill.skillTired;
-
-               
+        turnUnit.SkillCost(skill);       
         //结算是否为延时
         if (skill.delayedTurn > 0&&!GameManager.instance.delayedSwitch)
         {
@@ -331,11 +336,6 @@ public class Unit : MonoBehaviour
 
         else
         {    
-            if(GameManager.instance.Probility(Dodge))
-            {
-                FloatStateShow(this, "闪避", Color.white);
-                return;
-            }
 
             if (skill.type == SkillType.Mix)
             {
@@ -412,38 +412,48 @@ public class Unit : MonoBehaviour
     
     IEnumerator PassiveSettle(Skill o)
     {
-
-        bool Go=true;//判断是否继续运行
-        int tempPointNum = o.pointNum;
-        List<Unit> tempUnits = new List<Unit>();
-        if (o.passiveTurn==PassiveTurn.E)
+        if (currentMP < o.needMP)
         {
-            if (!(((GameManager.instance.state == BattleState.ENEMYTURN || GameManager.instance.state == BattleState.ENEMYTURNSTART || GameManager.instance.state == BattleState.ENEMYFINISH) && this.playerHero)
-             || (GameManager.instance.state == BattleState.ACTIONFINISH || GameManager.instance.state == BattleState.PLAYERTURNSTART) && !this.playerHero))
-                Go = false;
+            GameManager.instance.tips.text = "被动 " + o.skillName + " 所需MP不足";
         }
-        else if(o.passiveTurn==PassiveTurn.M)
+        else if (GameManager.instance.Probility(o.precent))
         {
-            if(!(((GameManager.instance.state == BattleState.ENEMYTURN || GameManager.instance.state == BattleState.ENEMYTURNSTART || GameManager.instance.state == BattleState.ENEMYFINISH) && !this.playerHero)
-            || ((GameManager.instance.state == BattleState.ACTIONFINISH || GameManager.instance.state == BattleState.PLAYERTURNSTART) && this.playerHero)))
-                Go=false;
-        }
+            GameManager.instance.tips.text = "欧不！ 被动 " + o.skillName + " 发动失败";
+            SkillCost(o);
 
-        if(Go)
-        {        
-            FloatTextShow(this, o.skillName, new Color32(190, 190, 190, 255));
-
-            if (o.passivePoint == PassivePoint.MDamager)
-                if (danger != null)
-                {             
-                    danger.SkillSettle(this, o);
-                }                   
-            if (o.passivePoint == PassivePoint.MMyself)
-                this.SkillSettle(this, o);
-            if (o.passivePoint == PassivePoint.MAllEnemy)
+        }     
+        else
+        {
+            bool Go = true;//判断是否继续运行
+            int tempPointNum = o.pointNum;
+            List<Unit> tempUnits = new List<Unit>();
+            if (o.passiveTurn == PassiveTurn.E)
             {
-                    Debug.Log("sb");
-                    if(playerHero)
+                if (!(((GameManager.instance.state == BattleState.ENEMYTURN || GameManager.instance.state == BattleState.ENEMYTURNSTART || GameManager.instance.state == BattleState.ENEMYFINISH) && this.playerHero)
+                 || (GameManager.instance.state == BattleState.ACTIONFINISH || GameManager.instance.state == BattleState.PLAYERTURNSTART) && !this.playerHero))
+                    Go = false;
+            }
+            else if (o.passiveTurn == PassiveTurn.M)
+            {
+                if (!(((GameManager.instance.state == BattleState.ENEMYTURN || GameManager.instance.state == BattleState.ENEMYTURNSTART || GameManager.instance.state == BattleState.ENEMYFINISH) && !this.playerHero)
+                || ((GameManager.instance.state == BattleState.ACTIONFINISH || GameManager.instance.state == BattleState.PLAYERTURNSTART) && this.playerHero)))
+                    Go = false;
+            }
+
+            if (Go)
+            {
+                FloatTextShow(this, o.skillName, new Color32(190, 190, 190, 255));
+
+                if (o.passivePoint == PassivePoint.MDamager)
+                    if (danger != null)
+                    {
+                        danger.SkillSettle(this, o);
+                    }
+                if (o.passivePoint == PassivePoint.MMyself)
+                    this.SkillSettle(this, o);
+                if (o.passivePoint == PassivePoint.MAllEnemy)
+                {
+                    if (playerHero)
                     {
                         for (int i = 0; i < GameManager.instance.enemyUnit.Count; i++)
                         {
@@ -457,10 +467,10 @@ public class Unit : MonoBehaviour
                             GameManager.instance.heroUnit[i].SkillSettle(this, o);
                         }
                     }
-                
-            }
-            if (o.passivePoint == PassivePoint.MAllPlayers)
-            {
+
+                }
+                if (o.passivePoint == PassivePoint.MAllPlayers)
+                {
                     if (!playerHero)
                     {
                         for (int i = 0; i < GameManager.instance.enemyUnit.Count; i++)
@@ -477,81 +487,83 @@ public class Unit : MonoBehaviour
                     }
 
                 }
-            if (o.passivePoint == PassivePoint.MEnemiesAuto)
-            {
+                if (o.passivePoint == PassivePoint.MEnemiesAuto)
+                {
 
-                if (!o.reChoose)
-                {
-                    if (playerHero && (o.pointNum > GameManager.instance.enemyUnit.Count))
-                        tempPointNum = GameManager.instance.enemyUnit.Count;
-                    else if (!playerHero && (o.pointNum > GameManager.instance.heroUnit.Count))
-                        tempPointNum = GameManager.instance.heroUnit.Count;
-                }
-
-                if (playerHero)
-                {
-                    foreach (var i in GameManager.instance.enemyUnit)
-                    {
-                        tempUnits.Add(i);
-                    }
-
-                }
-                else
-                {
-                    foreach (var i in GameManager.instance.heroUnit)
-                    {
-                        tempUnits.Add(i);
-                    }
-                }
-                for (int j = 0; j < tempPointNum; j++)
-                {
-                    
-                    int k = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempUnits.Count-1);
-                    tempUnits[k].SkillSettle(this, o);
                     if (!o.reChoose)
-                        tempUnits.Remove(tempUnits[k]);
-                    yield return new WaitForSeconds(0.05f);
-
-                }
-
-            }
-            if (o.passivePoint == PassivePoint.MPlayersAuto)
-            {
-                if (!o.reChoose)
-                {
-                    if (playerHero && (o.pointNum > GameManager.instance.heroUnit.Count))
-                        tempPointNum = GameManager.instance.heroUnit.Count;
-                    else if (!playerHero && (o.pointNum > GameManager.instance.enemyUnit.Count))
-                        tempPointNum = GameManager.instance.enemyUnit.Count;
-                }
-
-                if (!playerHero)
-                {
-                    foreach (var i in GameManager.instance.enemyUnit)
                     {
-                        tempUnits.Add(i);
+                        if (playerHero && (o.pointNum > GameManager.instance.enemyUnit.Count))
+                            tempPointNum = GameManager.instance.enemyUnit.Count;
+                        else if (!playerHero && (o.pointNum > GameManager.instance.heroUnit.Count))
+                            tempPointNum = GameManager.instance.heroUnit.Count;
+                    }
+
+                    if (playerHero)
+                    {
+                        foreach (var i in GameManager.instance.enemyUnit)
+                        {
+                            tempUnits.Add(i);
+                        }
+
+                    }
+                    else
+                    {
+                        foreach (var i in GameManager.instance.heroUnit)
+                        {
+                            tempUnits.Add(i);
+                        }
+                    }
+                    for (int j = 0; j < tempPointNum; j++)
+                    {
+
+                        int k = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempUnits.Count - 1);
+                        tempUnits[k].SkillSettle(this, o);
+                        if (!o.reChoose)
+                            tempUnits.Remove(tempUnits[k]);
+                        yield return new WaitForSeconds(0.05f);
+
                     }
 
                 }
-                else
+                if (o.passivePoint == PassivePoint.MPlayersAuto)
                 {
-                    foreach (var i in GameManager.instance.heroUnit)
-                    {
-                        tempUnits.Add(i);
-                    }
-                }
-                for (int j = 0; j < tempPointNum; j++)
-                {
-                    int k = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempUnits.Count - 1);
-                    tempUnits[k].SkillSettle(this, o);
                     if (!o.reChoose)
-                        tempUnits.Remove(tempUnits[k]);
-                    yield return new WaitForSeconds(0.05f);
+                    {
+                        if (playerHero && (o.pointNum > GameManager.instance.heroUnit.Count))
+                            tempPointNum = GameManager.instance.heroUnit.Count;
+                        else if (!playerHero && (o.pointNum > GameManager.instance.enemyUnit.Count))
+                            tempPointNum = GameManager.instance.enemyUnit.Count;
+                    }
+
+                    if (!playerHero)
+                    {
+                        foreach (var i in GameManager.instance.enemyUnit)
+                        {
+                            tempUnits.Add(i);
+                        }
+
+                    }
+                    else
+                    {
+                        foreach (var i in GameManager.instance.heroUnit)
+                        {
+                            tempUnits.Add(i);
+                        }
+                    }
+                    for (int j = 0; j < tempPointNum; j++)
+                    {
+                        int k = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempUnits.Count - 1);
+                        tempUnits[k].SkillSettle(this, o);
+                        if (!o.reChoose)
+                            tempUnits.Remove(tempUnits[k]);
+                        yield return new WaitForSeconds(0.05f);
+
+                    }
 
                 }
-
             }
         }
+       
         
     }
 
@@ -694,7 +706,25 @@ public class Unit : MonoBehaviour
             cold = 0;
     }
 
+    public void TurnBeginSettle()//回合开始状态处理
+    {
+        if (shield > 0)
+            shield -= 5;
+        if(shield <= 0)
+            shield = 0;
+    }
+    public void TurnEndSettle()
+    {
+        if (burn > 0)
+            burn -= 2;
+        if(burn <= 0)
+            burn = 0;
 
+        if(cold > 0)
+            cold -= 3;
+        if (cold <= 0)
+            cold = 0;
+    }
 
 
 

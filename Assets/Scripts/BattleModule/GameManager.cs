@@ -388,7 +388,11 @@ public class GameManager : MonoBehaviour
             state = BattleState.PLAYERTURNSTART;
             //结算状态
             for (int i = 0; i < heroUnit.Count; i++)
+            {
                 heroUnit[i].PoisonDamage();
+                heroUnit[i].TurnBeginSettle();
+            }
+                
             yield return new WaitForSeconds(0.5f);
             for (int i = 0; i < heroUnit.Count; i++)
                 heroUnit[i].PassiveTurnStart();
@@ -430,10 +434,12 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
             if (useSkill != null)
             {
-                if (Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 100) < useSkill.precent)
-                {
+                if(Probility(useSkill.precent))
+                    {
 
                     tips.text = "欧不！ " + useSkill.skillName + " 发动失败";
+                    turnUnit[0].SkillCost(useSkill);
+                    AdjustCards=true;
                     yield return new WaitForSeconds(0.5f);
                 }
                 else
@@ -463,6 +469,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(1f);
             foreach (var o in heroUnit)
             {
+                o.TurnEndSettle();
                 if (o.tired > 0 && !turnUnit.Contains(o))
                 {
                     o.tired--;
@@ -508,7 +515,11 @@ public class GameManager : MonoBehaviour
             tips.text = "敌方回合";
             //结算状态
             for (int i = 0; i < enemyUnit.Count; i++)
+            {
                 enemyUnit[i].PoisonDamage();
+                enemyUnit[i].TurnBeginSettle();
+            }
+                
             yield return new WaitForSeconds(0.5f);
             for (int i = 0; i < enemyUnit.Count; i++)
                 enemyUnit[i].PassiveTurnStart();
@@ -532,14 +543,15 @@ public class GameManager : MonoBehaviour
             state = BattleState.ENEMYTURN;
             tips.text = "等待敌方行动...";
             StartCoroutine(EnemyAI());
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(1f);
             TipsSkillPoint();
             yield return new WaitForSeconds(0.5f);
             if (useSkill != null)
             {
-                if (Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 100) < useSkill.precent)
+                if (Probility(useSkill.precent))
                 {
                     tips.text = "欧不！ " + useSkill.skillName + " 发动失败";
+                    turnUnit[0].SkillCost(useSkill);
                     yield return new WaitForSeconds(1f);
                 }
 
@@ -548,7 +560,7 @@ public class GameManager : MonoBehaviour
                     TurnUnitAnim();
                 }
             }
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(2f);
             StartCoroutine(EnemyFinish());
         }
                    
@@ -568,6 +580,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(1f);
             foreach (var o in enemyUnit)
             {
+                o.TurnEndSettle();
                 if (o.tired > 0 && !turnUnit.Contains(o))
                 {
                     o.tired--;

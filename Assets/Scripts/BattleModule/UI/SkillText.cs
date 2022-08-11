@@ -8,7 +8,10 @@ public class SkillText : MonoBehaviour
     public Image skillImg;
     public TMP_Text skillName;
     public List<TMP_Text> skillType;
-    public TMP_Text skillText;
+    public Text skillText;
+    public Text TextMP;
+    public Text TextTired;
+    public Text TextFail;
 
     public IEnumerator Reset()
     {
