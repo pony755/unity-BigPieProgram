@@ -6,13 +6,7 @@ TagManager:
   tags:
   - skill
   - MapManager
-  - CardPosition
-  - Card
-  - Border
-  - Canvas
-  - EventSystem
-  - Background
-  - Identification
+  - SaveLoadManager
   layers:
   - Default
   - TransparentFX

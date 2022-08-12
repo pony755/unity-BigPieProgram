@@ -86,21 +86,23 @@ public class SaveLoadManager : MonoBehaviour
         }
         Load();
         LoadField();
-        backButton.onClick.AddListener(delegate () {
-            SaveField();
-            Save();
-            player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
+        backButton.onClick.AddListener(Back);
+    }
+    public void Back()
+    {
+        SaveField();
+        Save();
+        player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            if (player.GetComponent<Player>().globalStateValue == 0)
             {
-                if (player.GetComponent<Player>().globalStateValue == 0)
-                {
-                    player.GetComponent<Player>().globalStateValue++;
-                }
+                player.GetComponent<Player>().globalStateValue++;
             }
-            Scene scene = SceneManager.GetSceneByName("MapScene");
-            SceneManager.MoveGameObjectToScene(player, scene);
-            SceneManager.UnloadSceneAsync("SaveLoadScene");
-        });
+        }
+        Scene scene = SceneManager.GetSceneByName("MapScene");
+        SceneManager.MoveGameObjectToScene(player, scene);
+        SceneManager.UnloadSceneAsync("SaveLoadScene");
     }
     // Update is called once per frame
     void Update()
