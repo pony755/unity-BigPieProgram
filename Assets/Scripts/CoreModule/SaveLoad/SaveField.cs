@@ -11,6 +11,7 @@ public class SaveField : MonoBehaviour
 {
     public int fieldStateValue;//存档栏状态值，0为开始，1为加载，2为游戏中
     public Player player;
+    public SaveLoadManager saveLoadManager;
     public TextMeshProUGUI saveNumber;
     public TextMeshProUGUI saveInfor;
     public TextMeshProUGUI saveTime;
@@ -86,7 +87,9 @@ public class SaveField : MonoBehaviour
         }
         else
         {
+            saveLoadManager = GameObject.FindGameObjectWithTag("SaveLoadManager").GetComponent<SaveLoadManager>();
             player.Load(saveNumber.text);
+            saveLoadManager.Back();
         }
     }
     void DeleteConfirm()//确认是否删除存档

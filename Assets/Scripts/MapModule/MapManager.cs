@@ -28,6 +28,8 @@ public class MapManager : MonoBehaviour
     public int nightmareSharps;
     public bool isTurning = false;
     private bool startListening = false;
+    private const string locatorName = "SaveLocator.sav";
+    private const string selectorName = "ConstructionModeSelector.sav";
     [Header("地图物件")]
     public GameObject mainCamera;
     public GameObject background;
@@ -41,25 +43,7 @@ public class MapManager : MonoBehaviour
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        GetSaveNumber();
-        int mode = Convert.ToInt32(GetConstructionMode());//获取构造模式，0为完全初始化，1为读取记录
-        if(mode == 1)
-        {
-            GetLevel();
-
-        }
-        InitializeMap();
-        player.awakeCount = 1;//测试用
-        map[0, 0].GetComponent<PlaceCard>().cardState = CardState.back;
-        if(mode == 1)
-        {
-            player.Load(saveNumber);
-            //Test();
-            RecoverMap();
-        }
-        BackUpMap();
-        player.Save(saveNumber);
-        startListening = true;
+        BuildMap();
     }
     void Update()
     {
@@ -86,6 +70,28 @@ public class MapManager : MonoBehaviour
         Debug.Log("ChildLevel:" + player.childLevel);
         Debug.Log("BP:" + player.BP);
     }
+    void BuildMap()//建造地图
+    {
+        GetSaveNumber();
+        int mode = Convert.ToInt32(GetConstructionMode());//获取构造模式，0为完全初始化，1为读取记录
+        if (mode == 1)
+        {
+            GetLevel();
+
+        }
+        InitializeMap();
+        player.awakeCount = 1;//测试用
+        map[0, 0].GetComponent<PlaceCard>().cardState = CardState.back;
+        if (mode == 1)
+        {
+            player.Load(saveNumber);
+            //Test();
+            RecoverMap();
+        }
+        BackUpMap();
+        player.Save(saveNumber);
+        startListening = true;
+    }
     void GetLevel()//获取关卡号
     {
         Debug.Log(saveNumber);
@@ -95,12 +101,10 @@ public class MapManager : MonoBehaviour
     }
     void GetSaveNumber()//获取存档编号
     {
-        string locatorName = "SaveLocator.sav";
         saveNumber = File.ReadAllText(Path.Combine(Application.persistentDataPath, locatorName));
     }
     string GetConstructionMode()
     {
-        string selectorName = "ConstructionModeSelector.sav";
         string mode = File.ReadAllText(Path.Combine(Application.persistentDataPath, selectorName));
         return mode;
     }
@@ -572,5 +576,31 @@ public class MapManager : MonoBehaviour
         border.SetActive(true);
         canvas.SetActive(true);
         eventSystem.SetActive(true);
+    }
+    public void NextLevel()//加载下一关卡
+    {
+        childLevel = 1;
+        File.WriteAllText(Path.Combine(Application.persistentDataPath, selectorName), "0");
+        DestroyMap();
+        BuildMap();
+    }
+    public void NextChildLevel()//加载下一子关卡
+    {
+        if (childLevel == 3)
+        {
+            NextLevel();
+        }
+        childLevel++;
+        File.WriteAllText(Path.Combine(Application.persistentDataPath, selectorName),"0");
+        DestroyMap();
+        BuildMap();
+    }
+    void DestroyMap()//摧毁地图
+    {
+        for(int i = 0; i < map.Length; i++)
+        {
+            Destroy(cardPositions.transform.GetChild(i).gameObject);
+            Destroy(cards.transform.GetChild(i).gameObject);
+        }
     }
 }
