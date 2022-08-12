@@ -5,13 +5,14 @@ using UnityEngine.UI;
 using TMPro;
 using Koubot.Tool;
 
-public enum BattleState { NONE,START, PLAYERTURNSTART,PLAYERTURN, POINTALL,SKILL,CARDTURNUNIT,POINTENEMY,POINTPLAYER,POINTPREPAREHERO,ACTION,ACTIONFINISH,ABANDOMCARD,ENEMYTURNSTART, ENEMYTURN,ENEMYFINISH,WIN, LOST,OVER }
+public enum BattleState { NONE,START, PLAYERTURNSTART,PLAYERTURN, POINTALL,SKILL,CARDTURNUNIT,POINTENEMY,POINTPLAYER,POINTPREPAREHERO,ACTION,ACTIONFINISH,ABANDOMCARD,ENEMYTURNSTART, ENEMYTURN,ENEMYFINISH,OVER }
 
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    [HideInInspector]public bool win = false;//胜利条件标志位
+    public bool over ;//战斗结束标志位
+    public bool win ;//胜利条件标志位
     [HideInInspector] public bool AdjustCards = false;//调整卡牌位置标志位
 
     [Header("全物体List")]   
@@ -87,6 +88,7 @@ public class GameManager : MonoBehaviour
 
         LeanTween.move(turnTipsObject, new Vector3(turnTipsObject.transform.position.x, turnTipsObject.transform.position.y-200f, turnTipsObject.transform.position.z), 0.8f);
         win = false;
+        over = false;
         delayedSwitch = false;
         state = BattleState.PLAYERTURNSTART;
         pointNumber = 1;//默认值
@@ -111,19 +113,13 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         UpdateTips();  
-        if (heroUnit.Count== 0 && state!=BattleState.OVER)
+        if ((heroUnit.Count== 0|| enemyUnit.Count == 0 )&& over==false)
         {
-            state = BattleState.LOST;            
-            StartCoroutine(Lost());
+            over = true;           
+            StartCoroutine(Over());
             GameReset();
         }
 
-        if (enemyUnit.Count == 0 && state != BattleState.OVER)
-        {
-            state = BattleState.WIN;           
-            StartCoroutine(Win());
-            GameReset();
-        }
 
         if((state == BattleState.POINTPLAYER|| state == BattleState.POINTENEMY|| state == BattleState.POINTALL||state==BattleState.POINTPREPAREHERO) &&pointNumber==pointUnit.Count)
             StartCoroutine(ToAction());
@@ -369,7 +365,7 @@ public class GameManager : MonoBehaviour
     //回合各阶段函数
     IEnumerator PlayerTurnStart()
     {
-        if (state == BattleState.OVER || state == BattleState.WIN || state == BattleState.LOST)
+        if (over==true)
         {
             yield return null;
         }
@@ -410,7 +406,7 @@ public class GameManager : MonoBehaviour
     //使用技能的text提示在SkillBtn里
     IEnumerator Action()//行动阶段函数
     {
-        if (state == BattleState.OVER || state == BattleState.WIN || state == BattleState.LOST)
+        if (over == true)
         {
             yield return null;
         }
@@ -456,7 +452,7 @@ public class GameManager : MonoBehaviour
     }
     public IEnumerator ActionFinish()
     {
-        if (state == BattleState.OVER || state == BattleState.WIN || state == BattleState.LOST)
+        if (over == true)
         {
             yield return null;
         }
@@ -488,7 +484,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator AbandomCard()
     {
-        if (state == BattleState.OVER || state == BattleState.WIN || state == BattleState.LOST)
+        if (over == true)
         {
             yield return null;
         }
@@ -505,7 +501,7 @@ public class GameManager : MonoBehaviour
     }
     IEnumerator EnemyTurnStart()
     {
-        if (state == BattleState.OVER || state == BattleState.WIN || state == BattleState.LOST)
+        if (over == true)
         {
             yield return null;
         }
@@ -534,7 +530,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator EnemyTurn()
     {
-        if (state == BattleState.OVER || state == BattleState.WIN || state == BattleState.LOST)
+        if (over == true)
         {
             yield return null;
         }
@@ -568,7 +564,7 @@ public class GameManager : MonoBehaviour
     }
     IEnumerator EnemyFinish()
     {
-        if (state == BattleState.OVER || state == BattleState.WIN || state == BattleState.LOST)
+        if (over == true)
         {
             yield return null;
         }
@@ -595,23 +591,22 @@ public class GameManager : MonoBehaviour
         }       
     }
 
-    IEnumerator Win()
+    IEnumerator Over()
     {
         state= BattleState.OVER;
-        yield return new WaitForSeconds(1f);
-        win = true;
         Time.timeScale = 1;
-        WinOrLost.SetActive(true);
-        Debug.Log("《《《《你赢了》》》》");
-    }
-    IEnumerator Lost()
-    {
-        state = BattleState.OVER;
         yield return new WaitForSeconds(1f);
-        Time.timeScale = 1;
+        if(enemyUnit.Count==0)
+        {
+            win = true;
+            Debug.Log("《《《《你赢了》》》》");
+        }
+        else
+            Debug.Log("《《《《你赢了》》》》");
         WinOrLost.SetActive(true);
-        Debug.Log("《《《《你输了》》》》");
+        
     }
+
 
     private void UpdateTips()
     {
@@ -709,7 +704,7 @@ public class GameManager : MonoBehaviour
     public void TipsSkillPoint()//文本函数
     {
         List<Unit> tempList = new List<Unit>(); 
-        if (state == BattleState.WIN || state == BattleState.LOST|| state == BattleState.OVER)
+        if (over==true)
             return;
 
 
@@ -786,9 +781,12 @@ public class GameManager : MonoBehaviour
 
 
     //——————————————————————————小功能————————————————————————————————————
-    public bool Probility(int a)//成功率
+    public bool Probility(int b)//成功率
     {
-        if (Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99) < a)
+        int a;
+        a = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99);
+        Debug.Log("roll的概率为"+ a);
+        if (a < b)
             return true;
         else
             return false;

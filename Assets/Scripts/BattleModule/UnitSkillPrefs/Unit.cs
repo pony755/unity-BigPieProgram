@@ -414,11 +414,11 @@ public class Unit : MonoBehaviour
     {
         if (currentMP < o.needMP)
         {
-            GameManager.instance.tips.text = "被动 " + o.skillName + " 所需MP不足";
+            Debug.Log("被动 " + o.skillName + " 所需MP不足");
         }
         else if (GameManager.instance.Probility(o.precent))
         {
-            GameManager.instance.tips.text = "欧不！ 被动 " + o.skillName + " 发动失败";
+            Debug.Log(o.skillName + " 发动失败");
             SkillCost(o);
 
         }     
