@@ -338,18 +338,7 @@ public class Unit : MonoBehaviour
 
         else
         {    
-
-            if (skill.type == SkillType.Mix)
-            {
-                foreach (var o in skill.moreSkill)
-                {
-                    StartCoroutine( Settle(turnUnit, o));
-                }
-            }
-            else
-            {
                 StartCoroutine(Settle(turnUnit, skill));
-            }
         }
     }
 

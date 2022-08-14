@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 using System;
 using Koubot.Tool;
-public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Mix,AttributeAdjust,Card,Excharge,AbandomCard}//技能类型
+public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,AttributeAdjust,Card,Excharge,AbandomCard}//技能类型
 public enum AnimType {Attack}//动画类型
 public enum SkillPoint { Myself,AllEnemy,AllPlayers,Players,Enemies }//技能指向
 public enum HeroAttribute { AP,APDef,maxMP,MP,AD,Def,maxHP,HP,Spirit,Critical,Dodge,Tired, fragile, weakness, shieldDecrease, Burn,Cold,Poison,ADDecrease,ADPrecentDecrease, APDecrease, APPrecentDecrease, BurnDecrease, BurnPrecentDecrease,PoisonDecrease,PoisonPrecentDecrease,ColdDecrease,ColdPrecentDecrease }//属性
@@ -22,6 +22,7 @@ public class Skill : ScriptableObject
 
     [Header("技能设置")]
     public SkillType type;//技能类型
+    public List<SkillType> typeTag;//显示框的技能类型
     public AnimType animType;//动画类型
     public int skillTired;//技能疲劳
     public int needMP;//MP消耗
@@ -38,8 +39,6 @@ public class Skill : ScriptableObject
     [Header("技能类型为AttributeAdjust的时候设置，调整目标属性（默认为加）")]
     public HeroAttribute adjustAttribute;
 
-    [Header("技能类型为Mix的时候设置，子技能设置(实现多段伤害，多数值伤害)")]
-    public List<Skill> moreSkill;
 
     [Header("卡牌设置：是否选择角色作为pointUnit")]
     public bool cardPointUnit;
@@ -51,7 +50,7 @@ public class Skill : ScriptableObject
     [Header("(被动)E异回合，M同回合，A都可以")]
     public PassiveTurn passiveTurn;
 
-    [Header("技能数值设置(Mix子技能只需设置下列项和type)(addition为float)")]
+    [Header("技能数值设置(addition为float)")]
     public int baseInt;//技能基础类
     public List<HeroSkillAttribute> attribute;//技能增益属性列表
     public List<float> addition;//加成列表
