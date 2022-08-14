@@ -20,6 +20,7 @@ MonoBehaviour:
   skillTired: 0
   needMP: 0
   delayedTurn: 0
+  abandomCardNum: 0
   point: 4
   noMe: 0
   autoPoint: 0
@@ -29,10 +30,9 @@ MonoBehaviour:
   passiveType: 0
   passivePoint: 0
   passiveTurn: 0
-  baseInt: 60
-  attribute: 04000000
-  addition:
-  - 0.5
+  baseInt: 10
+  attribute: 
+  addition: []
   pointNum: 1
   reChoose: 0
   precent: 10

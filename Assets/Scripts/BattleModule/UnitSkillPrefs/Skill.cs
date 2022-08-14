@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 using System;
 using Koubot.Tool;
-public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Mix,AttributeAdjust,Card,Excharge}//技能类型
+public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Mix,AttributeAdjust,Card,Excharge,AbandomCard}//技能类型
 public enum AnimType {Attack}//动画类型
 public enum SkillPoint { Myself,AllEnemy,AllPlayers,Players,Enemies }//技能指向
 public enum HeroAttribute { AP,APDef,maxMP,MP,AD,Def,maxHP,HP,Spirit,Critical,Dodge,Tired, fragile, weakness, shieldDecrease, Burn,Cold,Poison,ADDecrease,ADPrecentDecrease, APDecrease, APPrecentDecrease, BurnDecrease, BurnPrecentDecrease,PoisonDecrease,PoisonPrecentDecrease,ColdDecrease,ColdPrecentDecrease }//属性
@@ -26,6 +26,7 @@ public class Skill : ScriptableObject
     public int skillTired;//技能疲劳
     public int needMP;//MP消耗
     public int delayedTurn;//延时回合
+    public int abandomCardNum;//主动弃牌的cost（仅对于玩家
 
     [Header("若技能类型为exchange，下面无需设置")]
     [Header("技能指向(若为被动则随便设置),noMe仅针对玩家有约束")]
@@ -68,6 +69,7 @@ public class Skill : ScriptableObject
     //——————————————————————————————目标判断————————————————————————————————-
     public IEnumerator JudgePlayerSkill()//玩家回合获取使用的技能名,并且更改GameManager技能目标数量变量。判断接下来的状态
     {
+
         if (GameManager.instance.state != BattleState.SKILL)
         {
             GameManager.instance.state = BattleState.SKILL;
@@ -102,7 +104,7 @@ public class Skill : ScriptableObject
                     {
                         GameManager.instance.pointNumber = 1;
                         GameManager.instance.pointUnit.Add(GameManager.instance.turnUnit[0]);//添加自己作为目标
-                        GameManager.instance.state = BattleState.ACTION;//直接进入action
+                        GameManager.instance.SkillToAction();//直接进入action
                     }
 
                     else if (point == SkillPoint.AllEnemy)
@@ -112,7 +114,7 @@ public class Skill : ScriptableObject
                         {
                             GameManager.instance.pointUnit.Add(o);
                         }
-                        GameManager.instance.state = BattleState.ACTION;//直接进入action
+                        GameManager.instance.SkillToAction();//直接进入action
                     }
                     else if (point == SkillPoint.AllPlayers)
                     {
@@ -121,7 +123,7 @@ public class Skill : ScriptableObject
                         {
                             GameManager.instance.pointUnit.Add(o);
                         }
-                        GameManager.instance.state = BattleState.ACTION;//直接进入action
+                        GameManager.instance.SkillToAction();//直接进入action
                     }
 
                     else if (point == SkillPoint.Enemies)
@@ -148,7 +150,7 @@ public class Skill : ScriptableObject
                                     yield return new WaitForSeconds(0.05f);
                                 }
                             }
-                            GameManager.instance.state = BattleState.ACTION;//直接进入action
+                            GameManager.instance.SkillToAction();//直接进入action
                         }
                         else
                         {
@@ -179,7 +181,7 @@ public class Skill : ScriptableObject
                                     yield return new WaitForSeconds(0.05f);
                                 }
                             }
-                            GameManager.instance.state = BattleState.ACTION;//直接进入action
+                            GameManager.instance.SkillToAction();//直接进入action
                         }
                         else
                         {
@@ -506,12 +508,12 @@ public class Skill : ScriptableObject
         pointUnit.cold += cold;
         pointUnit.FloatStateShow(pointUnit, "冰冻", new Color32(97,198,236,255));
     }
-    public virtual void SkillSettleCard(Unit turnUnit, Unit pointUnit)
+    public virtual void SkillSettleCard(Unit turnUnit)
     {
-        int card = this.FinalPoint(turnUnit);//原始数据
+        int card = FinalPoint(turnUnit);//原始数据
         if(card>0)
         {
-            turnUnit.FloatStateShow(pointUnit, "抽卡", Color.magenta);
+            turnUnit.FloatStateShow(turnUnit, "抽卡", Color.magenta);
             for(int i = 0; i < card; i++)
             {
                 GameManager.instance.fightPlayerCards.TakeCard();
@@ -520,13 +522,20 @@ public class Skill : ScriptableObject
             
         if (card < 0)
         {
-            turnUnit.FloatStateShow(pointUnit, "弃卡", Color.black);
+            turnUnit.FloatStateShow(turnUnit, "弃卡", Color.black);
             for (int i = 0; i < -card; i++)
             {
                 GameManager.instance.fightPlayerCards.haveCards[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, GameManager.instance.fightPlayerCards.haveCards.Count-1)].CardDestory();
             }
+        }          
+    }
+    public virtual void SkillSettleAbandomCard(Unit turnUnit)
+    {
+        int card = FinalPoint(turnUnit);//原始数据
+        if (card > 0)
+        {
+            GameManager.instance.abandomCardNum += card;
         }
-            
     }
     public virtual void SkillSettleAdjust(Unit turnUnit, Unit pointUnit)//结算技能发动后属性变换
     {

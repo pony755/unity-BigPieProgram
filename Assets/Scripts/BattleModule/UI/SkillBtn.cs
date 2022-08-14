@@ -15,7 +15,7 @@ public class SkillBtn : MonoBehaviour
     }
     public void AddSkillName()//点击后获取使用的技能名,关闭skillText，并且更改GameManager技能目标数量变量。判断接下来的状态
     {
-        GameManager.instance.useSkill = skillInfo;//读取使用的技能索引
+        GameManager.instance.useSkill = skillInfo;//读取使用的技能索引    
         StartCoroutine(skillInfo.JudgePlayerSkill());  
         GameManager.instance.skillText.SetActive(false);//关闭技能提示框
     }

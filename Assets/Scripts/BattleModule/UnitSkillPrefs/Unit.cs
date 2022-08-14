@@ -301,7 +301,9 @@ public class Unit : MonoBehaviour
             if (skill.type == SkillType.Poison)
                 skill.SkillSettlePoison(turnUnit, this);
             if (skill.type == SkillType.Card)
-                skill.SkillSettleCard(turnUnit, this);
+                skill.SkillSettleCard(turnUnit);
+            if (skill.type == SkillType.AbandomCard)
+                skill.SkillSettleAbandomCard(turnUnit);
             if (skill.type == SkillType.AttributeAdjust)
                 skill.SkillSettleAdjust(turnUnit, this);
             if (skill.type == SkillType.Excharge)
@@ -593,7 +595,7 @@ public class Unit : MonoBehaviour
     }
     public void FloatStateShow(Unit unit, string text, Color color)//技能字样显示函数
     {
-        if (this.player)
+        if (player)
         {
             return;
         }

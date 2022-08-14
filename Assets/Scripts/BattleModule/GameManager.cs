@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using Koubot.Tool;
 
-public enum BattleState { NONE,START, PLAYERTURNSTART,PLAYERTURN, POINTALL,SKILL,CARDTURNUNIT,POINTENEMY,POINTPLAYER,POINTPREPAREHERO,ACTION,ACTIONFINISH,ABANDOMCARD,ENEMYTURNSTART, ENEMYTURN,ENEMYFINISH,OVER }
+public enum BattleState { NONE,START, PLAYERTURNSTART,PLAYERTURN, POINTALL,SKILL,CARDTURNUNIT,POINTENEMY,POINTPLAYER,POINTPREPAREHERO,TOACTION,ACTION,ACTIONFINISH,ABANDOMCARD,ENEMYTURNSTART, ENEMYTURN,ENEMYFINISH,OVER }
 
 
 public class GameManager : MonoBehaviour
@@ -51,7 +51,8 @@ public class GameManager : MonoBehaviour
 
 
     [Header("——————CHECKING——————")]
-    
+    public int abandomCardNum;
+    public bool abandomCardSwitch;
     public BattleState state;
 
     [Header("Heros")]
@@ -119,12 +120,14 @@ public class GameManager : MonoBehaviour
             StartCoroutine(Over());
             GameReset();
         }
+        CheckAbandomCardNum();
 
+        
 
         if((state == BattleState.POINTPLAYER|| state == BattleState.POINTENEMY|| state == BattleState.POINTALL||state==BattleState.POINTPREPAREHERO) &&pointNumber==pointUnit.Count)
-            StartCoroutine(ToAction());
+            StartCoroutine("ToAction");
         if (state == BattleState.ACTION)//当进入ACTION时，执行函数(携程）  
-            StartCoroutine(Action());
+            StartCoroutine("Action");
         if(state == BattleState.ABANDOMCARD)
         {
             if(fightPlayerCards.haveCards.Count<= fightPlayerCards.maxCard)
@@ -139,11 +142,7 @@ public class GameManager : MonoBehaviour
             StartCoroutine(fightPlayerCards.CardAdjustPosition());
         }
     }
-    IEnumerator ToAction()
-    {
-        state = BattleState.ACTION;
-        yield return null;
-    }
+    
     public IEnumerator SetHeros()//在对应位置设置战斗队伍预置体以及状态栏
     {
         for (int i = 0; i < fightPrefs.fightHeros.Count; i++)
@@ -219,8 +218,8 @@ public class GameManager : MonoBehaviour
         }
     }
     public void GameReset()//重置
-    {
-        BtnHide();
+    {     
+        BtnHide();     
         tips.text = "";
         pointNumber = 1;//默认值
         useSkill=null;//默认值
@@ -232,6 +231,7 @@ public class GameManager : MonoBehaviour
         CardCanvas.SetActive(true);
         turnUnit.Clear();
         pointUnit.Clear();
+        AdjustCards = true;       
     }
 
 
@@ -248,13 +248,12 @@ public class GameManager : MonoBehaviour
     public void Back()//返回玩家回合
     {
         
-        if (GameManager.instance.state == BattleState.CARDTURNUNIT||state == BattleState.PLAYERTURN || state == BattleState.SKILL || state == BattleState.POINTENEMY || state == BattleState.POINTPLAYER)
-        {
-            
+        if (state == BattleState.CARDTURNUNIT||state == BattleState.PLAYERTURN || state == BattleState.SKILL || state == BattleState.POINTENEMY || state == BattleState.POINTPLAYER||state==BattleState.TOACTION)
+        { 
             GameReset();
             state = BattleState.PLAYERTURN;
             foreach(var o in heroUnit)
-                o.anim.Play("idle");
+                o.anim.Play("idle");          
         }
         CardCanvas.SetActive(true);    
     }
@@ -395,28 +394,41 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
             StartCoroutine(DelayedPlayerSettle());
             yield return new WaitForSeconds(0.5f);
-            tips.text = "";
-            yield return new WaitForSeconds(0.5f);
+            tips.text = "";      
+            yield return new WaitUntil(() => abandomCardSwitch == false);
             state = BattleState.PLAYERTURN;
 
         }
 
 
     }
+    public void SkillToAction()
+    {
+        StartCoroutine(ToAction());
+    }
+    IEnumerator ToAction()//过度态
+    {
+        BtnHide();
+        exchange.SetActive(false);
+        skillImg.SetActive(false);
+        CardCanvas.SetActive(true);
+        abandomCardNum += useSkill.abandomCardNum;
+        state = BattleState.TOACTION;
+        yield return new WaitForSeconds(0.2f);
+        yield return new WaitUntil(() => abandomCardSwitch == false);
+        state = BattleState.ACTION;
+
+    }
     //使用技能的text提示在SkillBtn里
     IEnumerator Action()//行动阶段函数
-    {
+    {  
+        state = BattleState.ACTIONFINISH;//及时切换state,防止多次运行此函数    
         if (over == true)
         {
             yield return null;
         }
         else
-        {
-            state = BattleState.ACTIONFINISH;//及时切换state,防止多次运行此函数     
-            BtnHide();
-            exchange.SetActive(false);
-            skillImg.SetActive(false);
-            CardCanvas.SetActive(true);
+        {                 
             //重置动画
             foreach (var o in heroUnit)
             {
@@ -445,7 +457,11 @@ public class GameManager : MonoBehaviour
             }
             yield return new WaitForSeconds(1f);
             if (state == BattleState.ACTIONFINISH)
+            {
+                yield return new WaitUntil(() => abandomCardSwitch == false);
                 StartCoroutine(ActionFinish());
+            }
+                
 
         }
 
@@ -457,7 +473,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         else
-        {
+        {         
             yield return new WaitForSeconds(1f);
             tips.text = "己方回合结束";
             for (int i = 0; i < heroUnit.Count; i++)
@@ -475,6 +491,7 @@ public class GameManager : MonoBehaviour
             }
             GameReset();
             yield return new WaitForSeconds(1f);
+            yield return new WaitUntil(() => abandomCardSwitch == false);
             StartCoroutine(AbandomCard());
         }
        
@@ -489,7 +506,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         else
-        {
+        {         
             if (fightPlayerCards.haveCards.Count <= fightPlayerCards.maxCard)
                 StartCoroutine(EnemyTurnStart());
             else
@@ -506,7 +523,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         else
-        {
+        {       
             state = BattleState.ENEMYTURNSTART;
             tips.text = "敌方回合";
             //结算状态
@@ -522,6 +539,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
             StartCoroutine(DelayedEnemySettle());
             yield return new WaitForSeconds(1f);
+            yield return new WaitUntil(() => abandomCardSwitch == false);
             StartCoroutine(EnemyTurn());
 
         }
@@ -535,7 +553,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         else
-        {
+        {         
             state = BattleState.ENEMYTURN;
             tips.text = "等待敌方行动...";
             StartCoroutine(EnemyAI());
@@ -557,6 +575,7 @@ public class GameManager : MonoBehaviour
                 }
             }
             yield return new WaitForSeconds(2f);
+            yield return new WaitUntil(() => abandomCardSwitch == false);
             StartCoroutine(EnemyFinish());
         }
                    
@@ -569,7 +588,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         else
-        {
+        {         
             tips.text = "敌方回合结束";
             for (int i = 0; i < enemyUnit.Count; i++)
                 enemyUnit[i].PassiveTurnEnd();
@@ -586,6 +605,7 @@ public class GameManager : MonoBehaviour
             }
             GameReset();
             yield return new WaitForSeconds(1f);
+            yield return new WaitUntil(() => abandomCardSwitch == false);
             turn++;
             StartCoroutine(PlayerTurnStart());
         }       
@@ -790,5 +810,27 @@ public class GameManager : MonoBehaviour
             return true;
         else
             return false;
+    }
+    public void CheckAbandomCardNum()
+    {
+        if (abandomCardNum > 0)
+        {
+            if (abandomCardNum > fightPlayerCards.haveCards.Count)
+            {
+                if (useCard == null)
+                    abandomCardNum = fightPlayerCards.haveCards.Count;
+                else
+                    abandomCardNum = fightPlayerCards.haveCards.Count - 1;
+            }
+            abandomCardSwitch = true;
+            tips.text = "需要弃置" + abandomCardNum + "张牌";
+        }
+        if (abandomCardNum == 0 && abandomCardSwitch == true)
+        {
+            tips.text = "";
+            abandomCardSwitch = false;
+        }
+        if (abandomCardNum < 0)
+            abandomCardNum = 0;
     }
 }
