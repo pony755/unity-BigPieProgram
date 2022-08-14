@@ -220,7 +220,7 @@ public class GameManager : MonoBehaviour
     public void GameReset()//重置
     {     
         BtnHide();     
-        tips.text = "";
+        
         pointNumber = 1;//默认值
         useSkill=null;//默认值
         useCard=null;
@@ -231,9 +231,14 @@ public class GameManager : MonoBehaviour
         CardCanvas.SetActive(true);
         turnUnit.Clear();
         pointUnit.Clear();
-        AdjustCards = true;       
+        AdjustCards = true; 
+        StartCoroutine(TipsClear());
     }
-
+    IEnumerator TipsClear()
+    {
+    yield return new WaitForSeconds(0.5f);
+        tips.text = "";
+    }
 
 
     public void BtnHide()
@@ -247,13 +252,15 @@ public class GameManager : MonoBehaviour
     }
     public void Back()//返回玩家回合
     {
-        
-        if (state == BattleState.CARDTURNUNIT||state == BattleState.PLAYERTURN || state == BattleState.SKILL || state == BattleState.POINTENEMY || state == BattleState.POINTPLAYER||state==BattleState.TOACTION)
-        { 
+
+            if (state == BattleState.CARDTURNUNIT||state == BattleState.PLAYERTURN || state == BattleState.SKILL || state == BattleState.POINTENEMY || state == BattleState.POINTPLAYER||state==BattleState.TOACTION)
+        {
+            StopCoroutine("ToAction");
             GameReset();
             state = BattleState.PLAYERTURN;
             foreach(var o in heroUnit)
-                o.anim.Play("idle");          
+                o.anim.Play("idle");
+            abandomCardNum = 0;
         }
         CardCanvas.SetActive(true);    
     }
@@ -375,8 +382,8 @@ public class GameManager : MonoBehaviour
 
             if (fightPlayerCards.playerCards.Count == 0)
             {
-                GameManager.instance.fightPlayerCards.cardsObject.transform.GetChild(0).gameObject.SetActive(false);
-                GameManager.instance.fightPlayerCards.cardsObject.GetComponent<Animator>().Play("cards");
+                fightPlayerCards.cardsObject.transform.GetChild(0).gameObject.SetActive(false);
+                fightPlayerCards.cardsObject.GetComponent<Animator>().Play("cards");
                 fightPlayerCards.ResetCards();
             }
                 
@@ -393,9 +400,9 @@ public class GameManager : MonoBehaviour
                 heroUnit[i].PassiveTurnStart();
             yield return new WaitForSeconds(0.5f);
             StartCoroutine(DelayedPlayerSettle());
-            yield return new WaitForSeconds(0.5f);
-            tips.text = "";      
+            yield return new WaitForSeconds(0.5f);                 
             yield return new WaitUntil(() => abandomCardSwitch == false);
+            tips.text = "";
             state = BattleState.PLAYERTURN;
 
         }
@@ -615,6 +622,7 @@ public class GameManager : MonoBehaviour
     {
         state= BattleState.OVER;
         Time.timeScale = 1;
+        Time.timeScale = 1;
         yield return new WaitForSeconds(1f);
         if(enemyUnit.Count==0)
         {
@@ -813,17 +821,22 @@ public class GameManager : MonoBehaviour
     }
     public void CheckAbandomCardNum()
     {
-        if (abandomCardNum > 0)
+        if (abandomCardNum > 0&&abandomCardSwitch==false)
         {
-            if (abandomCardNum > fightPlayerCards.haveCards.Count)
+            if (abandomCardNum > fightPlayerCards.haveCards.Count&&state==BattleState.TOACTION)
             {
-                if (useCard == null)
-                    abandomCardNum = fightPlayerCards.haveCards.Count;
-                else
-                    abandomCardNum = fightPlayerCards.haveCards.Count - 1;
+                tips.text = "手牌不足";
+                Back();
             }
-            abandomCardSwitch = true;
-            tips.text = "需要弃置" + abandomCardNum + "张牌";
+            else if (abandomCardNum == fightPlayerCards.haveCards.Count && useCard != null && state == BattleState.TOACTION)
+            {
+                tips.text = "手牌不足";
+                Back();
+            }
+            else if(abandomCardNum > fightPlayerCards.haveCards.Count)
+                abandomCardNum=fightPlayerCards.haveCards.Count;
+            else
+                abandomCardSwitch = true;              
         }
         if (abandomCardNum == 0 && abandomCardSwitch == true)
         {
@@ -832,5 +845,8 @@ public class GameManager : MonoBehaviour
         }
         if (abandomCardNum < 0)
             abandomCardNum = 0;
+
+        if(abandomCardSwitch == true)
+            tips.text="需要弃置"+abandomCardNum+"张牌";
     }
 }

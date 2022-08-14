@@ -15,7 +15,7 @@ MonoBehaviour:
   skillImg: {fileID: 21300000, guid: 7c2f75c0b7a51c3459d7a6e02e1d0754, type: 3}
   skillName: "\u56FA\u7532"
   description: "\u7ED9\u81EA\u5DF1100\u70B9\u62A4\u76FE"
-  type: 12
+  type: 4
   animType: 0
   skillTired: 0
   needMP: 0
@@ -30,11 +30,11 @@ MonoBehaviour:
   passiveType: 4
   passivePoint: 1
   passiveTurn: 2
-  baseInt: 1
+  baseInt: 10
   attribute: 
   addition: []
   pointNum: 1
   reChoose: 0
-  precent: 0
+  precent: 10
   attributeCost: 
   skillCost: 
