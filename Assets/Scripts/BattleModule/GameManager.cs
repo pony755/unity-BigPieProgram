@@ -383,7 +383,6 @@ public class GameManager : MonoBehaviour
             if (fightPlayerCards.playerCards.Count == 0)
             {
                 fightPlayerCards.cardsObject.transform.GetChild(0).gameObject.SetActive(false);
-                fightPlayerCards.cardsObject.GetComponent<Animator>().Play("cards");
                 fightPlayerCards.ResetCards();
             }
                 
@@ -445,8 +444,9 @@ public class GameManager : MonoBehaviour
             {
                 o.anim.Play("idle");
             }
+            CardUse();
             TipsSkillPoint();
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.3f);
             if (useSkill != null)
             {
                 if(Probility(useSkill.precent))
@@ -459,7 +459,7 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    TurnUnitAnim();
+                    StartCoroutine(TurnUnitAnim());
                 }
             }
             yield return new WaitForSeconds(1f);
@@ -578,7 +578,7 @@ public class GameManager : MonoBehaviour
 
                 else
                 {
-                    TurnUnitAnim();
+                    StartCoroutine(TurnUnitAnim());
                 }
             }
             yield return new WaitForSeconds(2f);
@@ -630,7 +630,7 @@ public class GameManager : MonoBehaviour
             Debug.Log("《《《《你赢了》》》》");
         }
         else
-            Debug.Log("《《《《你赢了》》》》");
+            Debug.Log("《《《《你输了》》》》");
         WinOrLost.SetActive(true);
         
     }
@@ -771,32 +771,42 @@ public class GameManager : MonoBehaviour
         tempList.Clear();
     }
 
-    public void TurnUnitAnim()//动画函数
+    public void CardUse()
     {
         if (useCard != null)
         {
-            useCard.gameObject.GetComponent<Animator>().enabled=true;
-            useCard.gameObject.GetComponent<Animator>().Play("cardUse");
+            StartCoroutine(CardFinish());
+            LeanTween.move(useCard.gameObject, new Vector3(960f, 500f, 0f), 0.2f);
+            LeanTween.scale(useCard.gameObject, new Vector3(0.7f, 0.7f, 0.7f), 0.2f);
+            //useCard.CardDestory();
+
         }
-            
-        if(turnUnit[0].player==false)
+
+    }
+    IEnumerator CardFinish()
+    {
+        yield return new WaitForSeconds(0.25f);
+        useCard.CardDestory();
+    }
+    IEnumerator TurnUnitAnim()//动画函数
+    {  
+        if(turnUnit[0].player==false)//非玩家本体
         {
             if (useSkill.animType == AnimType.Attack)
             {
                 turnUnit[0].anim.Play("attack");
             }
         }
-        StartCoroutine(SettleSkill());
-    }
-
-    IEnumerator SettleSkill()
-    {
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.1f);
+        if(turnUnit[0].player == false)
+             yield return new WaitUntil(()=>turnUnit[0].anim.GetCurrentAnimatorStateInfo(0).IsName("idle"));//等待动画播放完毕
         foreach (var o in pointUnit)
         {
             o.SkillSettle(turnUnit[0], useSkill);
         }
     }
+
+
     public void ShowBackMenu()
     {
         backPanel.SetActive(true);
