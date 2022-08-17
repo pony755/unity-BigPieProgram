@@ -24,7 +24,7 @@ public class WinOrLost : MonoBehaviour
     private string lostText = "下次一定";
     private void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        /*player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         next.onClick.AddListener(delegate () {
             if (player != null)
             {
@@ -33,7 +33,7 @@ public class WinOrLost : MonoBehaviour
                     player.globalStateValue++;
                 }
             }
-            ChangeScene(); });
+            ChangeScene(); });*/
         heroIndex = 0;
         if (GameManager.instance.win == true)
         {
@@ -45,7 +45,7 @@ public class WinOrLost : MonoBehaviour
                 Heros[i].winHero = GameManager.instance.heroUnit[i];
                 Heros[i].gameObject.SetActive(true);
             }
-            player.BP += 100;
+            //player.BP += 100;
         }
         else
         {

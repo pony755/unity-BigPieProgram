@@ -16,25 +16,26 @@ MonoBehaviour:
   skillName: "\u70B8\u70B8\u4F60\u7684"
   description: "\u5BF9\u4E00\u540D\u89D2\u8272\u9020\u621060[+50%\u653B\u51FB\u529B]\u7684\u7269\u7406\u4F24\u5BB3"
   type: 0
-  typeTag: 010000000200000004000000060000000700000005000000
+  typeTag: 01000000
   animType: 0
   skillTired: 0
   needMP: 0
   delayedTurn: 0
   abandomCardNum: 0
+  onlyOne: 0
   point: 4
   noMe: 0
   autoPoint: 0
-  adjustAttribute: 0
+  adjustAttribute: 12
   cardPointUnit: 0
   passiveType: 0
-  passivePoint: 0
-  passiveTurn: 0
-  baseInt: 60
+  passivePoint: 2
+  passiveTurn: 1
+  baseInt: 0
   attribute: 04000000
   addition:
   - 0.5
-  pointNum: 1
+  pointNum: 2
   reChoose: 0
   precent: 0
   attributeCost: 

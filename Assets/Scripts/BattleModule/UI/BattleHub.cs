@@ -25,6 +25,7 @@ public class BattleHub : MonoBehaviour
     public GameObject healDecrease;
     public GameObject weakness;
     public GameObject fragile;
+    public GameObject sneer;
     public List<GameObject> tempStateList;
     private float scale;
     readonly private float hurtSpeed=0.003f;
@@ -66,38 +67,16 @@ public class BattleHub : MonoBehaviour
         tempStateList.Add(weakness);
         fragile.transform.SetParent(this.gameObject.transform);
         tempStateList.Add(fragile);
+        fragile.transform.SetParent(this.gameObject.transform);
+        tempStateList.Add(sneer);
     }
 
-    private void CheckDead()//死亡判断结算函数
-    {
-        if (hubUnit.currentHP == 0)
-        {
-            hubUnit.GetComponent<BoxCollider>().enabled = false;//关闭碰撞体脚本
-            if (GameManager.instance.heroUnit.Contains(hubUnit))
-            {
-                GameManager.instance.heroUnit.Remove(hubUnit);
-            }
-            if (GameManager.instance.enemyUnit.Contains(hubUnit))
-            {
-                GameManager.instance.enemyUnit.Remove(hubUnit);
-            }
-           
-        }
-    }
+   
 
    
     private void Update()
     {
-        if (hubUnit.currentHP > hubUnit.maxHP)
-        {
-            hubUnit.currentHP = hubUnit.maxHP;
-        }
-        if (hubUnit.currentHP <=0)
-        {
-            hubUnit.currentHP = 0;
-            hubUnit.anim.Play("dead");
-            Invoke("CheckDead",0.2f);
-        }
+        
 
         scale=(float)hubUnit.currentHP/ (float)hubUnit.maxHP;
         if (hurtHPImg.fillAmount > scale)
@@ -125,10 +104,11 @@ public class BattleHub : MonoBehaviour
     StatePosition(healDecrease, hubUnit.healDecrease);
     StatePosition(weakness, hubUnit.weakness);
     StatePosition(fragile, hubUnit.fragile);
+    StatePosition(sneer, hubUnit.sneer);
 
 
 
-    tiredText.text = "疲劳 " + hubUnit.tired;
+        tiredText.text = "疲劳 " + hubUnit.tired;
         hpSlider.value = hubUnit.currentHP;
         hpSlider.maxValue = hubUnit.maxHP;
         CurrentHP.text = hubUnit.currentHP.ToString();

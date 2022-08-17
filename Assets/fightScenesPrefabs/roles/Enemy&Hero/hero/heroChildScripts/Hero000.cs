@@ -4,5 +4,10 @@ using UnityEngine;
 
 public class Hero000 : Unit
 {
-
+    public override void LevelUp2()
+    {
+        MaxHpUp(50);
+        maxMP += 20;
+        //rollSkill.Add(2);
+    }
 }

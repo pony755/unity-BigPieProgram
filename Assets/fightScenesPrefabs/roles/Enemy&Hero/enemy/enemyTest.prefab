@@ -111,7 +111,8 @@ MonoBehaviour:
   unitName: 2B
   skillNum: 0
   unitLevel: 2
-  nextExp: 0
+  maxLevel: 15
+  nextExp: 
   AP: 0
   APDef: 0
   maxMP: 25
@@ -121,7 +122,10 @@ MonoBehaviour:
   Spirit: 0
   Critical: 0
   Dodge: 0
+  currentHP: 100
+  currentExp: 0
   tired: 0
+  sneer: 0
   shield: 0
   fragile: 0
   weakness: 0
@@ -130,10 +134,9 @@ MonoBehaviour:
   burn: 0
   cold: 0
   poison: 0
-  currentHP: 100
-  currentMP: 20
-  currentExp: 0
+  currentMP: 0
   getExp: 0
+  skillRoll: 
   ADDecrease: 0
   ADPrecentDecrease: 0
   APDecrease: 0
@@ -144,8 +147,21 @@ MonoBehaviour:
   PoisonPrecentDecrease: 0
   ColdDecrease: 0
   ColdPrecentDecrease: 0
-  heroSkillListCode: 00000000
-  heroSkillList: []
+  heroSkillList:
+  - {fileID: 11400000, guid: ffdbfd91d7418d24da089bc8bf62e97b, type: 2}
+  currencyLSkillList: []
+  currencyMSkillList: []
+  currencyHSkillList: []
+  exclusiveLSkillList: []
+  exclusiveMSkillList: []
+  exclusiveHSkillList: []
+  heroSkillListCode: 
+  currencyFightLSkillList: 
+  currencyFightMSkillList: 
+  currencyFightHSkillList: 
+  exclusiveFightLSkillList: 
+  exclusiveFightMSkillList: 
+  exclusiveFightHSkillList: 
   player: 0
   passiveTurnEndList: []
   passiveTurnStartList: []

@@ -143,7 +143,8 @@ MonoBehaviour:
   unitName: "\u82F1\u96C41\u53F7"
   skillNum: 3
   unitLevel: 1
-  nextExp: 50
+  maxLevel: 15
+  nextExp: 
   AP: 100
   APDef: 10
   maxMP: 50
@@ -153,7 +154,10 @@ MonoBehaviour:
   Spirit: 10
   Critical: 10
   Dodge: 10
+  currentHP: 100
+  currentExp: 0
   tired: 0
+  sneer: 0
   shield: 0
   fragile: 0
   weakness: 0
@@ -162,10 +166,9 @@ MonoBehaviour:
   burn: 0
   cold: 0
   poison: 0
-  currentHP: 100
-  currentMP: 50
-  currentExp: 0
+  currentMP: 0
   getExp: 0
+  skillRoll: 
   ADDecrease: 0
   ADPrecentDecrease: 0
   APDecrease: 0
@@ -176,8 +179,25 @@ MonoBehaviour:
   PoisonPrecentDecrease: 0
   ColdDecrease: 0
   ColdPrecentDecrease: 0
-  heroSkillListCode: 000000000100000002000000
-  heroSkillList: []
+  heroSkillList:
+  - {fileID: 11400000, guid: ffdbfd91d7418d24da089bc8bf62e97b, type: 2}
+  - {fileID: 11400000, guid: 1a4a5030ae2f92e4781f20e3aedd88ad, type: 2}
+  currencyLSkillList:
+  - {fileID: 11400000, guid: ede24e4733a44304283e0f5c5f3afd75, type: 2}
+  - {fileID: 11400000, guid: 1a4a5030ae2f92e4781f20e3aedd88ad, type: 2}
+  - {fileID: 11400000, guid: ffdbfd91d7418d24da089bc8bf62e97b, type: 2}
+  currencyMSkillList: []
+  currencyHSkillList: []
+  exclusiveLSkillList: []
+  exclusiveMSkillList: []
+  exclusiveHSkillList: []
+  heroSkillListCode: 
+  currencyFightLSkillList: 
+  currencyFightMSkillList: 
+  currencyFightHSkillList: 
+  exclusiveFightLSkillList: 
+  exclusiveFightMSkillList: 
+  exclusiveFightHSkillList: 
   player: 0
   passiveTurnEndList: []
   passiveTurnStartList: []

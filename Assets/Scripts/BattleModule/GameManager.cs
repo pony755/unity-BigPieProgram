@@ -622,7 +622,10 @@ public class GameManager : MonoBehaviour
     {
         state= BattleState.OVER;
         Time.timeScale = 1;
-        Time.timeScale = 1;
+        foreach (var h in heroUnit)
+        {
+            h.FightFinishLoad();
+        }
         yield return new WaitForSeconds(1f);
         if(enemyUnit.Count==0)
         {
@@ -631,6 +634,7 @@ public class GameManager : MonoBehaviour
         }
         else
             Debug.Log("《《《《你输了》》》》");
+
         WinOrLost.SetActive(true);
         
     }
@@ -690,41 +694,9 @@ public class GameManager : MonoBehaviour
             useSkill = tempSkill[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempSkill.Count - 1)];
             tempSkill.Clear();
             pointNumber = useSkill.pointNum;//添加技能目标数量
-            useSkill.EnemyUse();
+            StartCoroutine(useSkill.EnemyUse());
             yield return new WaitForSeconds(1f);
-            if(useSkill.point==SkillPoint.Enemies)
-            {
-                while (pointNumber > pointUnit.Count)//添加玩家作为目标
-                {
-                    if (!useSkill.reChoose)
-                    {                      
-                        int player = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, heroUnit.Count - 1);
-                        if (!pointUnit.Contains(heroUnit[player]))
-                            pointUnit.Add(heroUnit[player]);
-                    }
-                    else
-                    {
-                        yield return new WaitForSeconds(0.1f);
-                        pointUnit.Add(heroUnit[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, heroUnit.Count - 1)]);
-                    }
-                }
-            }
-            else if (useSkill.point == SkillPoint.Players)
-            {
-                while (pointNumber > pointUnit.Count)//添加玩家作为目标
-                {
-                    if (!useSkill.reChoose)
-                    {
-                        int player = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, enemyUnit.Count - 1);
-                        if (!pointUnit.Contains(enemyUnit[player]))
-                            pointUnit.Add(enemyUnit[player]);
-                    }
-                    else
-                    {
-                        pointUnit.Add(enemyUnit[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, enemyUnit.Count - 1)]);
-                    }
-                }
-            }
+            
 
 
         }

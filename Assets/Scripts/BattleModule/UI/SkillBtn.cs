@@ -53,6 +53,12 @@ public class SkillBtn : MonoBehaviour
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[tempIndex].color = Color.black;
             tempIndex++;
         }
+        if (skillInfo.onlyOne)
+        {
+            GameManager.instance.skillText.GetComponent<SkillText>().skillType[tempIndex].text = "[限定]";
+            GameManager.instance.skillText.GetComponent<SkillText>().skillType[tempIndex].color = Color.magenta;
+            tempIndex++;
+        }
         if (skillInfo.typeTag.Count > 0)//有标签时，以标签为主
         {
             for (int i = 0; i < skillInfo.typeTag.Count; i++)
