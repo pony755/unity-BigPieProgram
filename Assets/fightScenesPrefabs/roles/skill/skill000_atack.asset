@@ -19,23 +19,23 @@ MonoBehaviour:
   typeTag: 01000000
   animType: 0
   skillTired: 0
-  needMP: 0
+  needMP: 10
   delayedTurn: 0
   abandomCardNum: 0
   onlyOne: 0
   point: 4
   noMe: 0
-  autoPoint: 0
+  autoPoint: 1
   adjustAttribute: 12
   cardPointUnit: 0
   passiveType: 0
-  passivePoint: 2
+  passivePoint: 4
   passiveTurn: 1
   baseInt: 0
   attribute: 04000000
   addition:
   - 0.5
-  pointNum: 2
+  pointNum: 3
   reChoose: 0
   precent: 0
   attributeCost: 

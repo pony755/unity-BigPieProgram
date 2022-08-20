@@ -152,8 +152,8 @@ MonoBehaviour:
   Def: 10
   maxHP: 100
   Spirit: 10
-  Critical: 10
-  Dodge: 10
+  Critical: 0
+  Dodge: 0
   currentHP: 100
   currentExp: 0
   tired: 0
@@ -204,6 +204,9 @@ MonoBehaviour:
   passiveHitList: []
   passiveDeadList: []
   passiveGameBeginList: []
+  adjustCount: 
+  attributeAdjust: 
+  attributeAdjustPoint: 
 --- !u!1001 &3518477051247261245
 PrefabInstance:
   m_ObjectHideFlags: 0

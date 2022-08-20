@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 using System;
 using Koubot.Tool;
-public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,AttributeAdjust,Card,Excharge,AbandomCard}//技能类型
+public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Card,Excharge,AbandomCard,EX}//技能类型
 public enum AnimType {Attack}//动画类型
 public enum SkillPoint { Myself,AllEnemy,AllPlayers,Players,Enemies }//技能指向
 public enum HeroAttribute { AP,APDef,maxMP,MP,AD,Def,maxHP,HP,Spirit,Critical,Dodge,Tired,Sneer, fragile, weakness, shieldDecrease, Burn,Cold,Poison,ADDecrease,ADPrecentDecrease, APDecrease, APPrecentDecrease, BurnDecrease, BurnPrecentDecrease,PoisonDecrease,PoisonPrecentDecrease,ColdDecrease,ColdPrecentDecrease }//属性
@@ -575,69 +575,12 @@ public class Skill : ScriptableObject
             GameManager.instance.abandomCardNum += card;
         }
     }
-    public virtual void SkillSettleAdjust(Unit turnUnit, Unit pointUnit)//结算技能发动后属性变换
+    public virtual void SkillSettleEX(Unit turnUnit,Unit pointUnit)
     {
 
-          if ( adjustAttribute== HeroAttribute.AP)
-            pointUnit.AP+=FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.APDef)
-            pointUnit.APDef += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.maxMP)
-            pointUnit.maxMP += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.MP)
-            pointUnit.currentMP += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.AD)
-            pointUnit.AD += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.Def)
-            pointUnit.Def += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.maxHP)
-            pointUnit.maxHP += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.HP)
-            pointUnit.currentHP += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.Spirit)
-            pointUnit.Spirit += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.Critical)
-            pointUnit.Critical += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.Dodge)
-            pointUnit.Dodge += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.Tired)
-            pointUnit.tired += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.Sneer)
-            pointUnit.sneer += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.fragile)
-            pointUnit.fragile += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.weakness)
-            pointUnit.weakness += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.shieldDecrease)
-            pointUnit.shieldDecrease += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.Burn)
-            pointUnit.burn += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.Cold)
-            pointUnit.cold += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.Poison)
-            pointUnit.poison += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.ADDecrease)
-            pointUnit.ADDecrease += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.ADPrecentDecrease)
-            pointUnit.ADPrecentDecrease += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.APDecrease)
-            pointUnit.APDecrease += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.APPrecentDecrease)
-            pointUnit.APPrecentDecrease += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.BurnDecrease)
-            pointUnit.BurnDecrease += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.BurnPrecentDecrease)
-            pointUnit.BurnPrecentDecrease += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.PoisonDecrease)
-            pointUnit.PoisonDecrease += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.PoisonPrecentDecrease)
-            pointUnit.PoisonPrecentDecrease += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.ColdDecrease)
-            pointUnit.ColdDecrease += FinalPoint(turnUnit);
-        else if (adjustAttribute == HeroAttribute.ColdPrecentDecrease)
-            pointUnit.ColdPrecentDecrease += FinalPoint(turnUnit);
 
     }
+   
     public void SkillRemove(Unit turnUnit)//移除技能
     {
             turnUnit.heroSkillList.Remove(this);

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.IO;
 
-public enum SkillRoll {L1,L2,L3,M1,M2,M3,H1,H2,H3}
+public enum SkillRoll {L1,L2,L3,M1,M2,M3,H1,H2,H3,T}
 public class Unit : MonoBehaviour
 {
     [HideInInspector]public Animator anim;//动画
@@ -105,8 +105,10 @@ public class Unit : MonoBehaviour
     public List<Skill> passiveDeadList;//死亡触发
     public List<Skill> passiveGameBeginList;//死亡触发
 
-
-
+    [Header("延时调整属性列表(默认为加)")]
+    public List<int> adjustCount;
+    public List<HeroAttribute> attributeAdjust;//技能增益属性列表
+    public List<int> attributeAdjustPoint;//代价列表
     [System.Serializable]
     public class SaveUnitData
     {
@@ -329,16 +331,6 @@ public class Unit : MonoBehaviour
 
     IEnumerator Settle(Unit turnUnit, Skill skill)
     {
-        if (skill.delayedTurn > 0 && !GameManager.instance.delayedSwitch)
-        {
-
-            GameManager.instance.delayedTurn.Add(GameManager.instance.turn + skill.delayedTurn);
-            GameManager.instance.delayedTurnUnit.Add(turnUnit);
-            GameManager.instance.delayedSkill.Add(skill);
-            GameManager.instance.delayedPointUnit.Add(this);
-        }
-        else
-        {
             if (skill.type == SkillType.AD)
                 skill.SkillSettleAD(turnUnit, this);
             if (skill.type == SkillType.AP)
@@ -359,12 +351,10 @@ public class Unit : MonoBehaviour
                 skill.SkillSettleCard(turnUnit);
             if (skill.type == SkillType.AbandomCard)
                 skill.SkillSettleAbandomCard(turnUnit);
-            if (skill.type == SkillType.AttributeAdjust)
-                skill.SkillSettleAdjust(turnUnit, this);
             if (skill.type == SkillType.Excharge)
                 skill.SkillSettleExchange(turnUnit, this);
-        }
-        
+            if (skill.type == SkillType.EX)
+                skill.SkillSettleEX(turnUnit, this);    
         yield return null;
 
     }
@@ -377,30 +367,64 @@ public class Unit : MonoBehaviour
         tired += skill.skillTired;
     }
 
-    public void SkillSettle(Unit turnUnit, Skill skill)//结算技能
+    public void UseSkillSettle(Skill skill,List<Unit> pointUnits)//结算技能
     {
 
-        turnUnit.SkillCost(skill);    
+        SkillCost(skill);    
         if(skill.onlyOne)
         {
-            skill.SkillRemove(turnUnit);
+            skill.SkillRemove(this);
         }
         //结算是否为延时
         if (skill.delayedTurn > 0&&!GameManager.instance.delayedSwitch)
         {
 
             GameManager.instance.delayedTurn.Add(GameManager.instance.turn+skill.delayedTurn);
-            GameManager.instance.delayedTurnUnit.Add(turnUnit);
+            GameManager.instance.delayedTurnUnit.Add(this);
             GameManager.instance.delayedSkill.Add(skill);
-            GameManager.instance.delayedPointUnit.Add(this);
+            if (GameManager.instance.delayedPointUnit.Count < GameManager.instance.delayedTurn.Count)
+            {
+                List<Unit> tempUnits=new List<Unit>();
+                GameManager.instance.delayedPointUnit.Add(tempUnits);
+            }
+            foreach(var p in pointUnits)
+            GameManager.instance.delayedPointUnit[GameManager.instance.delayedTurn.Count-1].Add(p);
         }
 
         else
         {    
-                StartCoroutine(Settle(turnUnit, skill));
+            foreach(var p in pointUnits)
+                StartCoroutine(p.Settle(this,skill));
         }
     }
+    public void UseSkillSettle(Skill skill, Unit pointUnits)//结算技能
+    {
 
+        SkillCost(skill);
+        if (skill.onlyOne)
+        {
+            skill.SkillRemove(this);
+        }
+        //结算是否为延时
+        if (skill.delayedTurn > 0 && !GameManager.instance.delayedSwitch)
+        {
+
+            GameManager.instance.delayedTurn.Add(GameManager.instance.turn + skill.delayedTurn);
+            GameManager.instance.delayedTurnUnit.Add(this);
+            GameManager.instance.delayedSkill.Add(skill);
+            if (GameManager.instance.delayedPointUnit.Count < GameManager.instance.delayedTurn.Count)
+            {
+                List<Unit> tempUnits = new List<Unit>();
+                GameManager.instance.delayedPointUnit.Add(tempUnits);
+            }
+            GameManager.instance.delayedPointUnit[GameManager.instance.delayedTurn.Count - 1].Add(this);
+        }
+
+        else
+        {
+                StartCoroutine(pointUnits.Settle(this, skill));
+        }
+    }
 
     //——————————————————被动事件(绑定到对应动画)————————————————————————————
     public void PassiveGameBegin()
@@ -477,6 +501,7 @@ public class Unit : MonoBehaviour
             bool Go = true;//判断是否继续运行
             int tempPointNum = o.pointNum;
             List<Unit> tempUnits = new List<Unit>();
+            List<Unit> tempPointUnits = new List<Unit>();
             if (o.passiveTurn == PassiveTurn.E)
             {
                 if (!(((GameManager.instance.state == BattleState.ENEMYTURN || GameManager.instance.state == BattleState.ENEMYTURNSTART || GameManager.instance.state == BattleState.ENEMYFINISH) && this.playerHero)
@@ -497,25 +522,20 @@ public class Unit : MonoBehaviour
                 if (o.passivePoint == PassivePoint.MDamager)
                     if (danger != null)
                     {
-                        danger.SkillSettle(this, o);
+                        UseSkillSettle( o, danger);
                     }
                 if (o.passivePoint == PassivePoint.MMyself)
-                    this.SkillSettle(this, o);
+                    UseSkillSettle(o,this);
                 if (o.passivePoint == PassivePoint.MAllEnemy)
                 {
                     if (playerHero)
                     {
-                        for (int i = 0; i < GameManager.instance.enemyUnit.Count; i++)
-                        {
-                            GameManager.instance.enemyUnit[i].SkillSettle(this, o);
-                        }
+                            UseSkillSettle(o, GameManager.instance.enemyUnit);
                     }
                     else
                     {
-                        for (int i = 0; i < GameManager.instance.heroUnit.Count; i++)
-                        {
-                            GameManager.instance.heroUnit[i].SkillSettle(this, o);
-                        }
+                            UseSkillSettle(o,GameManager.instance.heroUnit);
+
                     }
 
                 }
@@ -525,27 +545,26 @@ public class Unit : MonoBehaviour
                     {
                         for (int i = 0; i < GameManager.instance.enemyUnit.Count; i++)
                         {
-                            GameManager.instance.enemyUnit[i].SkillSettle(this, o);
+                            UseSkillSettle(o, GameManager.instance.enemyUnit);
                         }
                     }
                     else
                     {
                         for (int i = 0; i < GameManager.instance.heroUnit.Count; i++)
                         {
-                            GameManager.instance.heroUnit[i].SkillSettle(this, o);
+                            UseSkillSettle(o, GameManager.instance.heroUnit);
                         }
                     }
 
-                }
+                }              
                 if (o.passivePoint == PassivePoint.MEnemiesAuto)
                 {
-
-                    if (!o.reChoose)
+                    if (!o.reChoose)//确定选择的人数
                     {
-                        if (playerHero && (o.pointNum > GameManager.instance.enemyUnit.Count))
-                            tempPointNum = GameManager.instance.enemyUnit.Count;
-                        else if (!playerHero && (o.pointNum > GameManager.instance.heroUnit.Count))
+                        if (!playerHero && (o.pointNum > GameManager.instance.heroUnit.Count))
                             tempPointNum = GameManager.instance.heroUnit.Count;
+                        else if (playerHero && (o.pointNum > GameManager.instance.enemyUnit.Count))
+                            tempPointNum = GameManager.instance.enemyUnit.Count;
                     }
 
                     if (playerHero)
@@ -554,7 +573,6 @@ public class Unit : MonoBehaviour
                         {
                             tempUnits.Add(i);
                         }
-
                     }
                     else
                     {
@@ -565,19 +583,20 @@ public class Unit : MonoBehaviour
                     }
                     for (int j = 0; j < tempPointNum; j++)
                     {
-
                         int k = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempUnits.Count - 1);
-                        tempUnits[k].SkillSettle(this, o);
+                        Debug.Log("k:" + k);
+                        //Debug.Log("kou:"+ Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempUnits.Count - 1));
+                        tempPointUnits.Add(tempUnits[k]);
                         if (!o.reChoose)
                             tempUnits.Remove(tempUnits[k]);
                         yield return new WaitForSeconds(0.05f);
-
                     }
+                    UseSkillSettle(o, tempPointUnits);
 
                 }
                 if (o.passivePoint == PassivePoint.MPlayersAuto)
                 {
-                    if (!o.reChoose)
+                    if (!o.reChoose)//确定选择的人数
                     {
                         if (playerHero && (o.pointNum > GameManager.instance.heroUnit.Count))
                             tempPointNum = GameManager.instance.heroUnit.Count;
@@ -591,7 +610,6 @@ public class Unit : MonoBehaviour
                         {
                             tempUnits.Add(i);
                         }
-
                     }
                     else
                     {
@@ -603,12 +621,14 @@ public class Unit : MonoBehaviour
                     for (int j = 0; j < tempPointNum; j++)
                     {
                         int k = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempUnits.Count - 1);
-                        tempUnits[k].SkillSettle(this, o);
+                        Debug.Log("k:" + k);
+                        //Debug.Log("kou:" + Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempUnits.Count - 1));
+                        tempPointUnits.Add(tempUnits[k]);
                         if (!o.reChoose)
                             tempUnits.Remove(tempUnits[k]);
                         yield return new WaitForSeconds(0.05f);
-
                     }
+                    UseSkillSettle(o,tempPointUnits);
 
                 }
             }
@@ -622,7 +642,7 @@ public class Unit : MonoBehaviour
 
     public void FloatPointShow(int number,Color color)
     {
-        if(this.player)
+        if(player)
         {
             return;
         }
@@ -784,10 +804,12 @@ public class Unit : MonoBehaviour
 
     public void TurnBeginSettle()//回合开始状态处理
     {
+        
         if (shield > 0)
             shield -= 5;
         if(shield <= 0)
             shield = 0;
+        SettleAdjust();
     }
     public void TurnEndSettle()
     {
@@ -804,8 +826,92 @@ public class Unit : MonoBehaviour
         if(sneer>0)
             sneer -= 1;
     }
+     
+    protected void SettleAdjust()
+    {
+        int temp = 0;
+        int count = adjustCount.Count;
+        for (int i = 0; i < count; i++)
+        {
+            if (adjustCount[temp] > 0)
+            {
+                adjustCount[temp] -= 1;
+                temp++;
+            }              
+            else if (adjustCount[temp] <= 0)
+            {
+                SettleSingleAdjust(attributeAdjust[i], attributeAdjustPoint[i]);
+                adjustCount.Remove(adjustCount[temp]);
+                attributeAdjust.Remove(attributeAdjust[temp]);
+                attributeAdjustPoint.Remove(attributeAdjustPoint[temp]);
+            }
+                
+        }
+    }
+    protected virtual void SettleSingleAdjust(HeroAttribute a,int point)//属性调整
+    {
 
-   public int SneerJudge()//判断己方队伍有没有人嘲讽
+        if (a == HeroAttribute.AP)
+            AP += point;
+        else if (a == HeroAttribute.APDef)
+            APDef += point;
+        else if (a == HeroAttribute.maxMP)
+            maxMP += point;
+        else if (a == HeroAttribute.MP)
+            currentMP += point;
+        else if (a == HeroAttribute.AD)
+            AD += point;
+        else if (a == HeroAttribute.Def)
+            Def += point;
+        else if (a == HeroAttribute.maxHP)
+            maxHP += point;
+        else if (a == HeroAttribute.HP)
+            currentHP += point;
+        else if (a == HeroAttribute.Spirit)
+            Spirit += point;
+        else if (a == HeroAttribute.Critical)
+            Critical += point;
+        else if (a == HeroAttribute.Dodge)
+            Dodge += point;
+        else if (a == HeroAttribute.Tired)
+            tired += point;
+        else if (a == HeroAttribute.Sneer)
+            sneer += point;
+        else if (a == HeroAttribute.fragile)
+            fragile += point;
+        else if (a == HeroAttribute.weakness)
+            weakness += point;
+        else if (a == HeroAttribute.shieldDecrease)
+            shieldDecrease += point;
+        else if (a == HeroAttribute.Burn)
+            burn += point;
+        else if (a == HeroAttribute.Cold)
+            cold += point;
+        else if (a == HeroAttribute.Poison)
+            poison += point;
+        else if (a == HeroAttribute.ADDecrease)
+            ADDecrease += point;
+        else if (a == HeroAttribute.ADPrecentDecrease)
+            ADPrecentDecrease += point;
+        else if (a == HeroAttribute.APDecrease)
+            APDecrease += point;
+        else if (a == HeroAttribute.APPrecentDecrease)
+            APPrecentDecrease += point;
+        else if (a == HeroAttribute.BurnDecrease)
+            BurnDecrease += point;
+        else if (a == HeroAttribute.BurnPrecentDecrease)
+            BurnPrecentDecrease += point;
+        else if (a == HeroAttribute.PoisonDecrease)
+            PoisonDecrease += point;
+        else if (a == HeroAttribute.PoisonPrecentDecrease)
+            PoisonPrecentDecrease += point;
+        else if (a == HeroAttribute.ColdDecrease)
+            ColdDecrease += point;
+        else if (a == HeroAttribute.ColdPrecentDecrease)
+            ColdPrecentDecrease += point;
+
+    }
+    public int SneerJudge()//判断己方队伍有没有人嘲讽
     {
         int sneerNum=0;
         if(playerHero)

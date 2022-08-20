@@ -69,7 +69,7 @@ public class GameManager : MonoBehaviour
     public List<int> delayedTurn;//延迟的回合数
     public List<Unit> delayedTurnUnit;//延迟回合技能发动方
     public List<Skill> delayedSkill;//延迟回合的技能
-    public List<Unit> delayedPointUnit;//延迟回合技能目标方
+    public List<List<Unit>> delayedPointUnit=new List<List<Unit>>();//延迟回合技能目标方
     [Header("——————FIGHTING——————")]
 
     public int turn;
@@ -271,15 +271,15 @@ public class GameManager : MonoBehaviour
         int temp = 0;
         for (int j = 0; j < tempDelayedCount; j++)
         {
-            if (delayedTurn[temp] == turn)
+            if (delayedTurn[temp] <= turn)
             {
-                if (delayedTurnUnit[temp].playerHero && (delayedSkill[temp].type != SkillType.AttributeAdjust))
+                if (delayedTurnUnit[temp].playerHero)
                 {
                     if (delayedTurnUnit[temp].currentHP > 0)
-                    {
+                    {                      
                         tips.text = delayedTurnUnit[temp].unitName + " 结算 " + delayedSkill[temp].skillName;
                         delayedSwitch = true;
-                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
+                        delayedTurnUnit[temp].UseSkillSettle(delayedSkill[temp],delayedPointUnit[temp] );                       
                         delayedSwitch = false;
                     }
                     else
@@ -289,21 +289,7 @@ public class GameManager : MonoBehaviour
                     delayedSkill.Remove(delayedSkill[temp]);
                     delayedPointUnit.Remove(delayedPointUnit[temp]);
                     yield return new WaitForSeconds(0.1f);
-                }
-                else if (delayedPointUnit[temp].playerHero && (delayedSkill[temp].type == SkillType.AttributeAdjust))
-                {
-                    if (delayedPointUnit[temp].currentHP > 0)
-                    {
-                        tips.text = delayedTurnUnit[temp].unitName + " " + delayedSkill[temp].skillName;
-                        delayedSwitch = true;
-                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
-                        delayedSwitch = false;
-                    }
-                    delayedTurn.Remove(delayedTurn[temp]);
-                    delayedTurnUnit.Remove(delayedTurnUnit[temp]);
-                    delayedSkill.Remove(delayedSkill[temp]);
-                    delayedPointUnit.Remove(delayedPointUnit[temp]);
-                }
+                }              
                 else
                 {
                     temp = temp + 1;
@@ -320,15 +306,15 @@ public class GameManager : MonoBehaviour
         int temp = 0;
         for (int j = 0; j < tempDelayedCount; j++)
         {
-            if (delayedTurn[temp] == turn)
+            if (delayedTurn[temp] <= turn)
             {
-                if (!delayedTurnUnit[temp].playerHero && (delayedSkill[temp].type != SkillType.AttributeAdjust))
+                if (!delayedTurnUnit[temp].playerHero)
                 {
                     if (delayedTurnUnit[temp].currentHP > 0)
                     {
                         tips.text = delayedTurnUnit[temp].unitName + " 结算 " + delayedSkill[temp].skillName;
                         delayedSwitch = true;
-                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
+                        delayedTurnUnit[temp].UseSkillSettle(delayedSkill[temp], delayedPointUnit[temp]);
                         delayedSwitch = false;
                     }
                     else
@@ -339,20 +325,7 @@ public class GameManager : MonoBehaviour
                     delayedPointUnit.Remove(delayedPointUnit[temp]);
                     yield return new WaitForSeconds(0.1f);
                 }
-                else if (!delayedPointUnit[temp].playerHero && (delayedSkill[temp].type == SkillType.AttributeAdjust))
-                {
-                    if (delayedPointUnit[temp].currentHP > 0)
-                    {
-                        tips.text = delayedTurnUnit[temp].unitName + " " + delayedSkill[temp].skillName;
-                        delayedSwitch = true;
-                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
-                        delayedSwitch = false;
-                    }
-                    delayedTurn.Remove(delayedTurn[temp]);
-                    delayedTurnUnit.Remove(delayedTurnUnit[temp]);
-                    delayedSkill.Remove(delayedSkill[temp]);
-                    delayedPointUnit.Remove(delayedPointUnit[temp]);
-                }
+                
                 else
                 {
                     temp = temp + 1;
@@ -772,10 +745,8 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         if(turnUnit[0].player == false)
              yield return new WaitUntil(()=>turnUnit[0].anim.GetCurrentAnimatorStateInfo(0).IsName("idle"));//等待动画播放完毕
-        foreach (var o in pointUnit)
-        {
-            o.SkillSettle(turnUnit[0], useSkill);
-        }
+        turnUnit[0].UseSkillSettle(useSkill,pointUnit);
+
     }
 
 
@@ -795,7 +766,6 @@ public class GameManager : MonoBehaviour
     {
         int a;
         a = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99);
-        Debug.Log("roll的概率为"+ a);
         if (a < b)
             return true;
         else

@@ -8,6 +8,6 @@ public class Hero000 : Unit
     {
         MaxHpUp(50);
         maxMP += 20;
-        //rollSkill.Add(2);
+        skillRoll.Add(SkillRoll.T);
     }
 }
