@@ -34,7 +34,7 @@ MonoBehaviour:
   baseInt: 0
   attribute: 04000000
   addition:
-  - 0.5
+  - 0.1
   pointNum: 3
   reChoose: 0
   precent: 0

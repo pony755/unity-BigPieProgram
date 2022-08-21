@@ -106,9 +106,9 @@ public class Unit : MonoBehaviour
     public List<Skill> passiveGameBeginList;//死亡触发
 
     [Header("延时调整属性列表(默认为加)")]
-    public List<int> adjustCount;
+    public List<int> adjustTurn;
     public List<HeroAttribute> attributeAdjust;//技能增益属性列表
-    public List<int> attributeAdjustPoint;//代价列表
+    public List<float> attributeAdjustPoint;//代价列表
     [System.Serializable]
     public class SaveUnitData
     {
@@ -829,86 +829,83 @@ public class Unit : MonoBehaviour
      
     protected void SettleAdjust()
     {
+        
         int temp = 0;
-        int count = adjustCount.Count;
+        int count = adjustTurn.Count;
         for (int i = 0; i < count; i++)
-        {
-            if (adjustCount[temp] > 0)
-            {
-                adjustCount[temp] -= 1;
-                temp++;
-            }              
-            else if (adjustCount[temp] <= 0)
+        {             
+            if (adjustTurn[temp] <=GameManager.instance.turn)
             {
                 SettleSingleAdjust(attributeAdjust[i], attributeAdjustPoint[i]);
-                adjustCount.Remove(adjustCount[temp]);
+                adjustTurn.Remove(adjustTurn[temp]);
                 attributeAdjust.Remove(attributeAdjust[temp]);
                 attributeAdjustPoint.Remove(attributeAdjustPoint[temp]);
             }
-                
+            else
+                temp++;
         }
     }
-    protected virtual void SettleSingleAdjust(HeroAttribute a,int point)//属性调整
+    protected virtual void SettleSingleAdjust(HeroAttribute a,float point)//属性调整
     {
 
         if (a == HeroAttribute.AP)
-            AP += point;
+            AP += (int)point;
         else if (a == HeroAttribute.APDef)
-            APDef += point;
+            APDef += (int)point;
         else if (a == HeroAttribute.maxMP)
-            maxMP += point;
+            maxMP += (int)point;
         else if (a == HeroAttribute.MP)
-            currentMP += point;
+            currentMP += (int)point;
         else if (a == HeroAttribute.AD)
-            AD += point;
+            AD += (int)point;
         else if (a == HeroAttribute.Def)
-            Def += point;
+            Def += (int)point;
         else if (a == HeroAttribute.maxHP)
-            maxHP += point;
+            maxHP += (int)point;
         else if (a == HeroAttribute.HP)
-            currentHP += point;
+            currentHP += (int)point;
         else if (a == HeroAttribute.Spirit)
-            Spirit += point;
+            Spirit += (int)point;
         else if (a == HeroAttribute.Critical)
-            Critical += point;
+            Critical += (int)point;
         else if (a == HeroAttribute.Dodge)
-            Dodge += point;
+            Dodge += (int)point;
         else if (a == HeroAttribute.Tired)
-            tired += point;
+            tired += (int)point;
         else if (a == HeroAttribute.Sneer)
-            sneer += point;
+            sneer += (int)point;
         else if (a == HeroAttribute.fragile)
-            fragile += point;
+            fragile += (int)point;
         else if (a == HeroAttribute.weakness)
-            weakness += point;
+            weakness += (int)point;
         else if (a == HeroAttribute.shieldDecrease)
-            shieldDecrease += point;
+            shieldDecrease += (int)point;
         else if (a == HeroAttribute.Burn)
-            burn += point;
+            burn += (int)point;
         else if (a == HeroAttribute.Cold)
-            cold += point;
+            cold += (int)point;
         else if (a == HeroAttribute.Poison)
-            poison += point;
+            poison += (int)point;
         else if (a == HeroAttribute.ADDecrease)
-            ADDecrease += point;
+            ADDecrease += (int)point;
         else if (a == HeroAttribute.ADPrecentDecrease)
-            ADPrecentDecrease += point;
+            ADPrecentDecrease += (int)point;
         else if (a == HeroAttribute.APDecrease)
-            APDecrease += point;
+            APDecrease += (int)point;
         else if (a == HeroAttribute.APPrecentDecrease)
-            APPrecentDecrease += point;
+            APPrecentDecrease += (int)point;
         else if (a == HeroAttribute.BurnDecrease)
-            BurnDecrease += point;
+            BurnDecrease += (int)point;
         else if (a == HeroAttribute.BurnPrecentDecrease)
-            BurnPrecentDecrease += point;
+            BurnPrecentDecrease += (int)point;
         else if (a == HeroAttribute.PoisonDecrease)
-            PoisonDecrease += point;
+            PoisonDecrease += (int)point;
         else if (a == HeroAttribute.PoisonPrecentDecrease)
-            PoisonPrecentDecrease += point;
+            PoisonPrecentDecrease += (int)point;
         else if (a == HeroAttribute.ColdDecrease)
-            ColdDecrease += point;
+            ColdDecrease += (int)point;
         else if (a == HeroAttribute.ColdPrecentDecrease)
-            ColdPrecentDecrease += point;
+            ColdPrecentDecrease += (int)point;
 
     }
     public int SneerJudge()//判断己方队伍有没有人嘲讽

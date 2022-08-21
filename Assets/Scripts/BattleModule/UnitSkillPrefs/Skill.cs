@@ -7,7 +7,7 @@ using Koubot.Tool;
 public enum SkillType {AD,AP,ReallyDamage,Heal,Shield,Burn,Cold,Poison,Card,Excharge,AbandomCard,EX}//技能类型
 public enum AnimType {Attack}//动画类型
 public enum SkillPoint { Myself,AllEnemy,AllPlayers,Players,Enemies }//技能指向
-public enum HeroAttribute { AP,APDef,maxMP,MP,AD,Def,maxHP,HP,Spirit,Critical,Dodge,Tired,Sneer, fragile, weakness, shieldDecrease, Burn,Cold,Poison,ADDecrease,ADPrecentDecrease, APDecrease, APPrecentDecrease, BurnDecrease, BurnPrecentDecrease,PoisonDecrease,PoisonPrecentDecrease,ColdDecrease,ColdPrecentDecrease }//属性
+public enum HeroAttribute { AP,APDef,maxMP,MP,AD,Def,maxHP,HP,Spirit,Critical,Dodge,Tired,Sneer, fragile, weakness, shieldDecrease, healDecrease,Burn, Cold,Poison,ADDecrease,ADPrecentDecrease, APDecrease, APPrecentDecrease, BurnDecrease, BurnPrecentDecrease,PoisonDecrease,PoisonPrecentDecrease,ColdDecrease,ColdPrecentDecrease }//属性
 public enum HeroSkillAttribute { AP, APDef, maxMP, MP, AD, Def, maxHP, HP, Spirit, Critical, Dodge, Burn, Cold, Poison}//属性
 public enum PassiveType {None,Hit,Dead,GameBegin,TurnStart,TurnEnd}//被动类型(决定触发时间)
 public enum PassivePoint {MDamager, MMyself,MAllEnemy,MAllPlayers,MEnemiesAuto, MPlayersAuto }//被动目标(M代表自己为技能使用方,结尾字母表示回合约束)

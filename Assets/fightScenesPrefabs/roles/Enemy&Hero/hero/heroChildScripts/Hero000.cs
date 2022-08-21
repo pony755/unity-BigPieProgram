@@ -6,6 +6,7 @@ public class Hero000 : Unit
 {
     public override void LevelUp2()
     {
+        
         MaxHpUp(50);
         maxMP += 20;
         skillRoll.Add(SkillRoll.T);
