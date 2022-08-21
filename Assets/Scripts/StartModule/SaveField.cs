@@ -9,9 +9,7 @@ using UnityEngine.UI;
 
 public class SaveField : MonoBehaviour
 {
-    public int fieldStateValue;//存档栏状态值，0为开始，1为加载，2为游戏中
-    public Player player;
-    public SaveLoadManager saveLoadManager;
+    public int fieldStateValue;//存档栏状态值，0为开始，1为加载
     public TextMeshProUGUI saveNumber;
     public TextMeshProUGUI saveInfor;
     public TextMeshProUGUI saveTime;
@@ -68,7 +66,7 @@ public class SaveField : MonoBehaviour
         File.WriteAllText(selectorPath, "0");
         SceneManager.LoadSceneAsync("MapScene");
     }
-    void SetInfor()//获取存档信息
+    /*void SetInfor()//获取存档信息
     {
         saveInfor.text = "第" + player.awakeCount + "次苏醒/" + player.level + "-" + player.childLevel;
     }
@@ -76,7 +74,7 @@ public class SaveField : MonoBehaviour
     {
         DateTime dt = DateTime.Now;
         saveTime.text = dt.ToString();
-    }
+    }*/
     void LoadGame()//加载游戏存档
     {
         if(fieldStateValue == 1)
@@ -84,12 +82,6 @@ public class SaveField : MonoBehaviour
             File.WriteAllText(locatorPath, saveNumber.text);
             File.WriteAllText(selectorPath, "1");
             SceneManager.LoadSceneAsync("MapScene");
-        }
-        else
-        {
-            saveLoadManager = GameObject.FindGameObjectWithTag("SaveLoadManager").GetComponent<SaveLoadManager>();
-            player.Load(saveNumber.text);
-            saveLoadManager.Back();
         }
     }
     void DeleteConfirm()//确认是否删除存档
@@ -100,7 +92,7 @@ public class SaveField : MonoBehaviour
     {
         saveInfor.text = null;
         saveTime.text = null;
-        player.Delete(saveNumber.text);
+        SaveSystem.Delete(saveName);
         deleteComfirm.gameObject.SetActive(false);
         loadButton.gameObject.SetActive(false);
         deleteButton.gameObject.SetActive(false);
@@ -141,13 +133,13 @@ public class SaveField : MonoBehaviour
     }
     void Update()
     {
-        if (fieldStateValue == 2)
-        {
-            player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        }
         if (File.Exists(Path.Combine(Application.persistentDataPath, saveName)))
         {
             saveExist = true;
+        }
+        else
+        {
+            saveExist = false;
         }
         ButtonViewListener();
     }

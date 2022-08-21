@@ -603,4 +603,12 @@ public class MapManager : MonoBehaviour
             Destroy(cards.transform.GetChild(i).gameObject);
         }
     }
+
+    //以下为开发者功能
+    [UnityEditor.MenuItem("Developer/跳转到下一子关卡")]
+    public static void DevNextChildLevel()
+    {
+        MapManager mapManager = GameObject.FindGameObjectWithTag("MapManager").GetComponent<MapManager>();
+        mapManager.NextChildLevel();
+    }
 }

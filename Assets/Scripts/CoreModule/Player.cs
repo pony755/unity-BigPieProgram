@@ -80,11 +80,6 @@ public class Player : MonoBehaviour
         Debug.Log(BP);
         Debug.Log(nightmareSharps);
     }
-    public void Delete(string saveNumber)//É¾³ý´æµµ
-    {
-        string saveName = "Save_" + saveNumber + ".sav";
-        SaveSystem.Delete(saveName);
-    }
     void Start()
     {
         
