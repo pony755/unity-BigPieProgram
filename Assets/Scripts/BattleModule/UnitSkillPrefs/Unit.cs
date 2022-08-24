@@ -78,22 +78,22 @@ public class Unit : MonoBehaviour
 
     [Header("技能池")]
     public List<Skill> currencyLSkillList;
-    public List<Skill> currencyMSkillList;
-    public List<Skill> currencyHSkillList;
     public List<Skill> exclusiveLSkillList;
+    public List<Skill> currencyMSkillList;
     public List<Skill> exclusiveMSkillList;
+    public List<Skill> currencyHSkillList;  
     public List<Skill> exclusiveHSkillList;
 
     //[Header("技能编号列表")]
-    [HideInInspector] public List<int> heroSkillListCode;
+    public List<int> heroSkillListCode;
 
     //[Header("战斗技能池编号(存储池子情况")]
-    [HideInInspector] public List<int> currencyFightLSkillList;
-    [HideInInspector] public List<int> currencyFightMSkillList;
-    [HideInInspector] public List<int> currencyFightHSkillList;
-    [HideInInspector] public List<int> exclusiveFightLSkillList;
-    [HideInInspector] public List<int> exclusiveFightMSkillList;
-    [HideInInspector] public List<int> exclusiveFightHSkillList;
+    public List<int> currencyFightLSkillList;
+    public List<int> exclusiveFightLSkillList;
+    public List<int> currencyFightMSkillList;
+    public List<int> exclusiveFightMSkillList;
+    public List<int> currencyFightHSkillList; 
+    public List<int> exclusiveFightHSkillList;
     [Header("是否为玩家替身")]
     public bool player;
 
@@ -735,67 +735,80 @@ public class Unit : MonoBehaviour
         return;
     }
     //——————————————————roll技能函数——————————————————————————
-
+    private void SingleSkillRoll(List<int> fList,List<int> tempList)
+    {
+        if(tempList.Count>0)
+        {
+            int tempIndex = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempList.Count - 1);
+            fList.Add(tempList[tempIndex]);
+            tempList.Remove(tempList[tempIndex]);
+        }
+    }
+    private void CloneList(List<int> a,List<int>b)
+    {
+        foreach(var x in a)
+            b.Add(x);
+    }
     public List<int> SkillRollList(int count,List<int> aList, int aPrecent,List<int> bList, int bPrecent)//roll技能编号
     {
         List<int> finalList = new List<int>();
-        List<int> tempLista = aList;
-        List<int> tempListb = bList;
+        List<int> tempLista = new List<int>();
+        CloneList(aList,tempLista);
+        List<int> tempListb = new List<int>();
+        CloneList(bList, tempListb);
         int a = aPrecent;
         int b = aPrecent+bPrecent;
         int rollInt;
-        int tempIndex;
-        for (int i = 0; i < count; i++)
+
+        while (finalList.Count < count)
         {
             rollInt = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99);
+            Debug.Log("rollInt:"+rollInt);
             if (rollInt<a)
             {
-                tempIndex=Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempLista.Count-1);
-                finalList.Add(tempLista[tempIndex]);
-                tempLista.Remove(tempLista[tempIndex]);              
+                SingleSkillRoll(finalList, tempLista);
             }
             else if(a<=rollInt&&rollInt<b)
             {
-                tempIndex = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempListb.Count - 1);
-                finalList.Add(tempListb[tempIndex]);
-                tempLista.Remove(tempListb[tempIndex]);
+                SingleSkillRoll(finalList, tempListb);
             }
         }
+        foreach (var temp in finalList)
+            Debug.Log("技能编号:" + temp);
         return finalList;
     }
     public List<int> SkillRollList(int count, List<int> aList, int aPrecent, List<int> bList, int bPrecent, List<int> cList, int cPrecent)//roll技能编号
     {
         List<int> finalList = new List<int>();
-        List<int> tempLista = aList;
-        List<int> tempListb = bList;
-        List<int> tempListc = cList;
+        List<int> tempLista = new List<int>();
+        CloneList(aList,tempLista);
+        List<int> tempListb = new List<int>();
+        CloneList(bList,tempListb);
+        List<int> tempListc = new List<int>();
+        CloneList(cList,tempListc); 
         int a = aPrecent;
         int b = aPrecent + bPrecent;
         int c = aPrecent + bPrecent + cPrecent;
         int rollInt;
-        int tempIndex;
-        for (int i = 0; i < count; i++)
+        while(finalList.Count<count)
         {
             rollInt = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99);
+            Debug.Log("rollInt:" + rollInt);
             if (rollInt < a)
             {
-                tempIndex = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempLista.Count - 1);
-                finalList.Add(tempLista[tempIndex]);
-                tempLista.Remove(tempLista[tempIndex]);
+                SingleSkillRoll(finalList, tempLista);
             }
             else if (a <= rollInt && rollInt < b)
             {
-                tempIndex = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempListb.Count - 1);
-                finalList.Add(tempListb[tempIndex]);
-                tempLista.Remove(tempListb[tempIndex]);
+                SingleSkillRoll(finalList, tempListb);
             }
             else if (b <= rollInt && rollInt < c)
             {
-                tempIndex = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempListb.Count - 1);
-                finalList.Add(tempListc[tempIndex]);
-                tempLista.Remove(tempListc[tempIndex]);
+                SingleSkillRoll(finalList, tempListc);
             }
         }
+        foreach (var temp in finalList)
+            Debug.Log("技能编号:"+temp);
         return finalList;
     }
     //——————————————————技能计算函数——————————————————————————

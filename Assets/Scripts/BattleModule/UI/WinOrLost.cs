@@ -44,20 +44,41 @@ public class WinOrLost : MonoBehaviour
         ToSkillRoll();
     }
 
-
+    public void SkillChooseBtn()
+    {
+        FreshSkillRoll();
+    }
     private void ToSkillRoll()
     {
         if (firstImg.activeInHierarchy)
             firstImg.SetActive(false);
-        else if (rollSkillImg.activeInHierarchy)
-            rollSkillImg.SetActive(false);
         if (CheckRollSkill()!=null)
         {
             rollSkillImg.GetComponent<RollSkillImage>().Show(CheckRollSkill());
          }      
-        
+        else
+        {
+            //ToRollCard();
+        }
     }
-    
+    private void FreshSkillRoll()
+    {
+        if (rollSkillImg.activeInHierarchy)
+        {
+            rollSkillImg.SetActive(false);
+            //点击之后按钮没回弹
+        }
+            
+        if (CheckRollSkill() != null)
+        {
+            rollSkillImg.GetComponent<RollSkillImage>().Show(CheckRollSkill());
+        }
+        else
+        {
+            //ToRollCard();
+        }
+    }
+
     private Unit CheckRollSkill()
     {
         Unit unit = null;
