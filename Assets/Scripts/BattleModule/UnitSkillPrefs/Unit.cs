@@ -43,7 +43,7 @@ public class Unit : MonoBehaviour
     [Header("游戏内状态量")]
     public int currentHP;
     public int currentExp;
-    
+    public int getExp;
 
     [Header("战斗状态量(每局战斗都刷新成默认值,不需要保存读取)")]
     public int tired;
@@ -56,8 +56,7 @@ public class Unit : MonoBehaviour
     public int burn;
     public int cold;
     public int poison;   
-    public int currentMP;
-    public int getExp;
+    public int currentMP;   
     public List<SkillRoll> skillRoll;
     
     
@@ -131,7 +130,7 @@ public class Unit : MonoBehaviour
 
         public int currentHP;
         public int currentExp;
-
+        public int getExp;
 
         public int ADDecrease;
         public int ADPrecentDecrease;
@@ -157,7 +156,7 @@ public class Unit : MonoBehaviour
         //初始化数据
         if (playerHero)
         {
-            UnitLoad();
+            UnitBeginLoad();
             SetSkill();
         }
                       
@@ -737,29 +736,68 @@ public class Unit : MonoBehaviour
     }
     //——————————————————roll技能函数——————————————————————————
 
-    public List<Skill> SkillRollList(SkillRoll a)
+    public List<int> SkillRollList(int count,List<int> aList, int aPrecent,List<int> bList, int bPrecent)//roll技能编号
     {
-        List<Skill> tempList = new List<Skill>();
-    
-
-        return tempList;
-    }
-    /*protected Skill SingleSkillRoll(ref List<Skill> aList,int aPrecent, ref List<Skill> bList, int bPrecent)
-    {
-        Skill tempSkill=new Skill();
-        if(Koubot.Tool.Random.RandomTool.GenerateRandomInt(0,99)<aPrecent)
+        List<int> finalList = new List<int>();
+        List<int> tempLista = aList;
+        List<int> tempListb = bList;
+        int a = aPrecent;
+        int b = aPrecent+bPrecent;
+        int rollInt;
+        int tempIndex;
+        for (int i = 0; i < count; i++)
         {
-            tempSkill = Koubot.Tool.Random.RandomTool.RandomGetOne(aList);
-            aList.Remove(tempSkill);
+            rollInt = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99);
+            if (rollInt<a)
+            {
+                tempIndex=Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempLista.Count-1);
+                finalList.Add(tempLista[tempIndex]);
+                tempLista.Remove(tempLista[tempIndex]);              
+            }
+            else if(a<=rollInt&&rollInt<b)
+            {
+                tempIndex = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempListb.Count - 1);
+                finalList.Add(tempListb[tempIndex]);
+                tempLista.Remove(tempListb[tempIndex]);
+            }
         }
-
-
-
-
-
-
-        return tempSkill;
-    }*/
+        return finalList;
+    }
+    public List<int> SkillRollList(int count, List<int> aList, int aPrecent, List<int> bList, int bPrecent, List<int> cList, int cPrecent)//roll技能编号
+    {
+        List<int> finalList = new List<int>();
+        List<int> tempLista = aList;
+        List<int> tempListb = bList;
+        List<int> tempListc = cList;
+        int a = aPrecent;
+        int b = aPrecent + bPrecent;
+        int c = aPrecent + bPrecent + cPrecent;
+        int rollInt;
+        int tempIndex;
+        for (int i = 0; i < count; i++)
+        {
+            rollInt = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99);
+            if (rollInt < a)
+            {
+                tempIndex = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempLista.Count - 1);
+                finalList.Add(tempLista[tempIndex]);
+                tempLista.Remove(tempLista[tempIndex]);
+            }
+            else if (a <= rollInt && rollInt < b)
+            {
+                tempIndex = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempListb.Count - 1);
+                finalList.Add(tempListb[tempIndex]);
+                tempLista.Remove(tempListb[tempIndex]);
+            }
+            else if (b <= rollInt && rollInt < c)
+            {
+                tempIndex = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempListb.Count - 1);
+                finalList.Add(tempListc[tempIndex]);
+                tempLista.Remove(tempListc[tempIndex]);
+            }
+        }
+        return finalList;
+    }
     //——————————————————技能计算函数——————————————————————————
     public int Decrease(int final,int decrease,float decreasePrecent)
     {
@@ -1056,51 +1094,17 @@ public class Unit : MonoBehaviour
         SaveSystem.Save(unitSaveName, saveData);
     }
 
-    private void UnitLoad()//读取存档
+    public void getExpAndCurrentHp()//保存当前getExp和血
     {
-        string saveUnitName = "Save_BattleHero_" + unitName + ".sav";
-        SaveUnitData saveData;
-        if (File.Exists(Path.Combine(Application.persistentDataPath, saveUnitName)))
-        {
-            saveData = SaveSystem.Load<SaveUnitData>(saveUnitName);
-            skillNum = saveData.skillNum;
-            unitLevel = saveData.unitLevel;
-
-
-            AP = saveData.AP;
-            APDef = saveData.APDef;
-            maxMP = saveData.maxMP;
-
-            AD = saveData.AD;
-            Def = saveData.Def;
-            maxHP = saveData.maxHP;
-
-            Spirit = saveData.Spirit;
-            Critical = saveData.Critical;
-            Dodge = saveData.Dodge;
-
-            currentHP = saveData.currentHP;
-            currentExp = saveData.currentExp;
-
-            ADDecrease = saveData.ADDecrease;
-            ADPrecentDecrease = saveData.ADPrecentDecrease;
-            APDecrease = saveData.APDecrease;
-            APPrecentDecrease = saveData.APPrecentDecrease;
-            BurnDecrease = saveData.BurnDecrease;
-            BurnPrecentDecrease = saveData.BurnPrecentDecrease;
-            PoisonDecrease = saveData.PoisonDecrease;
-            PoisonPrecentDecrease = saveData.PoisonPrecentDecrease;
-            ColdDecrease = saveData.ColdDecrease;
-            ColdPrecentDecrease = saveData.ColdPrecentDecrease;
-            currencyFightLSkillList = saveData.currencyFightLSkillList;
-            currencyFightMSkillList = saveData.currencyFightMSkillList;
-            currencyFightHSkillList = saveData.currencyFightHSkillList;
-            exclusiveFightLSkillList = saveData.exclusiveFightLSkillList;
-            exclusiveFightMSkillList = saveData.exclusiveFightMSkillList;
-            exclusiveFightHSkillList = saveData.exclusiveFightHSkillList;
-            heroSkillListCode = saveData.heroSkillListCode;
-        }
-        else//无存档时，给战斗技能池和技能编好号赋值后再创建存档
+        string unitSaveName = "Save_BattleHero_" + unitName + ".sav";
+        SaveUnitData saveData = SaveSystem.Load<SaveUnitData>(unitSaveName);
+        saveData.currentHP = currentHP;
+        saveData.getExp = getExp;
+        SaveSystem.Save(unitSaveName, saveData);
+    }
+    private void UnitBeginLoad()//读取存档
+    {      
+        if(!UnitLoad())//无存档时，给战斗技能池和技能编好号赋值后再创建存档
         {
             //先对战斗池子的各编好列表初始化,再存入初始数据
             SetAllSkillList();
@@ -1137,12 +1141,14 @@ public class Unit : MonoBehaviour
         SaveSystem.Delete(saveUnitName);
     }
 
-    public void FightFinishLoad() //战斗后读取存档数据(除了血和目前经验值)便于对数据调整
+    public bool UnitLoad() //读取存档数据,便于对数据调整
     {
+        bool loadSwitch=false;
         string saveUnitName = "Save_BattleHero_" + unitName + ".sav";
         SaveUnitData saveData;
         if (File.Exists(Path.Combine(Application.persistentDataPath, saveUnitName)))
         {
+            loadSwitch=true;
             saveData = SaveSystem.Load<SaveUnitData>(saveUnitName);
             skillNum = saveData.skillNum;
             unitLevel = saveData.unitLevel;
@@ -1160,6 +1166,9 @@ public class Unit : MonoBehaviour
             Critical = saveData.Critical;
             Dodge = saveData.Dodge;
 
+            currentHP = saveData.currentHP;
+            currentExp = saveData.currentExp;
+            getExp = saveData.getExp;
 
             ADDecrease = saveData.ADDecrease;
             ADPrecentDecrease = saveData.ADPrecentDecrease;
@@ -1179,6 +1188,7 @@ public class Unit : MonoBehaviour
             exclusiveFightHSkillList = saveData.exclusiveFightHSkillList;
             heroSkillListCode = saveData.heroSkillListCode;
         }
+        return loadSwitch;
     }
 
     protected void MaxHpUp(int a)//提高maxHp的方法

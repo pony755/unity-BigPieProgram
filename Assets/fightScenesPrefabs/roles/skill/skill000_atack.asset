@@ -19,7 +19,7 @@ MonoBehaviour:
   typeTag: 01000000
   animType: 0
   skillTired: 0
-  needMP: 10
+  needMP: 0
   delayedTurn: 0
   abandomCardNum: 0
   onlyOne: 0
@@ -34,7 +34,7 @@ MonoBehaviour:
   baseInt: 0
   attribute: 04000000
   addition:
-  - 0.1
+  - 10
   pointNum: 3
   reChoose: 0
   precent: 0

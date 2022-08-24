@@ -87,6 +87,7 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         //在fightprefs上setHero
 
+        //判断该事件是否结算完过，未结算完过则往下走
         LeanTween.move(turnTipsObject, new Vector3(turnTipsObject.transform.position.x, turnTipsObject.transform.position.y-200f, turnTipsObject.transform.position.z), 0.8f);
         win = false;
         over = false;
@@ -99,6 +100,7 @@ public class GameManager : MonoBehaviour
     }
     private void Start()
     {
+        //判断该事件是否结算完过，未结算完过则往下走
         StartCoroutine(Load());       
     }
 
@@ -116,8 +118,10 @@ public class GameManager : MonoBehaviour
         UpdateTips();  
         if ((heroUnit.Count== 0|| enemyUnit.Count == 0 )&& over==false)
         {
-            over = true;           
-            StartCoroutine(Over());
+            over = true;
+            foreach (var p in heroUnit)
+                p.getExpAndCurrentHp();//保存当前血量和获取的经验值
+            StartCoroutine(Over());//若该事件结算完，启动Over函数
             GameReset();
         }
         CheckAbandomCardNum();
@@ -597,7 +601,7 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1;
         foreach (var h in heroUnit)
         {
-            h.FightFinishLoad();
+            h.UnitLoad();
         }
         yield return new WaitForSeconds(1f);
         if(enemyUnit.Count==0)
