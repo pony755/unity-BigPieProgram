@@ -143,7 +143,8 @@ MonoBehaviour:
   unitName: "\u82F1\u96C41\u53F7"
   skillNum: 3
   unitLevel: 1
-  nextExp: 50
+  maxLevel: 15
+  nextExp: 
   AP: 100
   APDef: 10
   maxMP: 50
@@ -151,9 +152,13 @@ MonoBehaviour:
   Def: 10
   maxHP: 100
   Spirit: 10
-  Critical: 10
-  Dodge: 10
+  Critical: 0
+  Dodge: 0
+  currentHP: 100
+  currentExp: 0
+  getExp: 0
   tired: 0
+  sneer: 0
   shield: 0
   fragile: 0
   weakness: 0
@@ -162,10 +167,8 @@ MonoBehaviour:
   burn: 0
   cold: 0
   poison: 0
-  currentHP: 100
-  currentMP: 50
-  currentExp: 0
-  getExp: 0
+  currentMP: 0
+  skillRoll: 
   ADDecrease: 0
   ADPrecentDecrease: 0
   APDecrease: 0
@@ -176,14 +179,41 @@ MonoBehaviour:
   PoisonPrecentDecrease: 0
   ColdDecrease: 0
   ColdPrecentDecrease: 0
-  heroSkillListCode: 000000000100000002000000
-  heroSkillList: []
+  heroSkillList:
+  - {fileID: 11400000, guid: ffdbfd91d7418d24da089bc8bf62e97b, type: 2}
+  - {fileID: 11400000, guid: 1a4a5030ae2f92e4781f20e3aedd88ad, type: 2}
+  currencyLSkillList:
+  - {fileID: 11400000, guid: 94513dd5012529f40803f22f0e56a4ee, type: 2}
+  - {fileID: 11400000, guid: 4ffe86ef0b524b64faff6241738036dd, type: 2}
+  - {fileID: 11400000, guid: 1371a8637a12acc428f18ecc61f7c01a, type: 2}
+  - {fileID: 11400000, guid: e79954cd5db3f5e46bc2ec486a9d425b, type: 2}
+  currencyMSkillList:
+  - {fileID: 11400000, guid: 9d19fe9163cf5fc4298c8463eb7c16a9, type: 2}
+  - {fileID: 11400000, guid: edb84a047a188b84fb658de9bdec46d4, type: 2}
+  - {fileID: 11400000, guid: 4dc3dad9517566c4586999c6ea7fe8d4, type: 2}
+  currencyHSkillList: []
+  exclusiveLSkillList:
+  - {fileID: 11400000, guid: 05e10fa187464864284d0b2b3c24eaa3, type: 2}
+  - {fileID: 11400000, guid: 4ce82d581179c8e4ab9df98be4d234e9, type: 2}
+  - {fileID: 11400000, guid: cfdc6af764b9050419221fc4658425e1, type: 2}
+  exclusiveMSkillList: []
+  exclusiveHSkillList: []
+  heroSkillListCode: 
+  currencyFightLSkillList: 
+  currencyFightMSkillList: 
+  currencyFightHSkillList: 
+  exclusiveFightLSkillList: 
+  exclusiveFightMSkillList: 
+  exclusiveFightHSkillList: 
   player: 0
   passiveTurnEndList: []
   passiveTurnStartList: []
   passiveHitList: []
   passiveDeadList: []
   passiveGameBeginList: []
+  adjustTurn: 
+  attributeAdjust: 
+  attributeAdjustPoint: []
 --- !u!1001 &3518477051247261245
 PrefabInstance:
   m_ObjectHideFlags: 0

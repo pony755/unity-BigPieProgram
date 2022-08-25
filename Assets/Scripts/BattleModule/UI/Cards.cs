@@ -21,7 +21,6 @@ public class Cards : MonoBehaviour
     public Vector3 cardAbandomAdress;//弃牌栏位置
     void Start()
     {
-        this.gameObject.GetComponent<Animator>().enabled = false;
         cardAdress.y = 80;
         cardAdress.z = 0;
         CardPosition();
@@ -45,19 +44,20 @@ public class Cards : MonoBehaviour
 
     public void ScaleCard()//鼠标进入事件
     {
-            if ((GameManager.instance.state == BattleState.PLAYERTURN&&!GameManager.instance.fightPlayerCards.abandomCards.Contains(this) )|| GameManager.instance.state == BattleState.ABANDOMCARD)
+            if ((GameManager.instance.state == BattleState.PLAYERTURN&&!GameManager.instance.fightPlayerCards.abandomCards.Contains(this) )|| GameManager.instance.state == BattleState.ABANDOMCARD|| (GameManager.instance.useCard!=this && GameManager.instance.abandomCardSwitch == true))
             {
                 this.transform.SetAsLastSibling();
                 LeanTween.move(this.gameObject, new Vector3(cardAdress.x, cardAdress.y + 100f, cardAdress.z), 0.3f);
 
             }
 
+ 
         
         
     }
     public void DownCard()//只在玩家回合有效，鼠标退出事件
     {
-            if ((GameManager.instance.state == BattleState.PLAYERTURN&& !GameManager.instance.fightPlayerCards.abandomCards.Contains(this)) || GameManager.instance.state == BattleState.ABANDOMCARD)
+            if ((GameManager.instance.state == BattleState.PLAYERTURN&& !GameManager.instance.fightPlayerCards.abandomCards.Contains(this)) || GameManager.instance.state == BattleState.ABANDOMCARD|| (GameManager.instance.useCard!=this && GameManager.instance.abandomCardSwitch == true))
             {
               if(!GameManager.instance.fightPlayerCards.abandomCards.Contains(this))
             {
@@ -87,7 +87,7 @@ public class Cards : MonoBehaviour
                     if (GameManager.instance.heroUnit[i].tired == 0)
                         break;
                 }
-                LeanTween.move(this.gameObject, new Vector3(990f, 200f, 0), 0.3f);
+                LeanTween.move(this.gameObject, new Vector3(this.gameObject.transform.position.x, 200f, 0), 0.3f);
                 GameManager.instance.useCard = this;
                 GameManager.instance.useSkill = cardSkill;
                 if (cardSkill.cardPointUnit)
@@ -104,8 +104,13 @@ public class Cards : MonoBehaviour
             }
             if(GameManager.instance.state==BattleState.ABANDOMCARD)
                 CardDestory();
+        if (GameManager.instance.useCard != this && GameManager.instance.abandomCardSwitch == true)
+        {
+            CardDestory();
+            GameManager.instance.abandomCardNum -= 1;
+        }
 
-       
+
     }
 
     IEnumerator FalseTips()//显示tips
@@ -137,7 +142,6 @@ public class Cards : MonoBehaviour
         
         GameManager.instance.AbandomCardCheck.transform.GetChild(3).transform.GetChild(0).transform.GetChild(0).GetComponent<RectTransform>().sizeDelta=new Vector2(0,Mathf.Max(340f,(float)(280+(GameManager.instance.fightPlayerCards.abandomCards.IndexOf(this) / 5) * 260)));
 
-        this.gameObject.GetComponent<Animator>().enabled = false;
         GameManager.instance.AdjustCards = true;
     }
 

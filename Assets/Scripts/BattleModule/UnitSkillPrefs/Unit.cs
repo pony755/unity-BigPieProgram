@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.IO;
+
+public enum SkillRoll {L1,L2,L3,M1,M2,M3,H1,H2,H3,T}
 public class Unit : MonoBehaviour
 {
     [HideInInspector]public Animator anim;//动画
@@ -23,7 +25,8 @@ public class Unit : MonoBehaviour
     [Header("基础属性")]
     public int skillNum;
     public int unitLevel;
-    public int nextExp;
+    public int maxLevel;
+    public int[] nextExp;
     [Header("天")]
     public int AP;
     public int APDef;
@@ -37,8 +40,14 @@ public class Unit : MonoBehaviour
     public int Critical;
     public int Dodge;
 
-    [Header("状态量")]
+    [Header("游戏内状态量")]
+    public int currentHP;
+    public int currentExp;
+    public int getExp;
+
+    [Header("战斗状态量(每局战斗都刷新成默认值,不需要保存读取)")]
     public int tired;
+    public int sneer;//嘲讽
     public int shield;//盾
     public int fragile;//易伤
     public int weakness;//虚弱
@@ -46,11 +55,11 @@ public class Unit : MonoBehaviour
     public int healDecrease;//削恢复
     public int burn;
     public int cold;
-    public int poison;
-    public int currentHP;
-    public int currentMP;
-    public int currentExp;
-    public int getExp;
+    public int poison;   
+    public int currentMP;   
+    public List<SkillRoll> skillRoll;
+    
+    
 
     [Header("内置抗性")]
     public int ADDecrease;
@@ -64,13 +73,27 @@ public class Unit : MonoBehaviour
     public int ColdDecrease;
     public int ColdPrecentDecrease;
 
-    [Header("技能编号列表")]
-    public List<int> heroSkillListCode;
-
     [Header("技能")]
     public List<Skill> heroSkillList;
 
+    [Header("技能池")]
+    public List<Skill> currencyLSkillList;
+    public List<Skill> exclusiveLSkillList;
+    public List<Skill> currencyMSkillList;
+    public List<Skill> exclusiveMSkillList;
+    public List<Skill> currencyHSkillList;  
+    public List<Skill> exclusiveHSkillList;
 
+    //[Header("技能编号列表")]
+    public List<int> heroSkillListCode;
+
+    //[Header("战斗技能池编号(存储池子情况")]
+    public List<int> currencyFightLSkillList;
+    public List<int> exclusiveFightLSkillList;
+    public List<int> currencyFightMSkillList;
+    public List<int> exclusiveFightMSkillList;
+    public List<int> currencyFightHSkillList; 
+    public List<int> exclusiveFightHSkillList;
     [Header("是否为玩家替身")]
     public bool player;
 
@@ -81,10 +104,12 @@ public class Unit : MonoBehaviour
     public List<Skill> passiveDeadList;//死亡触发
     public List<Skill> passiveGameBeginList;//死亡触发
 
-
-
+    [Header("延时调整属性列表(默认为加)")]
+    public List<int> adjustTurn;
+    public List<HeroAttribute> attributeAdjust;//技能增益属性列表
+    public List<float> attributeAdjustPoint;//代价列表
     [System.Serializable]
-    class SaveUnitData
+    public class SaveUnitData
     {
         public int skillNum;
         public int unitLevel;
@@ -103,20 +128,9 @@ public class Unit : MonoBehaviour
         public int Dodge;
 
 
-        public int tired;
-        public int shield;//盾
-        public int fragile;//易伤
-        public int weakness;//虚弱
-        public int shieldDecrease;//削盾
-        public int healDecrease;//削恢复
-        public int burn;
-        public int cold;
-        public int poison;
         public int currentHP;
-        public int currentMP;
         public int currentExp;
         public int getExp;
-
 
         public int ADDecrease;
         public int ADPrecentDecrease;
@@ -129,22 +143,33 @@ public class Unit : MonoBehaviour
         public int ColdDecrease;
         public int ColdPrecentDecrease;
 
-
+        public List<int> currencyFightLSkillList;
+        public List<int> currencyFightMSkillList;
+        public List<int> currencyFightHSkillList;
+        public List<int> exclusiveFightLSkillList;
+        public List<int> exclusiveFightMSkillList;
+        public List<int> exclusiveFightHSkillList;
         public List<int> heroSkillListCode;
     }
     protected virtual void Awake()//属性初始化
     {
         //初始化数据
-        //if (playerHero)
-            //UnitLoad();
+        if (playerHero)
+        {
+            UnitBeginLoad();
             SetSkill();
-
-            
-        
+        }
+                      
     }
     protected virtual void Start()
     {
-        
+        nextExp = new int[maxLevel + 1];
+        nextExp[1] = 100;
+        for (int i = 2; i < maxLevel + 1; i++)
+        {
+            nextExp[i] = Mathf.RoundToInt(nextExp[i - 1] * 1.1f);
+        }
+        currentMP = maxMP;
         anim = GetComponent<Animator>();
         StartCoroutine(SetPassive());
     }
@@ -165,8 +190,37 @@ public class Unit : MonoBehaviour
             {
                 point.SetActive(false);
             }
-        }  
-        
+            if(!playerHero&&SneerJudge()>0&&sneer==0)
+            {
+                point.SetActive(false);
+            }
+        }
+        if (currentHP > maxHP)
+        {
+            currentHP = maxHP;
+        }
+        if (currentHP <= 0)
+        {
+            currentHP = 0;
+            anim.Play("dead");
+            Invoke("CheckDead", 0.2f);
+        }
+    }
+    private void CheckDead()//死亡判断结算函数
+    {
+        if (currentHP == 0)
+        {
+            GetComponent<BoxCollider>().enabled = false;//关闭碰撞体脚本
+            if (GameManager.instance.heroUnit.Contains(this))
+            {
+                GameManager.instance.heroUnit.Remove(this);
+            }
+            if (GameManager.instance.enemyUnit.Contains(this))
+            {
+                GameManager.instance.enemyUnit.Remove(this);
+            }
+
+        }
     }
     IEnumerator SetPassive()
     {
@@ -260,6 +314,8 @@ public class Unit : MonoBehaviour
                 SingleSettle(ref ColdDecrease, skill.skillCost[i]);
             else if (skill.attributeCost[i] == HeroAttribute.ColdPrecentDecrease)
                 SingleSettle(ref ColdPrecentDecrease, skill.skillCost[i]);
+            else if (skill.attributeCost[i] == HeroAttribute.Sneer)
+                SingleSettle(ref sneer, skill.skillCost[i]);
 
         }
     }
@@ -274,16 +330,6 @@ public class Unit : MonoBehaviour
 
     IEnumerator Settle(Unit turnUnit, Skill skill)
     {
-        if (skill.delayedTurn > 0 && !GameManager.instance.delayedSwitch)
-        {
-
-            GameManager.instance.delayedTurn.Add(GameManager.instance.turn + skill.delayedTurn);
-            GameManager.instance.delayedTurnUnit.Add(turnUnit);
-            GameManager.instance.delayedSkill.Add(skill);
-            GameManager.instance.delayedPointUnit.Add(this);
-        }
-        else
-        {
             if (skill.type == SkillType.AD)
                 skill.SkillSettleAD(turnUnit, this);
             if (skill.type == SkillType.AP)
@@ -301,13 +347,13 @@ public class Unit : MonoBehaviour
             if (skill.type == SkillType.Poison)
                 skill.SkillSettlePoison(turnUnit, this);
             if (skill.type == SkillType.Card)
-                skill.SkillSettleCard(turnUnit, this);
-            if (skill.type == SkillType.AttributeAdjust)
-                skill.SkillSettleAdjust(turnUnit, this);
+                skill.SkillSettleCard(turnUnit);
+            if (skill.type == SkillType.AbandomCard)
+                skill.SkillSettleAbandomCard(turnUnit);
             if (skill.type == SkillType.Excharge)
                 skill.SkillSettleExchange(turnUnit, this);
-
-        }
+            if (skill.type == SkillType.EX)
+                skill.SkillSettleEX(turnUnit, this);    
         yield return null;
 
     }
@@ -320,37 +366,64 @@ public class Unit : MonoBehaviour
         tired += skill.skillTired;
     }
 
-    public void SkillSettle(Unit turnUnit, Skill skill)//结算技能
+    public void UseSkillSettle(Skill skill,List<Unit> pointUnits)//结算技能
     {
 
-        turnUnit.SkillCost(skill);       
+        SkillCost(skill);    
+        if(skill.onlyOne)
+        {
+            skill.SkillRemove(this);
+        }
         //结算是否为延时
         if (skill.delayedTurn > 0&&!GameManager.instance.delayedSwitch)
         {
 
             GameManager.instance.delayedTurn.Add(GameManager.instance.turn+skill.delayedTurn);
-            GameManager.instance.delayedTurnUnit.Add(turnUnit);
+            GameManager.instance.delayedTurnUnit.Add(this);
             GameManager.instance.delayedSkill.Add(skill);
-            GameManager.instance.delayedPointUnit.Add(this);
+            if (GameManager.instance.delayedPointUnit.Count < GameManager.instance.delayedTurn.Count)
+            {
+                List<Unit> tempUnits=new List<Unit>();
+                GameManager.instance.delayedPointUnit.Add(tempUnits);
+            }
+            foreach(var p in pointUnits)
+            GameManager.instance.delayedPointUnit[GameManager.instance.delayedTurn.Count-1].Add(p);
         }
 
         else
         {    
-
-            if (skill.type == SkillType.Mix)
-            {
-                foreach (var o in skill.moreSkill)
-                {
-                    StartCoroutine( Settle(turnUnit, o));
-                }
-            }
-            else
-            {
-                StartCoroutine(Settle(turnUnit, skill));
-            }
+            foreach(var p in pointUnits)
+                StartCoroutine(p.Settle(this,skill));
         }
     }
+    public void UseSkillSettle(Skill skill, Unit pointUnits)//结算技能
+    {
 
+        SkillCost(skill);
+        if (skill.onlyOne)
+        {
+            skill.SkillRemove(this);
+        }
+        //结算是否为延时
+        if (skill.delayedTurn > 0 && !GameManager.instance.delayedSwitch)
+        {
+
+            GameManager.instance.delayedTurn.Add(GameManager.instance.turn + skill.delayedTurn);
+            GameManager.instance.delayedTurnUnit.Add(this);
+            GameManager.instance.delayedSkill.Add(skill);
+            if (GameManager.instance.delayedPointUnit.Count < GameManager.instance.delayedTurn.Count)
+            {
+                List<Unit> tempUnits = new List<Unit>();
+                GameManager.instance.delayedPointUnit.Add(tempUnits);
+            }
+            GameManager.instance.delayedPointUnit[GameManager.instance.delayedTurn.Count - 1].Add(this);
+        }
+
+        else
+        {
+                StartCoroutine(pointUnits.Settle(this, skill));
+        }
+    }
 
     //——————————————————被动事件(绑定到对应动画)————————————————————————————
     public void PassiveGameBegin()
@@ -427,6 +500,7 @@ public class Unit : MonoBehaviour
             bool Go = true;//判断是否继续运行
             int tempPointNum = o.pointNum;
             List<Unit> tempUnits = new List<Unit>();
+            List<Unit> tempPointUnits = new List<Unit>();
             if (o.passiveTurn == PassiveTurn.E)
             {
                 if (!(((GameManager.instance.state == BattleState.ENEMYTURN || GameManager.instance.state == BattleState.ENEMYTURNSTART || GameManager.instance.state == BattleState.ENEMYFINISH) && this.playerHero)
@@ -447,25 +521,20 @@ public class Unit : MonoBehaviour
                 if (o.passivePoint == PassivePoint.MDamager)
                     if (danger != null)
                     {
-                        danger.SkillSettle(this, o);
+                        UseSkillSettle( o, danger);
                     }
                 if (o.passivePoint == PassivePoint.MMyself)
-                    this.SkillSettle(this, o);
+                    UseSkillSettle(o,this);
                 if (o.passivePoint == PassivePoint.MAllEnemy)
                 {
                     if (playerHero)
                     {
-                        for (int i = 0; i < GameManager.instance.enemyUnit.Count; i++)
-                        {
-                            GameManager.instance.enemyUnit[i].SkillSettle(this, o);
-                        }
+                            UseSkillSettle(o, GameManager.instance.enemyUnit);
                     }
                     else
                     {
-                        for (int i = 0; i < GameManager.instance.heroUnit.Count; i++)
-                        {
-                            GameManager.instance.heroUnit[i].SkillSettle(this, o);
-                        }
+                            UseSkillSettle(o,GameManager.instance.heroUnit);
+
                     }
 
                 }
@@ -475,27 +544,26 @@ public class Unit : MonoBehaviour
                     {
                         for (int i = 0; i < GameManager.instance.enemyUnit.Count; i++)
                         {
-                            GameManager.instance.enemyUnit[i].SkillSettle(this, o);
+                            UseSkillSettle(o, GameManager.instance.enemyUnit);
                         }
                     }
                     else
                     {
                         for (int i = 0; i < GameManager.instance.heroUnit.Count; i++)
                         {
-                            GameManager.instance.heroUnit[i].SkillSettle(this, o);
+                            UseSkillSettle(o, GameManager.instance.heroUnit);
                         }
                     }
 
-                }
+                }              
                 if (o.passivePoint == PassivePoint.MEnemiesAuto)
                 {
-
-                    if (!o.reChoose)
+                    if (!o.reChoose)//确定选择的人数
                     {
-                        if (playerHero && (o.pointNum > GameManager.instance.enemyUnit.Count))
-                            tempPointNum = GameManager.instance.enemyUnit.Count;
-                        else if (!playerHero && (o.pointNum > GameManager.instance.heroUnit.Count))
+                        if (!playerHero && (o.pointNum > GameManager.instance.heroUnit.Count))
                             tempPointNum = GameManager.instance.heroUnit.Count;
+                        else if (playerHero && (o.pointNum > GameManager.instance.enemyUnit.Count))
+                            tempPointNum = GameManager.instance.enemyUnit.Count;
                     }
 
                     if (playerHero)
@@ -504,7 +572,6 @@ public class Unit : MonoBehaviour
                         {
                             tempUnits.Add(i);
                         }
-
                     }
                     else
                     {
@@ -515,19 +582,20 @@ public class Unit : MonoBehaviour
                     }
                     for (int j = 0; j < tempPointNum; j++)
                     {
-
                         int k = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempUnits.Count - 1);
-                        tempUnits[k].SkillSettle(this, o);
+                        Debug.Log("k:" + k);
+                        //Debug.Log("kou:"+ Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempUnits.Count - 1));
+                        tempPointUnits.Add(tempUnits[k]);
                         if (!o.reChoose)
                             tempUnits.Remove(tempUnits[k]);
                         yield return new WaitForSeconds(0.05f);
-
                     }
+                    UseSkillSettle(o, tempPointUnits);
 
                 }
                 if (o.passivePoint == PassivePoint.MPlayersAuto)
                 {
-                    if (!o.reChoose)
+                    if (!o.reChoose)//确定选择的人数
                     {
                         if (playerHero && (o.pointNum > GameManager.instance.heroUnit.Count))
                             tempPointNum = GameManager.instance.heroUnit.Count;
@@ -541,7 +609,6 @@ public class Unit : MonoBehaviour
                         {
                             tempUnits.Add(i);
                         }
-
                     }
                     else
                     {
@@ -553,12 +620,14 @@ public class Unit : MonoBehaviour
                     for (int j = 0; j < tempPointNum; j++)
                     {
                         int k = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempUnits.Count - 1);
-                        tempUnits[k].SkillSettle(this, o);
+                        Debug.Log("k:" + k);
+                        //Debug.Log("kou:" + Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempUnits.Count - 1));
+                        tempPointUnits.Add(tempUnits[k]);
                         if (!o.reChoose)
                             tempUnits.Remove(tempUnits[k]);
                         yield return new WaitForSeconds(0.05f);
-
                     }
+                    UseSkillSettle(o,tempPointUnits);
 
                 }
             }
@@ -572,7 +641,7 @@ public class Unit : MonoBehaviour
 
     public void FloatPointShow(int number,Color color)
     {
-        if(this.player)
+        if(player)
         {
             return;
         }
@@ -593,7 +662,7 @@ public class Unit : MonoBehaviour
     }
     public void FloatStateShow(Unit unit, string text, Color color)//技能字样显示函数
     {
-        if (this.player)
+        if (player)
         {
             return;
         }
@@ -603,6 +672,7 @@ public class Unit : MonoBehaviour
     }
 
     //——————————————————————————角色升级————————————————————————————————
+
 
     public virtual void LevelUp2()
     {
@@ -664,6 +734,83 @@ public class Unit : MonoBehaviour
     {
         return;
     }
+    //——————————————————roll技能函数——————————————————————————
+    private void SingleSkillRoll(List<int> fList,List<int> tempList)
+    {
+        if(tempList.Count>0)
+        {
+            int tempIndex = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempList.Count - 1);
+            fList.Add(tempList[tempIndex]);
+            tempList.Remove(tempList[tempIndex]);
+        }
+    }
+    private void CloneList(List<int> a,List<int>b)
+    {
+        foreach(var x in a)
+            b.Add(x);
+    }
+    public List<int> SkillRollList(int count,List<int> aList, int aPrecent,List<int> bList, int bPrecent)//roll技能编号
+    {
+        List<int> finalList = new List<int>();
+        List<int> tempLista = new List<int>();
+        CloneList(aList,tempLista);
+        List<int> tempListb = new List<int>();
+        CloneList(bList, tempListb);
+        int a = aPrecent;
+        int b = aPrecent+bPrecent;
+        int rollInt;
+
+        while (finalList.Count < count)
+        {
+            rollInt = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99);
+            Debug.Log("rollInt:"+rollInt);
+            if (rollInt<a)
+            {
+                SingleSkillRoll(finalList, tempLista);
+            }
+            else if(a<=rollInt&&rollInt<b)
+            {
+                SingleSkillRoll(finalList, tempListb);
+            }
+        }
+        foreach (var temp in finalList)
+            Debug.Log("技能编号:" + temp);
+        return finalList;
+    }
+    public List<int> SkillRollList(int count, List<int> aList, int aPrecent, List<int> bList, int bPrecent, List<int> cList, int cPrecent)//roll技能编号
+    {
+        List<int> finalList = new List<int>();
+        List<int> tempLista = new List<int>();
+        CloneList(aList,tempLista);
+        List<int> tempListb = new List<int>();
+        CloneList(bList,tempListb);
+        List<int> tempListc = new List<int>();
+        CloneList(cList,tempListc); 
+        int a = aPrecent;
+        int b = aPrecent + bPrecent;
+        int c = aPrecent + bPrecent + cPrecent;
+        int rollInt;
+        while(finalList.Count<count)
+        {
+            rollInt = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99);
+            Debug.Log("rollInt:" + rollInt);
+            if (rollInt < a)
+            {
+                SingleSkillRoll(finalList, tempLista);
+            }
+            else if (a <= rollInt && rollInt < b)
+            {
+                SingleSkillRoll(finalList, tempListb);
+            }
+            else if (b <= rollInt && rollInt < c)
+            {
+                SingleSkillRoll(finalList, tempListc);
+            }
+        }
+        foreach (var temp in finalList)
+            Debug.Log("技能编号:"+temp);
+        return finalList;
+    }
     //——————————————————技能计算函数——————————————————————————
     public int Decrease(int final,int decrease,float decreasePrecent)
     {
@@ -708,10 +855,12 @@ public class Unit : MonoBehaviour
 
     public void TurnBeginSettle()//回合开始状态处理
     {
+        
         if (shield > 0)
             shield -= 5;
         if(shield <= 0)
             shield = 0;
+        SettleAdjust();
     }
     public void TurnEndSettle()
     {
@@ -724,9 +873,119 @@ public class Unit : MonoBehaviour
             cold -= 3;
         if (cold <= 0)
             cold = 0;
+
+        if(sneer>0)
+            sneer -= 1;
     }
+     
+    protected void SettleAdjust()
+    {
+        
+        int temp = 0;
+        int count = adjustTurn.Count;
+        for (int i = 0; i < count; i++)
+        {             
+            if (adjustTurn[temp] <=GameManager.instance.turn)
+            {
+                SettleSingleAdjust(attributeAdjust[i], attributeAdjustPoint[i]);
+                adjustTurn.Remove(adjustTurn[temp]);
+                attributeAdjust.Remove(attributeAdjust[temp]);
+                attributeAdjustPoint.Remove(attributeAdjustPoint[temp]);
+            }
+            else
+                temp++;
+        }
+    }
+    protected virtual void SettleSingleAdjust(HeroAttribute a,float point)//属性调整
+    {
 
+        if (a == HeroAttribute.AP)
+            AP += (int)point;
+        else if (a == HeroAttribute.APDef)
+            APDef += (int)point;
+        else if (a == HeroAttribute.maxMP)
+            maxMP += (int)point;
+        else if (a == HeroAttribute.MP)
+            currentMP += (int)point;
+        else if (a == HeroAttribute.AD)
+            AD += (int)point;
+        else if (a == HeroAttribute.Def)
+            Def += (int)point;
+        else if (a == HeroAttribute.maxHP)
+            maxHP += (int)point;
+        else if (a == HeroAttribute.HP)
+            currentHP += (int)point;
+        else if (a == HeroAttribute.Spirit)
+            Spirit += (int)point;
+        else if (a == HeroAttribute.Critical)
+            Critical += (int)point;
+        else if (a == HeroAttribute.Dodge)
+            Dodge += (int)point;
+        else if (a == HeroAttribute.Tired)
+            tired += (int)point;
+        else if (a == HeroAttribute.Sneer)
+            sneer += (int)point;
+        else if (a == HeroAttribute.fragile)
+            fragile += (int)point;
+        else if (a == HeroAttribute.weakness)
+            weakness += (int)point;
+        else if (a == HeroAttribute.shieldDecrease)
+            shieldDecrease += (int)point;
+        else if (a == HeroAttribute.Burn)
+            burn += (int)point;
+        else if (a == HeroAttribute.Cold)
+            cold += (int)point;
+        else if (a == HeroAttribute.Poison)
+            poison += (int)point;
+        else if (a == HeroAttribute.ADDecrease)
+            ADDecrease += (int)point;
+        else if (a == HeroAttribute.ADPrecentDecrease)
+            ADPrecentDecrease += (int)point;
+        else if (a == HeroAttribute.APDecrease)
+            APDecrease += (int)point;
+        else if (a == HeroAttribute.APPrecentDecrease)
+            APPrecentDecrease += (int)point;
+        else if (a == HeroAttribute.BurnDecrease)
+            BurnDecrease += (int)point;
+        else if (a == HeroAttribute.BurnPrecentDecrease)
+            BurnPrecentDecrease += (int)point;
+        else if (a == HeroAttribute.PoisonDecrease)
+            PoisonDecrease += (int)point;
+        else if (a == HeroAttribute.PoisonPrecentDecrease)
+            PoisonPrecentDecrease += (int)point;
+        else if (a == HeroAttribute.ColdDecrease)
+            ColdDecrease += (int)point;
+        else if (a == HeroAttribute.ColdPrecentDecrease)
+            ColdPrecentDecrease += (int)point;
 
+    }
+    public int SneerJudge()//判断己方队伍有没有人嘲讽
+    {
+        int sneerNum=0;
+        if(playerHero)
+        {
+            foreach(var p in GameManager.instance.heroUnit)
+            {
+                if(p.sneer>0)
+                {
+                    sneerNum+=1;
+                    break;
+                }
+            }
+        }
+        else if (!playerHero)
+        {
+            foreach (var p in GameManager.instance.enemyUnit)
+            {
+                if (p.sneer > 0)
+                {
+                    sneerNum +=1;
+                    break;
+                }
+            }
+        }
+        return sneerNum;
+    }//判断队伍内有没有嘲讽
 
     //——————————————————鼠标事件————————————————————————————
     private void OnMouseEnter()//进入选择动画
@@ -784,12 +1043,13 @@ public class Unit : MonoBehaviour
 
 
     //—————————————————————————初始化———————————————————————————
-    public void SetSkill()
+    private void SetSkill()
     {
+        //先清空原来预设的初始技能，再读取本地数据的技能
+        heroSkillList.Clear();
         foreach (var code in heroSkillListCode)
-        {
             heroSkillList.Add(GameManager.instance.allListObject.GetComponent<AllList>().allSkillList[code]);
-        }
+
     }
 
     //——————————————————————————存取删————————————————————————————————
@@ -801,14 +1061,14 @@ public class Unit : MonoBehaviour
         saveNumber = File.ReadAllText(Path.Combine(Application.persistentDataPath, locatorName));
         return saveNumber;
     }*/
-    public void UnitCreat()//保存存档
+    public void UnitSave()//创建存档
     {
         string unitSaveName = "Save_BattleHero_" + unitName + ".sav";
         SaveUnitData saveData = new SaveUnitData
         {
         skillNum = skillNum,
         unitLevel = unitLevel,
-        nextExp= nextExp,
+
 
         AP= AP,
         APDef= APDef,
@@ -822,13 +1082,8 @@ public class Unit : MonoBehaviour
         Critical= Critical,
         Dodge= Dodge,
 
-
-
         currentHP= currentHP,
-        currentMP= currentMP,
         currentExp= currentExp,
-        getExp= getExp,
-
 
         ADDecrease = ADDecrease,
         ADPrecentDecrease= ADPrecentDecrease,
@@ -840,22 +1095,77 @@ public class Unit : MonoBehaviour
         PoisonPrecentDecrease= PoisonPrecentDecrease,
         ColdDecrease = ColdDecrease,
         ColdPrecentDecrease= ColdPrecentDecrease,
-        heroSkillListCode= heroSkillListCode
+        currencyFightLSkillList= currencyFightLSkillList,
+        currencyFightMSkillList= currencyFightMSkillList,
+        currencyFightHSkillList=currencyFightHSkillList,
+        exclusiveFightLSkillList= exclusiveFightLSkillList,
+        exclusiveFightMSkillList= exclusiveFightMSkillList,
+        exclusiveFightHSkillList= exclusiveFightHSkillList,
+        heroSkillListCode = heroSkillListCode
         };
 
         SaveSystem.Save(unitSaveName, saveData);
     }
 
-    public void UnitLoad()//加载存档
+    public void getExpAndCurrentHp()//保存当前getExp和血
     {
+        string unitSaveName = "Save_BattleHero_" + unitName + ".sav";
+        SaveUnitData saveData = SaveSystem.Load<SaveUnitData>(unitSaveName);
+        saveData.currentHP = currentHP;
+        saveData.getExp = getExp;
+        SaveSystem.Save(unitSaveName, saveData);
+    }
+    private void UnitBeginLoad()//读取存档
+    {      
+        if(!UnitLoad())//无存档时，给战斗技能池和技能编好号赋值后再创建存档
+        {
+            //先对战斗池子的各编好列表初始化,再存入初始数据
+            SetAllSkillList();
+            UnitSave();         
+        }
+
+    }
+
+    private void SetFightSkillList(List<Skill> tempSkills,List<int> tempCodes)//将技能预设列表转换成编号列表
+    {
+        foreach(var s in tempSkills)
+        {
+            int Code = GameManager.instance.allListObject.GetComponent<AllList>().allSkillList.IndexOf(s);
+            if(!heroSkillListCode.Contains(Code))
+                 tempCodes.Add(Code);
+        }
+            
+    }
+    private void SetAllSkillList()
+    {
+        //先存已有技能进编号列表
+        foreach (var s in heroSkillList)
+           heroSkillListCode.Add(GameManager.instance.allListObject.GetComponent<AllList>().allSkillList.IndexOf(s));
+        SetFightSkillList(currencyLSkillList,currencyFightLSkillList);
+        SetFightSkillList(currencyMSkillList, currencyFightMSkillList);
+        SetFightSkillList(currencyHSkillList, currencyFightHSkillList);
+        SetFightSkillList(exclusiveLSkillList, exclusiveFightLSkillList);
+        SetFightSkillList(exclusiveMSkillList, exclusiveFightMSkillList);
+        SetFightSkillList(exclusiveHSkillList, exclusiveFightHSkillList);
+    }
+    public void UnitDelete()//删除存档
+    {
+        string saveUnitName = "Save_BattleHero_" + unitName + ".sav";
+        SaveSystem.Delete(saveUnitName);
+    }
+
+    public bool UnitLoad() //读取存档数据,便于对数据调整
+    {
+        bool loadSwitch=false;
         string saveUnitName = "Save_BattleHero_" + unitName + ".sav";
         SaveUnitData saveData;
         if (File.Exists(Path.Combine(Application.persistentDataPath, saveUnitName)))
         {
+            loadSwitch=true;
             saveData = SaveSystem.Load<SaveUnitData>(saveUnitName);
             skillNum = saveData.skillNum;
             unitLevel = saveData.unitLevel;
-            nextExp = saveData.nextExp;
+
 
             AP = saveData.AP;
             APDef = saveData.APDef;
@@ -869,21 +1179,9 @@ public class Unit : MonoBehaviour
             Critical = saveData.Critical;
             Dodge = saveData.Dodge;
 
-
-            tired = saveData.tired;
-            shield = saveData.shield;//盾
-            fragile = saveData.fragile;//易伤
-            weakness = saveData.weakness;//虚弱
-            shieldDecrease = saveData.shieldDecrease;//削盾
-            healDecrease = saveData.healDecrease;//削恢复
-            burn = saveData.burn;
-            cold = saveData.cold;
-            poison = saveData.poison;
             currentHP = saveData.currentHP;
-            currentMP = saveData.currentMP;
             currentExp = saveData.currentExp;
             getExp = saveData.getExp;
-
 
             ADDecrease = saveData.ADDecrease;
             ADPrecentDecrease = saveData.ADPrecentDecrease;
@@ -895,19 +1193,20 @@ public class Unit : MonoBehaviour
             PoisonPrecentDecrease = saveData.PoisonPrecentDecrease;
             ColdDecrease = saveData.ColdDecrease;
             ColdPrecentDecrease = saveData.ColdPrecentDecrease;
+            currencyFightLSkillList = saveData.currencyFightLSkillList;
+            currencyFightMSkillList = saveData.currencyFightMSkillList;
+            currencyFightHSkillList = saveData.currencyFightHSkillList;
+            exclusiveFightLSkillList = saveData.exclusiveFightLSkillList;
+            exclusiveFightMSkillList = saveData.exclusiveFightMSkillList;
+            exclusiveFightHSkillList = saveData.exclusiveFightHSkillList;
             heroSkillListCode = saveData.heroSkillListCode;
         }
-        else
-        {
-            UnitCreat();
-        }
-
+        return loadSwitch;
     }
 
-    public void UnitDelete()//删除存档
+    protected void MaxHpUp(int a)//提高maxHp的方法
     {
-        string saveUnitName = "Save_BattleHero_" + unitName + ".sav";
-        SaveSystem.Delete(saveUnitName);
+        maxHP += a;
+        currentHP += a;
     }
-
 }

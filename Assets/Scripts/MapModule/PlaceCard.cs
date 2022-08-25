@@ -51,7 +51,7 @@ public class PlaceCard : MonoBehaviour
         if (cardType.Equals(CardType.battle))
         {
             yield return new WaitForSeconds(2.5f);
-            //EnterCardScene("BattleScene");
+            EnterCardScene("BattleScene");
         }
     }
     IEnumerator TurnAnimation()//·­ÅÆ¶¯»­

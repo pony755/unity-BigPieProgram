@@ -98,9 +98,12 @@ public class FightPlayerCards : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         for (int i = 0; i < haveCards.Count; i++)
         {
-            LeanTween.scale(haveCards[i].gameObject, new Vector3(1,1,1), 0.2f);
-            LeanTween.move(haveCards[i].gameObject, haveCards[i].cardAdress, 0.4f);
-            
+            if(GameManager.instance.useCard!= haveCards[i])
+            {
+                LeanTween.scale(haveCards[i].gameObject, new Vector3(1, 1, 1), 0.2f);
+                LeanTween.move(haveCards[i].gameObject, haveCards[i].cardAdress, 0.4f);
+            }
+               
         }
 
     }

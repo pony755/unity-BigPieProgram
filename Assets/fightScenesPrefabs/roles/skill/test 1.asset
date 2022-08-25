@@ -10,32 +10,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dcfd16004382e0a418e136e82d553831, type: 3}
-  m_Name: skill000_atack
+  m_Name: test 1
   m_EditorClassIdentifier: 
-  skillImg: {fileID: 21300000, guid: 6a59d4f8d5da66a45ae786aea25ba748, type: 3}
-  skillName: "\u70B8\u70B8\u4F60\u7684"
-  description: "\u5BF9\u4E00\u540D\u89D2\u8272\u9020\u621060[+50%\u653B\u51FB\u529B]\u7684\u7269\u7406\u4F24\u5BB3"
+  skillImg: {fileID: 21300000, guid: 8aebe31d34fefc54da883e0de829fc44, type: 3}
+  skillName: 1
+  description: "\u4E00"
   type: 0
-  typeTag: 01000000
+  typeTag: 
   animType: 0
   skillTired: 0
   needMP: 0
   delayedTurn: 0
   abandomCardNum: 0
   onlyOne: 0
-  point: 4
+  point: 0
   noMe: 0
-  autoPoint: 1
-  adjustAttribute: 12
+  autoPoint: 0
+  adjustAttribute: 0
   cardPointUnit: 0
   passiveType: 0
-  passivePoint: 4
-  passiveTurn: 1
+  passivePoint: 0
+  passiveTurn: 0
   baseInt: 0
-  attribute: 04000000
-  addition:
-  - 10
-  pointNum: 3
+  attribute: 
+  addition: []
+  pointNum: 0
   reChoose: 0
   precent: 0
   attributeCost: 

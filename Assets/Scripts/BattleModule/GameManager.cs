@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using Koubot.Tool;
 
-public enum BattleState { NONE,START, PLAYERTURNSTART,PLAYERTURN, POINTALL,SKILL,CARDTURNUNIT,POINTENEMY,POINTPLAYER,POINTPREPAREHERO,ACTION,ACTIONFINISH,ABANDOMCARD,ENEMYTURNSTART, ENEMYTURN,ENEMYFINISH,OVER }
+public enum BattleState { NONE,START, PLAYERTURNSTART,PLAYERTURN, POINTALL,SKILL,CARDTURNUNIT,POINTENEMY,POINTPLAYER,POINTPREPAREHERO,TOACTION,ACTION,ACTIONFINISH,ABANDOMCARD,ENEMYTURNSTART, ENEMYTURN,ENEMYFINISH,OVER }
 
 
 public class GameManager : MonoBehaviour
@@ -51,7 +51,8 @@ public class GameManager : MonoBehaviour
 
 
     [Header("——————CHECKING——————")]
-    
+    public int abandomCardNum;
+    public bool abandomCardSwitch;
     public BattleState state;
 
     [Header("Heros")]
@@ -68,7 +69,7 @@ public class GameManager : MonoBehaviour
     public List<int> delayedTurn;//延迟的回合数
     public List<Unit> delayedTurnUnit;//延迟回合技能发动方
     public List<Skill> delayedSkill;//延迟回合的技能
-    public List<Unit> delayedPointUnit;//延迟回合技能目标方
+    public List<List<Unit>> delayedPointUnit=new List<List<Unit>>();//延迟回合技能目标方
     [Header("——————FIGHTING——————")]
 
     public int turn;
@@ -86,6 +87,7 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         //在fightprefs上setHero
 
+        //判断该事件是否结算完过，未结算完过则往下走
         LeanTween.move(turnTipsObject, new Vector3(turnTipsObject.transform.position.x, turnTipsObject.transform.position.y-200f, turnTipsObject.transform.position.z), 0.8f);
         win = false;
         over = false;
@@ -98,6 +100,7 @@ public class GameManager : MonoBehaviour
     }
     private void Start()
     {
+        //判断该事件是否结算完过，未结算完过则往下走
         StartCoroutine(Load());       
     }
 
@@ -115,16 +118,20 @@ public class GameManager : MonoBehaviour
         UpdateTips();  
         if ((heroUnit.Count== 0|| enemyUnit.Count == 0 )&& over==false)
         {
-            over = true;           
-            StartCoroutine(Over());
+            over = true;
+            foreach (var p in heroUnit)
+                p.getExpAndCurrentHp();//保存当前血量和获取的经验值
+            StartCoroutine(Over());//若该事件结算完，启动Over函数
             GameReset();
         }
+        CheckAbandomCardNum();
 
+        
 
         if((state == BattleState.POINTPLAYER|| state == BattleState.POINTENEMY|| state == BattleState.POINTALL||state==BattleState.POINTPREPAREHERO) &&pointNumber==pointUnit.Count)
-            StartCoroutine(ToAction());
+            StartCoroutine("ToAction");
         if (state == BattleState.ACTION)//当进入ACTION时，执行函数(携程）  
-            StartCoroutine(Action());
+            StartCoroutine("Action");
         if(state == BattleState.ABANDOMCARD)
         {
             if(fightPlayerCards.haveCards.Count<= fightPlayerCards.maxCard)
@@ -139,11 +146,7 @@ public class GameManager : MonoBehaviour
             StartCoroutine(fightPlayerCards.CardAdjustPosition());
         }
     }
-    IEnumerator ToAction()
-    {
-        state = BattleState.ACTION;
-        yield return null;
-    }
+    
     public IEnumerator SetHeros()//在对应位置设置战斗队伍预置体以及状态栏
     {
         for (int i = 0; i < fightPrefs.fightHeros.Count; i++)
@@ -219,9 +222,9 @@ public class GameManager : MonoBehaviour
         }
     }
     public void GameReset()//重置
-    {
-        BtnHide();
-        tips.text = "";
+    {     
+        BtnHide();     
+        
         pointNumber = 1;//默认值
         useSkill=null;//默认值
         useCard=null;
@@ -232,8 +235,14 @@ public class GameManager : MonoBehaviour
         CardCanvas.SetActive(true);
         turnUnit.Clear();
         pointUnit.Clear();
+        AdjustCards = true; 
+        StartCoroutine(TipsClear());
     }
-
+    IEnumerator TipsClear()
+    {
+    yield return new WaitForSeconds(0.5f);
+        tips.text = "";
+    }
 
 
     public void BtnHide()
@@ -247,14 +256,15 @@ public class GameManager : MonoBehaviour
     }
     public void Back()//返回玩家回合
     {
-        
-        if (GameManager.instance.state == BattleState.CARDTURNUNIT||state == BattleState.PLAYERTURN || state == BattleState.SKILL || state == BattleState.POINTENEMY || state == BattleState.POINTPLAYER)
+
+            if (state == BattleState.CARDTURNUNIT||state == BattleState.PLAYERTURN || state == BattleState.SKILL || state == BattleState.POINTENEMY || state == BattleState.POINTPLAYER||state==BattleState.TOACTION)
         {
-            
+            StopCoroutine("ToAction");
             GameReset();
             state = BattleState.PLAYERTURN;
             foreach(var o in heroUnit)
                 o.anim.Play("idle");
+            abandomCardNum = 0;
         }
         CardCanvas.SetActive(true);    
     }
@@ -265,15 +275,15 @@ public class GameManager : MonoBehaviour
         int temp = 0;
         for (int j = 0; j < tempDelayedCount; j++)
         {
-            if (delayedTurn[temp] == turn)
+            if (delayedTurn[temp] <= turn)
             {
-                if (delayedTurnUnit[temp].playerHero && (delayedSkill[temp].type != SkillType.AttributeAdjust))
+                if (delayedTurnUnit[temp].playerHero)
                 {
                     if (delayedTurnUnit[temp].currentHP > 0)
-                    {
+                    {                      
                         tips.text = delayedTurnUnit[temp].unitName + " 结算 " + delayedSkill[temp].skillName;
                         delayedSwitch = true;
-                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
+                        delayedTurnUnit[temp].UseSkillSettle(delayedSkill[temp],delayedPointUnit[temp] );                       
                         delayedSwitch = false;
                     }
                     else
@@ -283,21 +293,7 @@ public class GameManager : MonoBehaviour
                     delayedSkill.Remove(delayedSkill[temp]);
                     delayedPointUnit.Remove(delayedPointUnit[temp]);
                     yield return new WaitForSeconds(0.1f);
-                }
-                else if (delayedPointUnit[temp].playerHero && (delayedSkill[temp].type == SkillType.AttributeAdjust))
-                {
-                    if (delayedPointUnit[temp].currentHP > 0)
-                    {
-                        tips.text = delayedTurnUnit[temp].unitName + " " + delayedSkill[temp].skillName;
-                        delayedSwitch = true;
-                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
-                        delayedSwitch = false;
-                    }
-                    delayedTurn.Remove(delayedTurn[temp]);
-                    delayedTurnUnit.Remove(delayedTurnUnit[temp]);
-                    delayedSkill.Remove(delayedSkill[temp]);
-                    delayedPointUnit.Remove(delayedPointUnit[temp]);
-                }
+                }              
                 else
                 {
                     temp = temp + 1;
@@ -314,15 +310,15 @@ public class GameManager : MonoBehaviour
         int temp = 0;
         for (int j = 0; j < tempDelayedCount; j++)
         {
-            if (delayedTurn[temp] == turn)
+            if (delayedTurn[temp] <= turn)
             {
-                if (!delayedTurnUnit[temp].playerHero && (delayedSkill[temp].type != SkillType.AttributeAdjust))
+                if (!delayedTurnUnit[temp].playerHero)
                 {
                     if (delayedTurnUnit[temp].currentHP > 0)
                     {
                         tips.text = delayedTurnUnit[temp].unitName + " 结算 " + delayedSkill[temp].skillName;
                         delayedSwitch = true;
-                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
+                        delayedTurnUnit[temp].UseSkillSettle(delayedSkill[temp], delayedPointUnit[temp]);
                         delayedSwitch = false;
                     }
                     else
@@ -333,20 +329,7 @@ public class GameManager : MonoBehaviour
                     delayedPointUnit.Remove(delayedPointUnit[temp]);
                     yield return new WaitForSeconds(0.1f);
                 }
-                else if (!delayedPointUnit[temp].playerHero && (delayedSkill[temp].type == SkillType.AttributeAdjust))
-                {
-                    if (delayedPointUnit[temp].currentHP > 0)
-                    {
-                        tips.text = delayedTurnUnit[temp].unitName + " " + delayedSkill[temp].skillName;
-                        delayedSwitch = true;
-                        delayedPointUnit[temp].SkillSettle(delayedTurnUnit[temp], delayedSkill[temp]);
-                        delayedSwitch = false;
-                    }
-                    delayedTurn.Remove(delayedTurn[temp]);
-                    delayedTurnUnit.Remove(delayedTurnUnit[temp]);
-                    delayedSkill.Remove(delayedSkill[temp]);
-                    delayedPointUnit.Remove(delayedPointUnit[temp]);
-                }
+                
                 else
                 {
                     temp = temp + 1;
@@ -376,8 +359,7 @@ public class GameManager : MonoBehaviour
 
             if (fightPlayerCards.playerCards.Count == 0)
             {
-                GameManager.instance.fightPlayerCards.cardsObject.transform.GetChild(0).gameObject.SetActive(false);
-                GameManager.instance.fightPlayerCards.cardsObject.GetComponent<Animator>().Play("cards");
+                fightPlayerCards.cardsObject.transform.GetChild(0).gameObject.SetActive(false);
                 fightPlayerCards.ResetCards();
             }
                 
@@ -394,29 +376,42 @@ public class GameManager : MonoBehaviour
                 heroUnit[i].PassiveTurnStart();
             yield return new WaitForSeconds(0.5f);
             StartCoroutine(DelayedPlayerSettle());
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.5f);                 
+            yield return new WaitUntil(() => abandomCardSwitch == false);
             tips.text = "";
-            yield return new WaitForSeconds(0.5f);
             state = BattleState.PLAYERTURN;
 
         }
 
 
     }
+    public void SkillToAction()
+    {
+        StartCoroutine(ToAction());
+    }
+    IEnumerator ToAction()//过度态
+    {
+        BtnHide();
+        exchange.SetActive(false);
+        skillImg.SetActive(false);
+        CardCanvas.SetActive(true);
+        abandomCardNum += useSkill.abandomCardNum;
+        state = BattleState.TOACTION;
+        yield return new WaitForSeconds(0.2f);
+        yield return new WaitUntil(() => abandomCardSwitch == false);
+        state = BattleState.ACTION;
+
+    }
     //使用技能的text提示在SkillBtn里
     IEnumerator Action()//行动阶段函数
-    {
+    {  
+        state = BattleState.ACTIONFINISH;//及时切换state,防止多次运行此函数    
         if (over == true)
         {
             yield return null;
         }
         else
-        {
-            state = BattleState.ACTIONFINISH;//及时切换state,防止多次运行此函数     
-            BtnHide();
-            exchange.SetActive(false);
-            skillImg.SetActive(false);
-            CardCanvas.SetActive(true);
+        {                 
             //重置动画
             foreach (var o in heroUnit)
             {
@@ -426,8 +421,9 @@ public class GameManager : MonoBehaviour
             {
                 o.anim.Play("idle");
             }
+            CardUse();
             TipsSkillPoint();
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.3f);
             if (useSkill != null)
             {
                 if(Probility(useSkill.precent))
@@ -440,12 +436,16 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    TurnUnitAnim();
+                    StartCoroutine(TurnUnitAnim());
                 }
             }
             yield return new WaitForSeconds(1f);
             if (state == BattleState.ACTIONFINISH)
+            {
+                yield return new WaitUntil(() => abandomCardSwitch == false);
                 StartCoroutine(ActionFinish());
+            }
+                
 
         }
 
@@ -457,7 +457,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         else
-        {
+        {         
             yield return new WaitForSeconds(1f);
             tips.text = "己方回合结束";
             for (int i = 0; i < heroUnit.Count; i++)
@@ -475,6 +475,7 @@ public class GameManager : MonoBehaviour
             }
             GameReset();
             yield return new WaitForSeconds(1f);
+            yield return new WaitUntil(() => abandomCardSwitch == false);
             StartCoroutine(AbandomCard());
         }
        
@@ -489,7 +490,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         else
-        {
+        {         
             if (fightPlayerCards.haveCards.Count <= fightPlayerCards.maxCard)
                 StartCoroutine(EnemyTurnStart());
             else
@@ -506,7 +507,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         else
-        {
+        {       
             state = BattleState.ENEMYTURNSTART;
             tips.text = "敌方回合";
             //结算状态
@@ -522,6 +523,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
             StartCoroutine(DelayedEnemySettle());
             yield return new WaitForSeconds(1f);
+            yield return new WaitUntil(() => abandomCardSwitch == false);
             StartCoroutine(EnemyTurn());
 
         }
@@ -535,7 +537,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         else
-        {
+        {         
             state = BattleState.ENEMYTURN;
             tips.text = "等待敌方行动...";
             StartCoroutine(EnemyAI());
@@ -553,10 +555,11 @@ public class GameManager : MonoBehaviour
 
                 else
                 {
-                    TurnUnitAnim();
+                    StartCoroutine(TurnUnitAnim());
                 }
             }
             yield return new WaitForSeconds(2f);
+            yield return new WaitUntil(() => abandomCardSwitch == false);
             StartCoroutine(EnemyFinish());
         }
                    
@@ -569,7 +572,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         else
-        {
+        {         
             tips.text = "敌方回合结束";
             for (int i = 0; i < enemyUnit.Count; i++)
                 enemyUnit[i].PassiveTurnEnd();
@@ -586,6 +589,7 @@ public class GameManager : MonoBehaviour
             }
             GameReset();
             yield return new WaitForSeconds(1f);
+            yield return new WaitUntil(() => abandomCardSwitch == false);
             turn++;
             StartCoroutine(PlayerTurnStart());
         }       
@@ -595,6 +599,10 @@ public class GameManager : MonoBehaviour
     {
         state= BattleState.OVER;
         Time.timeScale = 1;
+        foreach (var h in heroUnit)
+        {
+            h.UnitLoad();
+        }
         yield return new WaitForSeconds(1f);
         if(enemyUnit.Count==0)
         {
@@ -602,7 +610,8 @@ public class GameManager : MonoBehaviour
             Debug.Log("《《《《你赢了》》》》");
         }
         else
-            Debug.Log("《《《《你赢了》》》》");
+            Debug.Log("《《《《你输了》》》》");
+
         WinOrLost.SetActive(true);
         
     }
@@ -662,41 +671,9 @@ public class GameManager : MonoBehaviour
             useSkill = tempSkill[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempSkill.Count - 1)];
             tempSkill.Clear();
             pointNumber = useSkill.pointNum;//添加技能目标数量
-            useSkill.EnemyUse();
+            StartCoroutine(useSkill.EnemyUse());
             yield return new WaitForSeconds(1f);
-            if(useSkill.point==SkillPoint.Enemies)
-            {
-                while (pointNumber > pointUnit.Count)//添加玩家作为目标
-                {
-                    if (!useSkill.reChoose)
-                    {                      
-                        int player = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, heroUnit.Count - 1);
-                        if (!pointUnit.Contains(heroUnit[player]))
-                            pointUnit.Add(heroUnit[player]);
-                    }
-                    else
-                    {
-                        yield return new WaitForSeconds(0.1f);
-                        pointUnit.Add(heroUnit[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, heroUnit.Count - 1)]);
-                    }
-                }
-            }
-            else if (useSkill.point == SkillPoint.Players)
-            {
-                while (pointNumber > pointUnit.Count)//添加玩家作为目标
-                {
-                    if (!useSkill.reChoose)
-                    {
-                        int player = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, enemyUnit.Count - 1);
-                        if (!pointUnit.Contains(enemyUnit[player]))
-                            pointUnit.Add(enemyUnit[player]);
-                    }
-                    else
-                    {
-                        pointUnit.Add(enemyUnit[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, enemyUnit.Count - 1)]);
-                    }
-                }
-            }
+            
 
 
         }
@@ -743,32 +720,40 @@ public class GameManager : MonoBehaviour
         tempList.Clear();
     }
 
-    public void TurnUnitAnim()//动画函数
+    public void CardUse()
     {
         if (useCard != null)
         {
-            useCard.gameObject.GetComponent<Animator>().enabled=true;
-            useCard.gameObject.GetComponent<Animator>().Play("cardUse");
+            StartCoroutine(CardFinish());
+            LeanTween.move(useCard.gameObject, new Vector3(960f, 500f, 0f), 0.2f);
+            LeanTween.scale(useCard.gameObject, new Vector3(0.7f, 0.7f, 0.7f), 0.2f);
+            //useCard.CardDestory();
+
         }
-            
-        if(turnUnit[0].player==false)
+
+    }
+    IEnumerator CardFinish()
+    {
+        yield return new WaitForSeconds(0.25f);
+        useCard.CardDestory();
+    }
+    IEnumerator TurnUnitAnim()//动画函数
+    {  
+        if(turnUnit[0].player==false)//非玩家本体
         {
             if (useSkill.animType == AnimType.Attack)
             {
                 turnUnit[0].anim.Play("attack");
             }
         }
-        StartCoroutine(SettleSkill());
+        yield return new WaitForSeconds(0.1f);
+        if(turnUnit[0].player == false)
+             yield return new WaitUntil(()=>turnUnit[0].anim.GetCurrentAnimatorStateInfo(0).IsName("idle"));//等待动画播放完毕
+        turnUnit[0].UseSkillSettle(useSkill,pointUnit);
+
     }
 
-    IEnumerator SettleSkill()
-    {
-        yield return new WaitForSeconds(0.3f);
-        foreach (var o in pointUnit)
-        {
-            o.SkillSettle(turnUnit[0], useSkill);
-        }
-    }
+
     public void ShowBackMenu()
     {
         backPanel.SetActive(true);
@@ -785,10 +770,39 @@ public class GameManager : MonoBehaviour
     {
         int a;
         a = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99);
-        Debug.Log("roll的概率为"+ a);
         if (a < b)
             return true;
         else
             return false;
+    }
+    public void CheckAbandomCardNum()
+    {
+        if (abandomCardNum > 0&&abandomCardSwitch==false)
+        {
+            if (abandomCardNum > fightPlayerCards.haveCards.Count&&state==BattleState.TOACTION)
+            {
+                tips.text = "手牌不足";
+                Back();
+            }
+            else if (abandomCardNum == fightPlayerCards.haveCards.Count && useCard != null && state == BattleState.TOACTION)
+            {
+                tips.text = "手牌不足";
+                Back();
+            }
+            else if(abandomCardNum > fightPlayerCards.haveCards.Count)
+                abandomCardNum=fightPlayerCards.haveCards.Count;
+            else
+                abandomCardSwitch = true;              
+        }
+        if (abandomCardNum == 0 && abandomCardSwitch == true)
+        {
+            tips.text = "";
+            abandomCardSwitch = false;
+        }
+        if (abandomCardNum < 0)
+            abandomCardNum = 0;
+
+        if(abandomCardSwitch == true)
+            tips.text="需要弃置"+abandomCardNum+"张牌";
     }
 }

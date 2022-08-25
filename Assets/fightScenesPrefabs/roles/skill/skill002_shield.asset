@@ -15,25 +15,27 @@ MonoBehaviour:
   skillImg: {fileID: 21300000, guid: 7c2f75c0b7a51c3459d7a6e02e1d0754, type: 3}
   skillName: "\u56FA\u7532"
   description: "\u7ED9\u81EA\u5DF1100\u70B9\u62A4\u76FE"
-  type: 4
+  type: 0
+  typeTag: 
   animType: 0
   skillTired: 0
-  needMP: 20
+  needMP: 0
   delayedTurn: 0
-  point: 0
+  abandomCardNum: 0
+  onlyOne: 0
+  point: 4
   noMe: 0
-  autoPoint: 0
+  autoPoint: 1
   adjustAttribute: 0
-  moreSkill: []
   cardPointUnit: 0
   passiveType: 1
-  passivePoint: 1
-  passiveTurn: 0
-  baseInt: 100
+  passivePoint: 4
+  passiveTurn: 2
+  baseInt: 10
   attribute: 
   addition: []
-  pointNum: 1
-  reChoose: 0
+  pointNum: 3
+  reChoose: 1
   precent: 0
   attributeCost: 
   skillCost: 

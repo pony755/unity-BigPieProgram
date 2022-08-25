@@ -25,18 +25,28 @@ public class AddCancleBtn : MonoBehaviour
             this.gameObject.transform.GetChild(0).GetComponent<Text>().text = "返回";
             this.gameObject.transform.GetChild(0).GetComponent<Text>().color = Color.black;
         }
-
+        else if (GameManager.instance.state == BattleState.TOACTION)
+        {
+            this.gameObject.transform.GetChild(0).GetComponent<Text>().text = "等待结算";
+            this.gameObject.transform.GetChild(0).GetComponent<Text>().color = Color.magenta;
+        }
         else if (GameManager.instance.state == BattleState.ACTION || GameManager.instance.state == BattleState.ACTIONFINISH)
         {
             this.gameObject.transform.GetChild(0).GetComponent<Text>().text = "结算";
             this.gameObject.transform.GetChild(0).GetComponent<Text>().color = Color.magenta;
+        }
+        else if(GameManager.instance.over)
+        {
+
+            this.gameObject.transform.GetChild(0).GetComponent<Text>().text = "游戏结束";
+            this.gameObject.transform.GetChild(0).GetComponent<Text>().color = Color.grey;
+
         }
         else
         {
             this.gameObject.transform.GetChild(0).GetComponent<Text>().text = "敌方回合";
             this.gameObject.transform.GetChild(0).GetComponent<Text>().color = Color.grey;
         }
-
 
         if(this.gameObject.transform.GetChild(0).GetComponent<Text>().text == "摸牌"|| this.gameObject.transform.GetChild(0).GetComponent<Text>().text == "返回")
             GetComponent<Button>().enabled = true;
@@ -57,6 +67,9 @@ public class AddCancleBtn : MonoBehaviour
         if (this.gameObject.transform.GetChild(0).GetComponent<Text>().text == "摸牌")
             GameManager.instance.fightPlayerCards.ButtonTakeCard();
         if (this.gameObject.transform.GetChild(0).GetComponent<Text>().text == "返回")
+        {                  
             GameManager.instance.Back();
+        }
+            
     }
 }
