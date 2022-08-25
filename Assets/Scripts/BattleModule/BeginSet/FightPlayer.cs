@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum GetCard { T}
+
 public class FightPlayer : MonoBehaviour
 {
 
@@ -15,6 +17,7 @@ public class FightPlayer : MonoBehaviour
     public int PmaxCard;
     public int PaddCardNum;
     public List<int> cardCode;
-    
 
+    [Header("×´Ì¬Á¿")]
+    public List<GetCard> getCards;
 }

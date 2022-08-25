@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class RollSkillImage : MonoBehaviour
 {
     public List<GetSkillBtn> getSkillBtn=new List<GetSkillBtn>();
+    public GameObject replaceImg;
     public Image heroImg;
     public Button nrxtBtn;
     private Unit tempUnit;//获取学习技能的Unit
@@ -25,6 +26,7 @@ public class RollSkillImage : MonoBehaviour
         heroImg.sprite = tempUnit.normalSprite;
         SetSkillBtn();
         gameObject.SetActive(true);
+        
     }
     private void SetSkillBtn()
     {

@@ -29,6 +29,7 @@ public class Skill : ScriptableObject
     public int delayedTurn;//延时回合
     public int abandomCardNum;//主动弃牌的cost（仅对于玩家
     public bool onlyOne;//限定技能
+    public bool cantReplace;//不可替换
     [Header("若技能类型为exchange，下面无需设置")]
     [Header("技能指向(若为被动则随便设置),noMe仅针对玩家有约束")]
     public SkillPoint point;//技能指向类型

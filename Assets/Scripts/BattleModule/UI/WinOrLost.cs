@@ -64,10 +64,8 @@ public class WinOrLost : MonoBehaviour
     private void FreshSkillRoll()
     {
         if (rollSkillImg.activeInHierarchy)
-        {
             rollSkillImg.SetActive(false);
-            //点击之后按钮没回弹
-        }
+
             
         if (CheckRollSkill() != null)
         {
