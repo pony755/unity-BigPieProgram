@@ -215,7 +215,7 @@ public class GameManager : MonoBehaviour
         {
             skillBtns[i].GetComponent<SkillBtn>().skillInfo = unit.heroSkillList[i];
             skillBtns[i].SetActive(true);
-            if (unit.heroSkillList[i].passiveType!=PassiveType.None)
+            if (unit.heroSkillList[i].passiveSkill==true)
             {
                 skillBtns[i].GetComponent<Button>().interactable = false;
             }
@@ -665,7 +665,7 @@ public class GameManager : MonoBehaviour
             List<Skill> tempSkill = new List<Skill>();
             foreach (var t in turnUnit[0].heroSkillList)
             {
-                if (turnUnit[0].currentMP >= t.needMP&&t.passiveType==PassiveType.None)
+                if (turnUnit[0].currentMP >= t.needMP&&t.passiveSkill!=true)
                     tempSkill.Add(t);
             }
             useSkill = tempSkill[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, tempSkill.Count - 1)];

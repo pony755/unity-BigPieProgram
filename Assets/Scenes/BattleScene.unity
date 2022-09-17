@@ -10547,11 +10547,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fightHeroCode: 00000000
   fightPrepareHeroCode: 
-  enemyBundleCode: 1
+  enemyBundleCode: 0
   PstartCard: 5
   PmaxCard: 5
   PaddCardNum: 2
   cardCode: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  getCards: 
 --- !u!1 &1521421562
 GameObject:
   m_ObjectHideFlags: 0
@@ -11107,9 +11108,33 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 680381507}
     m_Modifications:
+    - target: {fileID: 1896222204787309208, guid: 22590343eb7647442a97ea43ee373b94, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 655.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 1896222204787309208, guid: 22590343eb7647442a97ea43ee373b94, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 438.81
+      objectReference: {fileID: 0}
+    - target: {fileID: 1896222204787309208, guid: 22590343eb7647442a97ea43ee373b94, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -59.421
+      objectReference: {fileID: 0}
+    - target: {fileID: 1896222204787309208, guid: 22590343eb7647442a97ea43ee373b94, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 13.069
+      objectReference: {fileID: 0}
+    - target: {fileID: 5942587518920339933, guid: 22590343eb7647442a97ea43ee373b94, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6277648955398020337, guid: 22590343eb7647442a97ea43ee373b94, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739617296100453473, guid: 22590343eb7647442a97ea43ee373b94, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6795611771336156330, guid: 22590343eb7647442a97ea43ee373b94, type: 3}
       propertyPath: m_Name
@@ -11205,7 +11230,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6795611772173324638, guid: 22590343eb7647442a97ea43ee373b94, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7750330453017596547, guid: 22590343eb7647442a97ea43ee373b94, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 22590343eb7647442a97ea43ee373b94, type: 3}

@@ -41,7 +41,7 @@ public class SkillBtn : MonoBehaviour
     IEnumerator MixTypeTextColor()//判断类型以及颜色
     {
         int tempIndex = 0;
-        if (skillInfo.passiveType != PassiveType.None)
+        if (skillInfo.passiveSkill == true)
         {
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[tempIndex].text = "[被动]";
             GameManager.instance.skillText.GetComponent<SkillText>().skillType[tempIndex].color = new Color32(190, 190, 190, 255);

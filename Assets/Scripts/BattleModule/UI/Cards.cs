@@ -16,6 +16,8 @@ public class Cards : MonoBehaviour
     public Skill cardSkill;
     public Text cardName;
     public Text cardText;
+    [Header("是否选择己方角色作为行动方")]
+    public bool cardPointUnit;
 
     public Vector3 cardAdress;//手卡位置
     public Vector3 cardAbandomAdress;//弃牌栏位置
@@ -90,7 +92,7 @@ public class Cards : MonoBehaviour
                 LeanTween.move(this.gameObject, new Vector3(this.gameObject.transform.position.x, 200f, 0), 0.3f);
                 GameManager.instance.useCard = this;
                 GameManager.instance.useSkill = cardSkill;
-                if (cardSkill.cardPointUnit)
+                if (cardPointUnit)
                 {
                     GameManager.instance.tips.text = "选择一名行动方";
                     GameManager.instance.state = BattleState.CARDTURNUNIT;

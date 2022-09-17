@@ -11,12 +11,14 @@ public class firstImg : MonoBehaviour
     public GameObject winObject;
     public GameObject lostObject;
     public Text tips;
+    public bool winNextSwitch;
     //到时候逐行读取txt文件给其fu值
     private string winText = "米浴说的道理";
     private string lostText = "下次一定";
     // Start is called before the first frame update
     void Start()
     {
+        winNextSwitch = false;
         if (GameManager.instance.win == true)
         {
             winLostImg.sprite = winImg;
@@ -34,6 +36,7 @@ public class firstImg : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(winObject.GetComponent<WinObject>().finishSwitch==true&& winNextSwitch == false)
+            winNextSwitch = true;
     }
 }

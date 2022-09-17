@@ -9,7 +9,7 @@ public enum AnimType {Attack}//动画类型
 public enum SkillPoint { Myself,AllEnemy,AllPlayers,Players,Enemies }//技能指向
 public enum HeroAttribute { AP,APDef,maxMP,MP,AD,Def,maxHP,HP,Spirit,Critical,Dodge,Tired,Sneer, fragile, weakness, shieldDecrease, healDecrease,Burn, Cold,Poison,ADDecrease,ADPrecentDecrease, APDecrease, APPrecentDecrease, BurnDecrease, BurnPrecentDecrease,PoisonDecrease,PoisonPrecentDecrease,ColdDecrease,ColdPrecentDecrease }//属性
 public enum HeroSkillAttribute { AP, APDef, maxMP, MP, AD, Def, maxHP, HP, Spirit, Critical, Dodge, Burn, Cold, Poison}//属性
-public enum PassiveType {None,Hit,Dead,GameBegin,TurnStart,TurnEnd}//被动类型(决定触发时间)
+public enum PassiveType {Hit,Dead,GameBegin,TurnStart,TurnEnd}//被动类型(决定触发时间)
 public enum PassivePoint {MDamager, MMyself,MAllEnemy,MAllPlayers,MEnemiesAuto, MPlayersAuto }//被动目标(M代表自己为技能使用方,结尾字母表示回合约束)
 public enum PassiveTurn {E,M,A}
 [CreateAssetMenu(fileName ="skill",menuName ="Create new skill")]
@@ -21,7 +21,7 @@ public class Skill : ScriptableObject
     public string description;//技能描述
 
     [Header("技能设置")]
-    public SkillType type;//技能类型
+    public SkillType type;//技能类型  
     public List<SkillType> typeTag;//显示框的技能类型
     public AnimType animType;//动画类型
     public int skillTired;//技能疲劳
@@ -30,26 +30,21 @@ public class Skill : ScriptableObject
     public int abandomCardNum;//主动弃牌的cost（仅对于玩家
     public bool onlyOne;//限定技能
     public bool cantReplace;//不可替换
-    [Header("若技能类型为exchange，下面无需设置")]
-    [Header("技能指向(若为被动则随便设置),noMe仅针对玩家有约束")]
-    public SkillPoint point;//技能指向类型
-    public bool noMe;//选择时不会包含自己
-    [Header("如果point是Players或Enemies,可勾选此项(若为被动则随便设置)")]   
-    public bool autoPoint;//判断是否自动选取目标
 
-    [Header("技能类型为AttributeAdjust的时候设置，调整目标属性（默认为加）")]
-    public HeroAttribute adjustAttribute;
+    [Header("技能类型是否为为被动")]
+    //被动类型;被动目标(M代表自己为技能使用方,后面表示目标(尾缀Auto需要设置目标数和rechoose));被动发动场合(E异回合，M同回合，A都可以)\n")
+    public bool passiveSkill;
+    [ConditionalHide("passiveSkill",1)] public PassiveType passiveType;
+    [ConditionalHide("passiveSkill",1)] public PassivePoint passivePoint;
+    [ConditionalHide("passiveSkill",1)] public PassiveTurn passiveTurn;
 
 
-    [Header("卡牌设置：是否选择角色作为pointUnit")]
-    public bool cardPointUnit;
+    [Header("主动技能(若为被动则不显示),noMe仅针对玩家有约束")]
 
-    [Header("技能类型为被动的时候设置")]
-    public PassiveType passiveType;
-    [Header("(被动)M代表自己为技能使用方,后面表示目标(尾缀Auto需要设置目标数和rechoose)")]
-    public PassivePoint passivePoint;
-    [Header("(被动)E异回合，M同回合，A都可以")]
-    public PassiveTurn passiveTurn;
+    [ConditionalHide("passiveSkill", 0)] public SkillPoint point;//技能指向类型
+    [ConditionalHide("passiveSkill", 0)] public bool noMe;//选择时不会包含自己
+    [Header("如果point是Players或Enemies,可勾选此项(若为被动则随便设置)")]
+    [ConditionalHide("passiveSkill", 0)] public bool autoPoint;//判断是否自动选取目标
 
     [Header("技能数值设置(addition为float)")]
     public int baseInt;//技能基础类
@@ -64,7 +59,6 @@ public class Skill : ScriptableObject
     public List<HeroAttribute> attributeCost;//技能增益属性列表
     public List<int> skillCost;//代价列表
 
-    
 
     //——————————————————————————————目标判断————————————————————————————————-
     public IEnumerator JudgePlayerSkill()//玩家回合获取使用的技能名,并且更改GameManager技能目标数量变量。判断接下来的状态
@@ -614,10 +608,5 @@ public class Skill : ScriptableObject
         GameManager.instance.heroPreparePrefab[GameManager.instance.heroPreparePrefab.IndexOf(pointUnit.gameObject)] = turnUnit.gameObject;
     }
 
-
-
-
-
-
-
 }
+

@@ -486,6 +486,7 @@ MonoBehaviour:
   cardSkill: {fileID: 11400000, guid: ffdbfd91d7418d24da089bc8bf62e97b, type: 2}
   cardName: {fileID: 2515908501813963365}
   cardText: {fileID: 8466545579060793588}
+  cardPointUnit: 1
   cardAdress: {x: 0, y: 0, z: 0}
   cardAbandomAdress: {x: 0, y: 0, z: 0}
 --- !u!114 &743106706692741955

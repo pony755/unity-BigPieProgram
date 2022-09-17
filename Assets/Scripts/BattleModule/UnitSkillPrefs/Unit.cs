@@ -227,26 +227,29 @@ public class Unit : MonoBehaviour
         
         foreach (var p in heroSkillList)
         {
-            if (p.passiveType == PassiveType.Hit)
+            if(p.passiveSkill==true)
             {
-                passiveHitList.Add(p);
-            }
-            else if (p.passiveType == PassiveType.Dead)
-            {
-                passiveDeadList.Add(p);
-            }
-            else if (p.passiveType == PassiveType.GameBegin)
-            {
-                passiveGameBeginList.Add(p);
-            }
-            else if (p.passiveType == PassiveType.TurnStart)
-            {
-                passiveTurnStartList.Add(p);
-            }
-            else if (p.passiveType == PassiveType.TurnEnd)
-            {
-                passiveTurnEndList.Add(p);
-            }
+                if (p.passiveType == PassiveType.Hit)
+                {
+                    passiveHitList.Add(p);
+                }
+                else if (p.passiveType == PassiveType.Dead)
+                {
+                    passiveDeadList.Add(p);
+                }
+                else if (p.passiveType == PassiveType.GameBegin)
+                {
+                    passiveGameBeginList.Add(p);
+                }
+                else if (p.passiveType == PassiveType.TurnStart)
+                {
+                    passiveTurnStartList.Add(p);
+                }
+                else if (p.passiveType == PassiveType.TurnEnd)
+                {
+                    passiveTurnEndList.Add(p);
+                }
+            }         
         } 
         yield return new WaitForSeconds(0.5f);
         PassiveGameBegin();
@@ -1052,6 +1055,23 @@ public class Unit : MonoBehaviour
 
     }
 
+    //！！！！！！！！！！！！！！！！！！！！！！！！！Unit荷恬！！！！！！！！！！！！！！！！！！！！！！！！！！！
+    public void UnitLearnSkill(int skillIndex)
+    {
+        heroSkillListCode.Add(skillIndex);
+        if (currencyFightLSkillList.Contains(skillIndex))
+            currencyFightLSkillList.Remove(skillIndex);
+        else if (currencyFightMSkillList.Contains(skillIndex))
+            currencyFightMSkillList.Remove(skillIndex);
+        else if (currencyFightHSkillList.Contains(skillIndex))
+            currencyFightHSkillList.Remove(skillIndex);
+        else if (exclusiveFightLSkillList.Contains(skillIndex))
+            exclusiveFightLSkillList.Remove(skillIndex);
+        else if (exclusiveFightMSkillList.Contains(skillIndex))
+            exclusiveFightMSkillList.Remove(skillIndex);
+        else if (exclusiveFightHSkillList.Contains(skillIndex))
+            exclusiveFightHSkillList.Remove(skillIndex);
+    }
     //！！！！！！！！！！！！！！！！！！！！！！！！！！贋函評！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
 
     /*string GetSaveNumber()

@@ -9,16 +9,19 @@ public class WinOrLost : MonoBehaviour
 {
     [HideInInspector]public Player player;
     //public GameObject levelUp;
-    
-    
+
+    [HideInInspector] public enum SettleState { None,First,RollSkill,RollCard}
+    public SettleState settleCurrentState;
     public GameObject firstImg;
     public GameObject rollSkillImg;
-    
+    private bool rollSkillIng;//判断当前是否在选技能界面
 
     
     
     private void Start()
     {
+        settleCurrentState = SettleState.None;
+        rollSkillIng = false;
         /*player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         next.onClick.AddListener(delegate () {
             if (player != null)
@@ -29,53 +32,53 @@ public class WinOrLost : MonoBehaviour
                 }
             }
             ChangeScene(); });*/
-        
-        
+               
     }
-    private void ChangeScene()
+    private void Update()
     {
-        Scene scene = SceneManager.GetSceneByName("MapScene");
-        SceneManager.MoveGameObjectToScene(player.gameObject, scene);
-        SceneManager.UnloadSceneAsync("BattleScene");
+        if(settleCurrentState == SettleState.None&& !firstImg.activeInHierarchy)
+        {
+            settleCurrentState = SettleState.First;
+            firstImg.SetActive(true);
+        }
+        if(firstImg.GetComponent<firstImg>().winNextSwitch==true&& settleCurrentState == SettleState.First)
+        {
+            settleCurrentState = SettleState.RollSkill;
+            firstImg.SetActive(false);
+        }
+
+
+        if(settleCurrentState == SettleState.RollSkill&&CheckRollSkill()&&!rollSkillImg.activeInHierarchy)
+        {
+            rollSkillImg.GetComponent<RollSkillImage>().StartShow(CheckRollSkill());
+        }
+        if(settleCurrentState == SettleState.RollSkill && rollSkillImg.GetComponent<RollSkillImage>().nextSwitch==true)
+        {
+            rollSkillImg.SetActive(false);
+        }
     }
 
-    public void FirstNextBtn()
-    {
-        ToSkillRoll();
-    }
 
-    public void SkillChooseBtn()
-    {
-        FreshSkillRoll();
-    }
-    private void ToSkillRoll()
+
+
+
+
+
+/*    private void ToSkillRoll()
     {
         if (firstImg.activeInHierarchy)
             firstImg.SetActive(false);
         if (CheckRollSkill()!=null)
         {
-            rollSkillImg.GetComponent<RollSkillImage>().Show(CheckRollSkill());
-         }      
+            rollSkillImg.GetComponent<RollSkillImage>().StartShow(CheckRollSkill());
+        }      
         else
         {
             //ToRollCard();
         }
-    }
-    private void FreshSkillRoll()
-    {
-        if (rollSkillImg.activeInHierarchy)
-            rollSkillImg.SetActive(false);
-
-            
-        if (CheckRollSkill() != null)
-        {
-            rollSkillImg.GetComponent<RollSkillImage>().Show(CheckRollSkill());
-        }
-        else
-        {
-            //ToRollCard();
-        }
-    }
+    }//前往摇技能界面*/
+   
+    
 
     private Unit CheckRollSkill()
     {
@@ -89,5 +92,5 @@ public class WinOrLost : MonoBehaviour
             }
         }
         return unit;
-    }
+    }//依次检测角色状态，若有角色学会技能则返回该Unit
 }

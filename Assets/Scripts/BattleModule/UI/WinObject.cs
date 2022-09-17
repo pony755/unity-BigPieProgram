@@ -9,9 +9,11 @@ public class WinObject : MonoBehaviour
     public List<WinHeroShow> Heros = new List<WinHeroShow>();
     public int heroIndex;
     public int showHeroInt;
+    public bool finishSwitch;
     // Start is called before the first frame update
     void Start()
     {
+        finishSwitch = false;
         showHeroInt = 0;
         heroIndex = 0;
         for (int i = 0; i < GameManager.instance.heroUnit.Count; i++)
@@ -21,9 +23,11 @@ public class WinObject : MonoBehaviour
             Heros[i].gameObject.SetActive(true);
         }
 
-        //player.BP += 100;
+        next.onClick.AddListener(delegate ()
+        {
+            finishSwitch = true;
+        });
     }
-
     // Update is called once per frame
     void Update()
     {
@@ -36,5 +40,6 @@ public class WinObject : MonoBehaviour
         if (heroIndex == showHeroInt)
             next.gameObject.SetActive(true);
     }
+
 
 }
