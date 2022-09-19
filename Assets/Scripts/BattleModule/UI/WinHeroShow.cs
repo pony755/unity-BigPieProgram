@@ -18,6 +18,8 @@ public class WinHeroShow : MonoBehaviour
     public bool ExpFinish;
     private float scale;
     readonly private float ExpSliderSpeed = 0.01f;
+    private int tempLv;//当前等级
+    private int tempFinalExp;//总共exp
 
 
     private void Start()
@@ -25,15 +27,16 @@ public class WinHeroShow : MonoBehaviour
         if(winHero != null)
         {
             ExpFinish = false;
-            ExpSlider.fillAmount = (float)winHero.currentExp / (float)winHero.nextExp[winHero.unitLevel];
-            winHero.currentExp +=winHero.getExp ;//直接加经验           
+            tempLv = winHero.unitLevel;
+            tempFinalExp = winHero.currentExp+winHero.getExp;
+
+            ExpSlider.fillAmount = (float)winHero.currentExp / (float)winHero.nextExp[winHero.unitLevel];     
             heroIMG.sprite = winHero.normalSprite;
             heroLV.text = "Lv " + winHero.unitLevel.ToString();
             Exp.text = winHero.currentExp.ToString();
             ExpNext.text = "/" + winHero.nextExp.ToString();
             ExpGet.text = "+" + winHero.getExp.ToString();
-            winHero.getExp = 0;//清0getExp;
-
+            winHero.SettleGetExp();//结算经验
         }
         else
             ExpFinish= true;
@@ -43,10 +46,10 @@ public class WinHeroShow : MonoBehaviour
     private void Update()
     {
         //开摆，实时记录数据
-        heroLV.text = "Lv " + winHero.unitLevel.ToString();
-        Exp.text = winHero.currentExp.ToString();
-        ExpNext.text = "/" + winHero.nextExp[winHero.unitLevel].ToString();
-        scale = (float)winHero.currentExp / (float)winHero.nextExp[winHero.unitLevel];
+        heroLV.text = "Lv " + tempLv.ToString();
+        Exp.text = tempFinalExp.ToString();
+        ExpNext.text = "/" + winHero.nextExp[tempLv].ToString();
+        scale = (float)tempFinalExp / (float)winHero.nextExp[tempLv];
 
         if (ExpSlider.fillAmount < scale)
         {
@@ -57,7 +60,7 @@ public class WinHeroShow : MonoBehaviour
            
             ExpSlider.fillAmount = 0;
             //调用升级函数
-            StartCoroutine(LevelUp());
+            StartCoroutine(ShowLevelUp());
 
         }
         if (ExpSlider.fillAmount >= scale)
@@ -68,65 +71,15 @@ public class WinHeroShow : MonoBehaviour
 
     }
 
-    IEnumerator LevelUp()
+    IEnumerator ShowLevelUp()
     {
         levelUpObject.GetComponent<Animator>().Play("levelUp");
-        winHero.currentExp -=  winHero.nextExp[winHero.unitLevel];
-        winHero.unitLevel++;
-        AdjudgeLvUp(winHero.unitLevel);
+        tempFinalExp -=  winHero.nextExp[tempLv];
+        tempLv++;      
         yield return null;
     }
 
-    private void AdjudgeLvUp(int a)//判断升级等级并调用相应升级函数
-    {
-        switch(a)
-        {
-            case 2:
-                winHero.LevelUp2();
-                break;
-            case 3:
-                winHero.LevelUp3();
-                break;
-            case 4:
-                winHero.LevelUp4();
-                break;
-            case 5:
-                winHero.LevelUp5();
-                break;
-            case 6:
-                winHero.LevelUp6();
-                break;
-            case 7:
-                winHero.LevelUp7();
-                break;
-            case 8:
-                winHero.LevelUp8();
-                break;
-            case 9:
-                winHero.LevelUp9();
-                break;
-            case 10:
-                winHero.LevelUp10();
-                break;
-            case 11:
-                winHero.LevelUp11();
-                break;
-            case 12:
-                winHero.LevelUp12();
-                break;
-            case 13:
-                winHero.LevelUp13();
-                break;
-            case 14:
-                winHero.LevelUp14();
-                break;
-            case 15:
-                winHero.LevelUp15();
-                break;
-            default:
-                break;
-        }
-    }
+   
 }
 
 

@@ -378,7 +378,10 @@ public class Skill : ScriptableObject
             }
         pointUnit.BurnDamage();//ÉÕÉË
         if (pointUnit.currentHP > 0&&pointUnit.player==false)
-            pointUnit.anim.Play("hit");
+        {
+            pointUnit.Hit();
+        }
+           
     }
     public virtual void SkillSettleAP(Unit turnUnit, Unit pointUnit)
     {
@@ -429,7 +432,10 @@ public class Skill : ScriptableObject
         }
         pointUnit.BurnDamage();//ÉÕÉË
         if (pointUnit.currentHP > 0)
-            pointUnit.anim.Play("hit");
+        {
+            pointUnit.Hit();
+        }
+            
     }
     public virtual void SkillSettleReallyDamage(Unit turnUnit, Unit pointUnit)
     {
@@ -456,7 +462,10 @@ public class Skill : ScriptableObject
         }
         pointUnit.BurnDamage();//ÉÕÉË
         if (pointUnit.currentHP > 0)
-            pointUnit.anim.Play("hit");
+        {
+            pointUnit.Hit();
+        }
+            
     }
     public virtual void SkillSettleHeal(Unit turnUnit, Unit pointUnit)
     {
@@ -576,15 +585,7 @@ public class Skill : ScriptableObject
 
     }
    
-    public void SkillRemove(Unit turnUnit)//ÒÆ³ý¼¼ÄÜ
-    {
-            turnUnit.heroSkillList.Remove(this);
-            turnUnit.passiveHitList.Remove(this);
-            turnUnit.passiveTurnEndList.Remove(this);
-            turnUnit.passiveTurnStartList.Remove(this);
-            turnUnit.passiveTurnStartList.Remove(this);
-            turnUnit.passiveDeadList.Remove(this);
-    }
+    
     public virtual void SkillSettleExchange(Unit turnUnit,Unit pointUnit)
     {
         //½»»»´æµµÌåÐÅÏ¢

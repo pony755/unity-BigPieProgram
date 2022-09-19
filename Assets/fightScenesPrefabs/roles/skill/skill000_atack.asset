@@ -31,10 +31,9 @@ MonoBehaviour:
   point: 4
   noMe: 0
   autoPoint: 0
-  baseInt: 0
-  attribute: 04000000
-  addition:
-  - 10
+  baseInt: 1000
+  attribute: 
+  addition: []
   pointNum: 1
   reChoose: 0
   precent: 0

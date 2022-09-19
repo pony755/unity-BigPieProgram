@@ -18,9 +18,9 @@ public class FightPrefs : MonoBehaviour
    public void BeginSetHeros()
     {
         foreach(var hero in GameManager.instance.tempPlayer.GetComponent<FightPlayer>().fightHeroCode)
-            fightHeros.Add(GameManager.instance.allListObject.GetComponent<AllList>().allHero[hero]);
+            fightHeros.Add(AllList.instance.allHero[hero]);
         foreach (var hero2 in GameManager.instance.tempPlayer.GetComponent<FightPlayer>().fightPrepareHeroCode)
-            fightPrepareHeros.Add(GameManager.instance.allListObject.GetComponent<AllList>().allHero[hero2]);
+            fightPrepareHeros.Add(AllList.instance.allHero[hero2]);
 
         StartCoroutine(GameManager.instance.SetHeros());
     }

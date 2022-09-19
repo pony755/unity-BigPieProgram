@@ -14,14 +14,14 @@ public class WinOrLost : MonoBehaviour
     public SettleState settleCurrentState;
     public GameObject firstImg;
     public GameObject rollSkillImg;
-    private bool rollSkillIng;//判断当前是否在选技能界面
+
 
     
     
     private void Start()
     {
         settleCurrentState = SettleState.None;
-        rollSkillIng = false;
+
         /*player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         next.onClick.AddListener(delegate () {
             if (player != null)
@@ -36,25 +36,44 @@ public class WinOrLost : MonoBehaviour
     }
     private void Update()
     {
+        //初始
         if(settleCurrentState == SettleState.None&& !firstImg.activeInHierarchy)
         {
             settleCurrentState = SettleState.First;
             firstImg.SetActive(true);
         }
-        if(firstImg.GetComponent<firstImg>().winNextSwitch==true&& settleCurrentState == SettleState.First)
+
+        //胜利界面
+        if (firstImg.GetComponent<firstImg>().winNextSwitch==true&& settleCurrentState == SettleState.First)//胜利界面结算完后进入下一阶段
         {
             settleCurrentState = SettleState.RollSkill;
             firstImg.SetActive(false);
         }
 
-
-        if(settleCurrentState == SettleState.RollSkill&&CheckRollSkill()&&!rollSkillImg.activeInHierarchy)
+        //roll技能界面
+        if(settleCurrentState == SettleState.RollSkill)
         {
-            rollSkillImg.GetComponent<RollSkillImage>().StartShow(CheckRollSkill());
+            if (CheckRollSkill()!=null && !rollSkillImg.activeInHierarchy)
+            {
+                rollSkillImg.GetComponent<RollSkillImage>().StartShow(CheckRollSkill());//初始化抽技能并显示
+            }
+            if (rollSkillImg.GetComponent<RollSkillImage>().nextSwitch == true)
+            {
+                rollSkillImg.GetComponent<RollSkillImage>().resetRollSkillImage();//一次抽技能结算完后重置状态并关闭
+            }
+            if(CheckRollSkill()==null&& !rollSkillImg.activeInHierarchy)//当关闭的时候所以角色抽技能已结算完成进入下一阶段
+            {
+                settleCurrentState = SettleState.RollCard;
+            }
         }
-        if(settleCurrentState == SettleState.RollSkill && rollSkillImg.GetComponent<RollSkillImage>().nextSwitch==true)
+
+        //roll卡牌界面
+        if(settleCurrentState == SettleState.RollCard)
         {
-            rollSkillImg.SetActive(false);
+            if(GameManager.instance.tempPlayer.GetComponent<FightPlayer>().getCards.Count>0)
+            {
+
+            }
         }
     }
 
@@ -64,21 +83,7 @@ public class WinOrLost : MonoBehaviour
 
 
 
-/*    private void ToSkillRoll()
-    {
-        if (firstImg.activeInHierarchy)
-            firstImg.SetActive(false);
-        if (CheckRollSkill()!=null)
-        {
-            rollSkillImg.GetComponent<RollSkillImage>().StartShow(CheckRollSkill());
-        }      
-        else
-        {
-            //ToRollCard();
-        }
-    }//前往摇技能界面*/
-   
-    
+
 
     private Unit CheckRollSkill()
     {

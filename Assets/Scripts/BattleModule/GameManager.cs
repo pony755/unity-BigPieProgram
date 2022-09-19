@@ -16,7 +16,6 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public bool AdjustCards = false;//调整卡牌位置标志位
 
     [Header("全物体List")]   
-    public GameObject allListObject;
     public GameObject tempPlayer;
     [Header("画布设置")]
     public FightPlayerCards fightPlayerCards;//卡牌设置

@@ -2,35 +2,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
 public class Cards : MonoBehaviour
 {
-    [Header("Image")]
+    public enum CardQuality { N, R, SR, UR }
+    public enum CardType { AD,AP,Spirit,Special }
+    [Header("CardShow")]
     public Image cardFrame;  
     public Image cardBase;
     public Image cardImage;
-
-    [Header("Sprite")]
-    public Sprite cardFrameSprite;
-    public Sprite cardBaseSprite;   
-    public Sprite cardSkillSprite;
-    public Skill cardSkill;
     public Text cardName;
+    public Text cardQualityText;
     public Text cardText;
+
+    [Header("卡牌设置")]
+    public CardType cardType;   
+    public Sprite cardSkillSprite;
+    public CardQuality cardQuality;
+    public Skill cardSkill;
+    
     [Header("是否选择己方角色作为行动方")]
     public bool cardPointUnit;
 
-    public Vector3 cardAdress;//手卡位置
-    public Vector3 cardAbandomAdress;//弃牌栏位置
+    [HideInInspector]public Vector3 cardAdress;//手卡位置
+    [HideInInspector] public Vector3 cardAbandomAdress;//弃牌栏位置
     void Start()
     {
         cardAdress.y = 80;
         cardAdress.z = 0;
         CardPosition();
-        cardFrame.sprite = cardFrameSprite;
-        cardBase.sprite = cardBaseSprite;
-        cardImage.sprite = cardSkillSprite;
-        cardName.text = cardSkill.skillName;
-        cardText.text = cardSkill.description;
+        SetCardShow();
     }
 
     // Update is called once per frame
@@ -40,9 +41,58 @@ public class Cards : MonoBehaviour
                CardPosition();
         
     }
+    private void SetCardShow()
+    {
+        SetCardType(cardType);
+        cardImage.sprite = cardSkillSprite;
+        cardName.text = cardSkill.skillName;
+        SetQualityText(cardQuality);
+        cardText.text = cardSkill.description;
+    }//设置卡牌初始样式
+    private void SetQualityText(CardQuality a)
+    {
+        cardQualityText.text = cardQuality.ToString();
+        if (a==CardQuality.N)
+        {
+            cardQualityText.color = Color.white;
+        }
+        else if (a == CardQuality.R)
+        {
+            cardQualityText.color = Color.blue;
+        }
+        else if (a == CardQuality.SR)
+        {
+            cardQualityText.color =new Color32(255,181,0,255);
+        }
+        else if (a == CardQuality.UR)
+        {
+            cardQualityText.color = Color.magenta;
+        }
+    }
+    private void SetCardType(CardType a)
+    {
 
-
-
+        if (a == CardType.AD)
+        {
+            cardFrame.sprite = Resources.Load<Sprite>("fightCards/phyframe");
+            cardBase.sprite = Resources.Load<Sprite>("fightCards/fightCard_AD");
+        }
+        else if (a == CardType.AP)
+        {
+            cardFrame.sprite = Resources.Load<Sprite>("fightCards/phyframe");
+            cardBase.sprite = Resources.Load<Sprite>("fightCards/fightCard_AP");
+        }
+        else if (a == CardType.Spirit)
+        {
+            cardFrame.sprite = Resources.Load<Sprite>("fightCards/phyframe");
+            cardBase.sprite = Resources.Load<Sprite>("fightCards/fightCard_Spirit");
+        }
+        else if (a == CardType.Special)
+        {
+            cardFrame.sprite = Resources.Load<Sprite>("fightCards/phyframe");
+            cardBase.sprite = Resources.Load<Sprite>("fightCards/fightCard_Else");
+        }
+    }
 
     public void ScaleCard()//鼠标进入事件
     {

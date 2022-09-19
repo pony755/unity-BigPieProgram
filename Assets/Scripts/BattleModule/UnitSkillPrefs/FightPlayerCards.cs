@@ -28,7 +28,7 @@ public class FightPlayerCards : MonoBehaviour
         addCardNum = GameManager.instance.tempPlayer.GetComponent<FightPlayer>().PaddCardNum;
         foreach (var cardIndex in GameManager.instance.tempPlayer.GetComponent<FightPlayer>().cardCode)
         {
-            GameObject A = Instantiate(GameManager.instance.allListObject.GetComponent<AllList>().allCardList[cardIndex].gameObject,new Vector3(0, 0, 0), Quaternion.identity, cardsInCards.transform);
+            GameObject A = Instantiate(AllList.instance.allCardList[cardIndex].gameObject,new Vector3(0, 0, 0), Quaternion.identity, cardsInCards.transform);
             A.transform.localPosition = new Vector3(-300, 0, 0);
             playerCards.Add(A.transform. GetComponent<Cards>());
         }    

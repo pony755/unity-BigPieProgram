@@ -13,9 +13,9 @@ public class ReplaceBtn : MonoBehaviour
     public void SetReplaceBtn(int code)
     {
         skillCode = code;
-        skillImg.sprite=GameManager.instance.allListObject.GetComponent<AllList>().allSkillList[code].skillImg;
-        skillName.text = GameManager.instance.allListObject.GetComponent<AllList>().allSkillList[code].skillName;
-        skillDescription.text = GameManager.instance.allListObject.GetComponent<AllList>().allSkillList[code].description;
+        skillImg.sprite= AllList.instance.allSkillList[code].skillImg;
+        skillName.text = AllList.instance.allSkillList[code].skillName;
+        skillDescription.text = AllList.instance.allSkillList[code].description;      
         gameObject.SetActive(true);
     }
 }

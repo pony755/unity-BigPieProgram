@@ -43,8 +43,11 @@ public class Unit : MonoBehaviour
     [Header("游戏内状态量")]
     public int currentHP;
     public int currentExp;
-    public int getExp;
+    [ConditionalHide("playerHero", 1)]public List<SkillRoll> skillRoll;
+    [ConditionalHide("playerHero", 1)]public int getExp;
 
+    [Header("敌人掉落战利品")]
+    [ConditionalHide("playerHero", 0)] public int dropExp;
     [Header("战斗状态量(每局战斗都刷新成默认值,不需要保存读取)")]
     public int tired;
     public int sneer;//嘲讽
@@ -57,7 +60,7 @@ public class Unit : MonoBehaviour
     public int cold;
     public int poison;   
     public int currentMP;   
-    public List<SkillRoll> skillRoll;
+   
     
     
 
@@ -85,19 +88,19 @@ public class Unit : MonoBehaviour
     public List<Skill> exclusiveHSkillList;
 
     //[Header("技能编号列表")]
-    public List<int> heroSkillListCode;
+    [HideInInspector]public List<int> heroSkillListCode;
 
     //[Header("战斗技能池编号(存储池子情况")]
-    public List<int> currencyFightLSkillList;
-    public List<int> exclusiveFightLSkillList;
-    public List<int> currencyFightMSkillList;
-    public List<int> exclusiveFightMSkillList;
-    public List<int> currencyFightHSkillList; 
-    public List<int> exclusiveFightHSkillList;
+    [HideInInspector] public List<int> currencyFightLSkillList;
+    [HideInInspector] public List<int> exclusiveFightLSkillList;
+    [HideInInspector] public List<int> currencyFightMSkillList;
+    [HideInInspector] public List<int> exclusiveFightMSkillList;
+    [HideInInspector] public List<int> currencyFightHSkillList;
+    [HideInInspector] public List<int> exclusiveFightHSkillList;
     [Header("是否为玩家替身")]
     public bool player;
 
-    [Header("被动技能列表")]
+    //[Header("被动技能列表")]
     public List<Skill> passiveTurnEndList;//回合开始时触发
     public List<Skill> passiveTurnStartList;//回合开始时触发
     public List<Skill> passiveHitList;//受伤触发
@@ -203,6 +206,7 @@ public class Unit : MonoBehaviour
         {
             currentHP = 0;
             anim.Play("dead");
+            PassiveDead();
             Invoke("CheckDead", 0.2f);
         }
     }
@@ -375,7 +379,7 @@ public class Unit : MonoBehaviour
         SkillCost(skill);    
         if(skill.onlyOne)
         {
-            skill.SkillRemove(this);
+            SkillRemove(skill);
         }
         //结算是否为延时
         if (skill.delayedTurn > 0&&!GameManager.instance.delayedSwitch)
@@ -405,7 +409,7 @@ public class Unit : MonoBehaviour
         SkillCost(skill);
         if (skill.onlyOne)
         {
-            skill.SkillRemove(this);
+            SkillRemove(skill);
         }
         //结算是否为延时
         if (skill.delayedTurn > 0 && !GameManager.instance.delayedSwitch)
@@ -1051,11 +1055,87 @@ public class Unit : MonoBehaviour
         //先清空原来预设的初始技能，再读取本地数据的技能
         heroSkillList.Clear();
         foreach (var code in heroSkillListCode)
-            heroSkillList.Add(GameManager.instance.allListObject.GetComponent<AllList>().allSkillList[code]);
+            heroSkillList.Add(AllList.instance.allSkillList[code]);
 
     }
 
     //—————————————————————————Unit操作———————————————————————————
+    public void Hit()
+    {
+        anim.Play("hit");
+        PassiveHit();
+    }
+    public void SettleGetExp()
+    {
+        currentExp += getExp;
+        getExp = 0;
+        while(currentExp > nextExp[unitLevel])
+        {
+            currentExp -= nextExp[unitLevel];
+            unitLevel++;
+            AdjudgeLvUp(unitLevel);
+        }
+        
+    }
+    private void AdjudgeLvUp(int a)//判断升级等级并调用相应升级函数
+    {
+        switch (a)
+        {
+            case 2:
+                LevelUp2();
+                break;
+            case 3:
+                LevelUp3();
+                break;
+            case 4:
+                LevelUp4();
+                break;
+            case 5:
+                LevelUp5();
+                break;
+            case 6:
+                LevelUp6();
+                break;
+            case 7:
+                LevelUp7();
+                break;
+            case 8:
+                LevelUp8();
+                break;
+            case 9:
+                LevelUp9();
+                break;
+            case 10:
+                LevelUp10();
+                break;
+            case 11:
+                LevelUp11();
+                break;
+            case 12:
+                LevelUp12();
+                break;
+            case 13:
+                LevelUp13();
+                break;
+            case 14:
+                LevelUp14();
+                break;
+            case 15:
+                LevelUp15();
+                break;
+            default:
+                break;
+        }
+    }
+    public void SkillRemove(Skill skill)//移除技能
+    {
+        heroSkillList.Remove(skill);
+        passiveHitList.Remove(skill);
+        passiveTurnEndList.Remove(skill);
+        passiveTurnStartList.Remove(skill);
+        passiveTurnStartList.Remove(skill);
+        passiveDeadList.Remove(skill);
+    }
     public void UnitLearnSkill(int skillIndex)
     {
         heroSkillListCode.Add(skillIndex);
@@ -1150,7 +1230,7 @@ public class Unit : MonoBehaviour
     {
         foreach(var s in tempSkills)
         {
-            int Code = GameManager.instance.allListObject.GetComponent<AllList>().allSkillList.IndexOf(s);
+            int Code = AllList.instance.allSkillList.IndexOf(s);
             if(!heroSkillListCode.Contains(Code))
                  tempCodes.Add(Code);
         }
@@ -1160,7 +1240,7 @@ public class Unit : MonoBehaviour
     {
         //先存已有技能进编号列表
         foreach (var s in heroSkillList)
-           heroSkillListCode.Add(GameManager.instance.allListObject.GetComponent<AllList>().allSkillList.IndexOf(s));
+           heroSkillListCode.Add(AllList.instance.allSkillList.IndexOf(s));
         SetFightSkillList(currencyLSkillList,currencyFightLSkillList);
         SetFightSkillList(currencyMSkillList, currencyFightMSkillList);
         SetFightSkillList(currencyHSkillList, currencyFightHSkillList);

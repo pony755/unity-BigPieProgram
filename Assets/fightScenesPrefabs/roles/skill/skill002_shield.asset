@@ -24,16 +24,14 @@ MonoBehaviour:
   abandomCardNum: 0
   onlyOne: 0
   cantReplace: 0
-  passiveSkill: 0
+  passiveSkill: 1
   passiveType: 0
-  passivePoint: 0
+  passivePoint: 1
   passiveTurn: 2
   point: 0
   noMe: 0
   autoPoint: 1
-  adjustAttribute: 0
-  cardPointUnit: 0
-  baseInt: 1000
+  baseInt: 99
   attribute: 
   addition: []
   pointNum: 3
