@@ -10,18 +10,20 @@ public class WinOrLost : MonoBehaviour
     [HideInInspector]public Player player;
     //public GameObject levelUp;
 
-    [HideInInspector] public enum SettleState { None,First,RollSkill,RollCard}
+    [HideInInspector] public enum SettleState { None,First,RollSkill,RollCard,Finish}
     public SettleState settleCurrentState;
     public GameObject firstImg;
     public GameObject rollSkillImg;
+    public GameObject rollCardImg;
 
 
-    
-    
+
     private void Start()
     {
         settleCurrentState = SettleState.None;
-
+        firstImg.SetActive(false);
+        rollSkillImg.SetActive(false);
+        rollCardImg.SetActive(false);
         /*player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         next.onClick.AddListener(delegate () {
             if (player != null)
@@ -72,7 +74,12 @@ public class WinOrLost : MonoBehaviour
         {
             if(GameManager.instance.tempPlayer.GetComponent<FightPlayer>().getCards.Count>0)
             {
-
+                rollCardImg.GetComponent<RollCards>().RollCardShow();
+            }
+            if(rollCardImg.GetComponent<RollCards>().nextSwitch==true)
+            {
+                rollCardImg.SetActive(false);
+                settleCurrentState = SettleState.Finish;
             }
         }
     }

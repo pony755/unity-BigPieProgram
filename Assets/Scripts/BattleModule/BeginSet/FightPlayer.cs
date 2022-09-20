@@ -22,5 +22,21 @@ public class FightPlayer : MonoBehaviour
     public List<GetCard> getCards;
 
     //！！！！！！！！！！！！！！！！！！！！！！叔弼資誼触兎荷恬！！！！！！！！！！！！！！！！！！！！！！！！！！
+    public List<Cards> RollCards()
+    {
+            List<Cards> tempCards = new List<Cards>();
+            if(getCards[0]==GetCard.T)
+            {
+            tempCards.Add(AllList.instance.allCardList[0]);
+            tempCards.Add(AllList.instance.allCardList[0]);
+            tempCards.Add(AllList.instance.allCardList[0]);
+            }
 
+
+
+
+
+            getCards.Remove(getCards[0]);
+            return tempCards;
+    }
 }

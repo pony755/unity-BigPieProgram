@@ -7,6 +7,7 @@ public class Cards : MonoBehaviour
 {
     public enum CardQuality { N, R, SR, UR }
     public enum CardType { AD,AP,Spirit,Special }
+    private Animator animator;
     [Header("CardShow")]
     public Image cardFrame;  
     public Image cardBase;
@@ -28,6 +29,7 @@ public class Cards : MonoBehaviour
     [HideInInspector] public Vector3 cardAbandomAdress;//ÆúÅÆÀ¸Î»ÖÃ
     void Start()
     {
+        animator = GetComponent<Animator>();
         cardAdress.y = 80;
         cardAdress.z = 0;
         CardPosition();
@@ -239,6 +241,8 @@ public class Cards : MonoBehaviour
         else
             cardAdress.x = 428 + GameManager.instance.fightPlayerCards.haveCards.IndexOf(this) * 25;
     }
+
+
 
 
 }
