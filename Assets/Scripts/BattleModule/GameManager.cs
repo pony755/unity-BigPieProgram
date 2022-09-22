@@ -154,6 +154,7 @@ public class GameManager : MonoBehaviour
         }
         for (int j = 0; j < fightPrefs.fightPrepareHeros.Count; j++)
         {
+            Debug.Log(j);
             SetSinglePrepareHeros(j);
         }
         yield return null;
@@ -172,7 +173,7 @@ public class GameManager : MonoBehaviour
     }
     public void SetSinglePrepareHeros(int i)
     {
-        heroPreparePrefab.Add(Instantiate(fightPrefs.fightPrepareHeros[i], heroPrepare.transform.position, playerStations[i].rotation));
+        heroPreparePrefab.Add(Instantiate(fightPrefs.fightPrepareHeros[i], heroPrepare.transform.position, fightPrefs.fightPrepareHeros[i].transform.rotation));
         heroPreparePrefab[i].transform.SetParent(heroPrepare.transform);
 
     }
