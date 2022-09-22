@@ -345,15 +345,15 @@ public class Skill : ScriptableObject
         damage= (int)(((float)pointUnit.Decrease(damage, pointUnit.ADDecrease, pointUnit.ADPrecentDecrease) )* (float)(1-((float)pointUnit.Def / (float)(pointUnit.Def + 100)))) + pointUnit.fragile;//最终数值
         if (pointUnit.playerHero)
         {
-            if (damage >= GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield)
+            if (damage >= GameManager.instance.fightPlayer.playerObject.GetComponent<Unit>().shield)
             {
 
-                damage -= GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield;
-                GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield = 0;
+                damage -= GameManager.instance.fightPlayer.playerObject.GetComponent<Unit>().shield;
+                GameManager.instance.fightPlayer.playerObject.GetComponent<Unit>().shield = 0;
             }
             else
             {
-                GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield -= damage;
+                GameManager.instance.fightPlayer.playerObject.GetComponent<Unit>().shield -= damage;
                 damage = 0;
             }
         }
@@ -401,15 +401,15 @@ public class Skill : ScriptableObject
         damage = (int)(((float)pointUnit.Decrease(damage, pointUnit.APDecrease, pointUnit.APPrecentDecrease)) * (float)(1 - ((float)pointUnit.APDef / (float)(pointUnit.APDef + 100)))) + pointUnit.fragile;//最终数值
         if (pointUnit.playerHero)
         {
-            if (damage >= GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield)
+            if (damage >= GameManager.instance.fightPlayer.playerObject.GetComponent<Unit>().shield)
             {
 
-                damage -= GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield;
-                GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield = 0;
+                damage -= GameManager.instance.fightPlayer.playerObject.GetComponent<Unit>().shield;
+                GameManager.instance.fightPlayer.playerObject.GetComponent<Unit>().shield = 0;
             }
             else
             {
-                GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield -= damage;
+                GameManager.instance.fightPlayer.playerObject.GetComponent<Unit>().shield -= damage;
                 damage = 0;
             }
         }
@@ -558,7 +558,7 @@ public class Skill : ScriptableObject
             turnUnit.FloatStateShow(turnUnit, "抽卡", Color.magenta);
             for(int i = 0; i < card; i++)
             {
-                GameManager.instance.fightPlayerCards.TakeCard();
+                GameManager.instance.fightPlayer.TakeCard();
             }
         }
             
@@ -567,7 +567,7 @@ public class Skill : ScriptableObject
             turnUnit.FloatStateShow(turnUnit, "弃卡", Color.black);
             for (int i = 0; i < -card; i++)
             {
-                GameManager.instance.fightPlayerCards.haveCards[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, GameManager.instance.fightPlayerCards.haveCards.Count-1)].CardDestory();
+                GameManager.instance.fightPlayer.haveCards[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, GameManager.instance.fightPlayer.haveCards.Count-1)].CardDestory();
             }
         }          
     }

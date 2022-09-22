@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-
-public class FightPlayerCards : MonoBehaviour
+public enum GetCard { T }
+public class FightPlayerInFight : MonoBehaviour
 {
     private bool startTakeCardSwitch;//判断是否为开始阶段抽卡
     public GameObject playerShield;
@@ -18,14 +18,52 @@ public class FightPlayerCards : MonoBehaviour
     public List<Cards> playerCards;//卡组
     public List<Cards> haveCards;//手牌
     public List<Cards> abandomCards;//弃牌堆
-    [Header("玩家属性")]
-    public int playerAtk;
+    [Header("玩家属性(在inspect面板改变属性不会影响玩家属性，只有通过getset函数才会)")]
+    [SerializeField] private string playerID;
+    [SerializeField]public string PlayerID
+    {
+        get { return playerID; }
+        set {
+            playerID = value;
+            playerObject.GetComponent<PlayerObject>().unitName = value;//同步属性
+        }
+    }
+    [SerializeField]private int playerAD;
+    public int PlayerAD
+    {
+        get { return playerAD; }
+        set { playerAD = value;
+            playerObject.GetComponent<PlayerObject>().AD = value;//同步属性
+        }
+    }
+
+    [SerializeField] private int playerAP;
+    public int PlayerAP
+    {
+        get { return playerAP; }
+        set
+        {
+            playerAP = value;
+            playerObject.GetComponent<PlayerObject>().AP = value;//同步属性
+        }
+    }
+    [Header("状态量")]
+    public List<GetCard> getCards;
+    [Header("饰品")]
+    public List<item> items;
     // Start is called before the first frame update
     void Start()
     {
         startCard =GameManager.instance. tempPlayer.GetComponent<FightPlayer>().PstartCard;
         maxCard = GameManager.instance.tempPlayer.GetComponent<FightPlayer>().PmaxCard;
         addCardNum = GameManager.instance.tempPlayer.GetComponent<FightPlayer>().PaddCardNum;
+        PlayerID = GameManager.instance.tempPlayer.GetComponent<FightPlayer>().playerID;
+        PlayerAD = GameManager.instance.tempPlayer.GetComponent<FightPlayer>().AD;
+        PlayerAP = GameManager.instance.tempPlayer.GetComponent<FightPlayer>().AP;
+        foreach (var c in GameManager.instance.tempPlayer.GetComponent<FightPlayer>().itemsCode)
+        {
+            items.Add(AllList.instance.allItemList[c]);
+        }
         foreach (var cardIndex in GameManager.instance.tempPlayer.GetComponent<FightPlayer>().cardCode)
         {
             GameObject A = Instantiate(AllList.instance.allCardList[cardIndex].gameObject,new Vector3(0, 0, 0), Quaternion.identity, cardsInCards.transform);
@@ -41,15 +79,27 @@ public class FightPlayerCards : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield > 0)
+        if(GameManager.instance.fightPlayer.playerObject.GetComponent<Unit>().shield > 0)
         {
             playerShield.SetActive(true);
-            playerShield.transform.GetChild(0).GetComponent<Text>().text = GameManager.instance.fightPlayerCards.playerObject.GetComponent<Unit>().shield.ToString();
+            playerShield.transform.GetChild(0).GetComponent<Text>().text = GameManager.instance.fightPlayer.playerObject.GetComponent<Unit>().shield.ToString();
         }
         else
             playerShield.SetActive(false);
     }
-
+    //——————————————————————角色操作——————————————————————————
+    public List<Cards> RollCards()//roll三张牌
+    {
+        List<Cards> tempCards = new List<Cards>();
+        if (getCards[0] == GetCard.T)
+        {
+            tempCards.Add(AllList.instance.allCardList[0]);
+            tempCards.Add(AllList.instance.allCardList[0]);
+            tempCards.Add(AllList.instance.allCardList[0]);
+        }
+        getCards.Remove(getCards[0]);
+        return tempCards;
+    }
 
     //————————————————————————卡牌—————————————————————————
 
@@ -88,7 +138,7 @@ public class FightPlayerCards : MonoBehaviour
             for(int i=0; i<count; i++)
             {
                 playerCards.Add(abandomCards[i]);
-                abandomCards[i].gameObject.transform.SetParent(GameManager.instance.fightPlayerCards.cardsInCards.transform);
+                abandomCards[i].gameObject.transform.SetParent(GameManager.instance.fightPlayer.cardsInCards.transform);
             abandomCards[i].gameObject.transform.localPosition=new Vector3(0,0,0);
             }    
             abandomCards.Clear();

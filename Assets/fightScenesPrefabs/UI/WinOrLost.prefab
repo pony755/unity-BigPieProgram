@@ -314,6 +314,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: RollCards
       objectReference: {fileID: 0}
+    - target: {fileID: 1946670862032954835, guid: 592fe0017b72c1e4bafcb0123596225c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 592fe0017b72c1e4bafcb0123596225c, type: 3}
 --- !u!1 &4348862162805112206 stripped
@@ -333,6 +337,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 6795611771336156331}
     m_Modifications:
+    - target: {fileID: 3593324109164735566, guid: 068ae2a9ce242df4ab045a85ca2499e1, type: 3}
+      propertyPath: m_Text
+      value: "\u8DF3\u8FC7\uFF08+20Bp\uFF09"
+      objectReference: {fileID: 0}
     - target: {fileID: 5070087481195416156, guid: 068ae2a9ce242df4ab045a85ca2499e1, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

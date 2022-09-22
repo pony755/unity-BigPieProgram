@@ -9,7 +9,7 @@ public class AllList : MonoBehaviour
     public List<GameObject> allEnemyHero;
     public List<Skill> allSkillList;
     public List<Cards> allCardList;
-
+    public List<item> allItemList;
     public void Awake()
     {
         if (instance == null)

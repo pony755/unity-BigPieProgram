@@ -9,13 +9,13 @@ public class AbandomCardBtn : MonoBehaviour
 
     private void Update()
     {
-        NumText.text =GameManager.instance.fightPlayerCards.abandomCards.Count.ToString();
+        NumText.text =GameManager.instance.fightPlayer.abandomCards.Count.ToString();
     }
     public void ClickAbandomCardBtn()
     {
         if(!GameManager.instance.AbandomCardCheck.activeInHierarchy)
         {
-            foreach(var card in GameManager.instance.fightPlayerCards.abandomCards)
+            foreach(var card in GameManager.instance.fightPlayer.abandomCards)
             {
                 card.gameObject.transform.localPosition = card.cardAbandomAdress;
             }

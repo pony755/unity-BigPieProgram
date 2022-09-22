@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
     [Header("全物体List")]   
     public GameObject tempPlayer;
     [Header("画布设置")]
-    public FightPlayerCards fightPlayerCards;//卡牌设置
+    public FightPlayerInFight fightPlayer;//玩家设置
     public TipsDelayed tipsDelayed;//延迟技能提示框
     public GameObject battleBackGround;//战斗背景
     public GameObject heroPrepare;//存放小队的地方
@@ -55,12 +55,12 @@ public class GameManager : MonoBehaviour
     public BattleState state;
 
     [Header("Heros")]
-    public List<GameObject> heroPrefab;//接收战斗列表角色
+    [HideInInspector]public List<GameObject> heroPrefab;//接收战斗列表角色
     public List<Unit> heroUnit;//获取战斗列表角色Unit脚本
     public List<GameObject> heroPreparePrefab;//接收小队列表角色
 
     [Header("enemyHeros")]
-    public List<GameObject> enemyPrefab;//接收敌人列表角色
+    [HideInInspector] public List<GameObject> enemyPrefab;//接收敌人列表角色
     public List<Unit> enemyUnit;//获取敌人列表角色Unit脚本
     // Start is called before the first frame update
     [Header("——————延时结算——————")]
@@ -133,7 +133,7 @@ public class GameManager : MonoBehaviour
             StartCoroutine("Action");
         if(state == BattleState.ABANDOMCARD)
         {
-            if(fightPlayerCards.haveCards.Count<= fightPlayerCards.maxCard)
+            if(fightPlayer.haveCards.Count<= fightPlayer.maxCard)
             {
                 StartCoroutine(EnemyTurnStart());
             }
@@ -142,7 +142,7 @@ public class GameManager : MonoBehaviour
         if (AdjustCards)
         {
             AdjustCards=false;
-            StartCoroutine(fightPlayerCards.CardAdjustPosition());
+            StartCoroutine(fightPlayer.CardAdjustPosition());
         }
     }
     
@@ -356,10 +356,10 @@ public class GameManager : MonoBehaviour
             tips.text = "你的回合...";
             turnNum.text = turn.ToString();
 
-            if (fightPlayerCards.playerCards.Count == 0)
+            if (fightPlayer.playerCards.Count == 0)
             {
-                fightPlayerCards.cardsObject.transform.GetChild(0).gameObject.SetActive(false);
-                fightPlayerCards.ResetCards();
+                fightPlayer.cardsObject.transform.GetChild(0).gameObject.SetActive(false);
+                fightPlayer.ResetCards();
             }
                 
             state = BattleState.PLAYERTURNSTART;
@@ -490,7 +490,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {         
-            if (fightPlayerCards.haveCards.Count <= fightPlayerCards.maxCard)
+            if (fightPlayer.haveCards.Count <= fightPlayer.maxCard)
                 StartCoroutine(EnemyTurnStart());
             else
             {
@@ -631,7 +631,7 @@ public class GameManager : MonoBehaviour
         
         if(state == BattleState.ABANDOMCARD)
         {
-            GameManager.instance.tips.text = "弃掉" + (fightPlayerCards.haveCards.Count - fightPlayerCards.maxCard).ToString() + "张牌";
+            GameManager.instance.tips.text = "弃掉" + (fightPlayer.haveCards.Count - fightPlayer.maxCard).ToString() + "张牌";
         }
     }
     IEnumerator EnemyAI()
@@ -778,18 +778,18 @@ public class GameManager : MonoBehaviour
     {
         if (abandomCardNum > 0&&abandomCardSwitch==false)
         {
-            if (abandomCardNum > fightPlayerCards.haveCards.Count&&state==BattleState.TOACTION)
+            if (abandomCardNum > fightPlayer.haveCards.Count&&state==BattleState.TOACTION)
             {
                 tips.text = "手牌不足";
                 Back();
             }
-            else if (abandomCardNum == fightPlayerCards.haveCards.Count && useCard != null && state == BattleState.TOACTION)
+            else if (abandomCardNum == fightPlayer.haveCards.Count && useCard != null && state == BattleState.TOACTION)
             {
                 tips.text = "手牌不足";
                 Back();
             }
-            else if(abandomCardNum > fightPlayerCards.haveCards.Count)
-                abandomCardNum=fightPlayerCards.haveCards.Count;
+            else if(abandomCardNum > fightPlayer.haveCards.Count)
+                abandomCardNum=fightPlayer.haveCards.Count;
             else
                 abandomCardSwitch = true;              
         }

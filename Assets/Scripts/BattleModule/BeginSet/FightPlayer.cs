@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum GetCard { T}
+
 
 public class FightPlayer : MonoBehaviour
 {
-    
+    //这个类仅仅负责记录数据
+    public string playerID;
     [Header("己方角色")]
     public List<int> fightHeroCode;//出战编号
     public List<int> fightPrepareHeroCode;//备战小队
@@ -17,26 +18,10 @@ public class FightPlayer : MonoBehaviour
     public int PmaxCard;
     public int PaddCardNum;
     public List<int> cardCode;
-
-    [Header("状态量")]
-    public List<GetCard> getCards;
-
-    //——————————————————————角色获得卡牌操作——————————————————————————
-    public List<Cards> RollCards()
-    {
-            List<Cards> tempCards = new List<Cards>();
-            if(getCards[0]==GetCard.T)
-            {
-            tempCards.Add(AllList.instance.allCardList[0]);
-            tempCards.Add(AllList.instance.allCardList[0]);
-            tempCards.Add(AllList.instance.allCardList[0]);
-            }
-
-
-
-
-
-            getCards.Remove(getCards[0]);
-            return tempCards;
-    }
+    [Header("属性")]
+    public int AD;
+    public int AP;
+    [Header("饰品栏")]
+    public List<int> itemsCode;
+    
 }

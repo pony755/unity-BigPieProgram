@@ -18,8 +18,13 @@ public class CardChooseBtn : MonoBehaviour
     private void Start()
     {
         finish = false;
-        animator = GetComponent<Animator>();
+        
         SetCardBtnShow();
+        Invoke("GetAnim",0.5f);
+    }
+    private void GetAnim()
+    {
+        animator = GetComponent<Animator>();
     }
     public void CardJump()
     {

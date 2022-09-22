@@ -58,14 +58,14 @@ public class AddCancleBtn : MonoBehaviour
         else
             AddCardNumImg.SetActive(false);
 
-        AddCardNumImg.transform.GetChild(0).GetComponent<Text>().text = GameManager.instance.fightPlayerCards.addCardNum.ToString();
+        AddCardNumImg.transform.GetChild(0).GetComponent<Text>().text = GameManager.instance.fightPlayer.addCardNum.ToString();
 
     }
 
     public void Click()
     {
         if (this.gameObject.transform.GetChild(0).GetComponent<Text>().text == "ÃþÅÆ")
-            GameManager.instance.fightPlayerCards.ButtonTakeCard();
+            GameManager.instance.fightPlayer.ButtonTakeCard();
         if (this.gameObject.transform.GetChild(0).GetComponent<Text>().text == "·µ»Ø")
         {                  
             GameManager.instance.Back();

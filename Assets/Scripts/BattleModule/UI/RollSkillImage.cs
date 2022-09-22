@@ -15,7 +15,10 @@ public class RollSkillImage : MonoBehaviour
     void Start()
     {
         nextSwitch = false;
-        
+        nextBtn.GetComponent<Button>().onClick.AddListener(delegate () {
+            nextSwitch = true;
+            //+20Bp
+        });
     }
 
     // Update is called once per frame

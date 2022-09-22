@@ -13,7 +13,7 @@ public class CardsShow : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        this.gameObject.transform.GetChild(0).transform.GetChild(0).transform.GetComponent<Text>().text=GameManager.instance.fightPlayerCards.playerCards.Count.ToString();
+        this.gameObject.transform.GetChild(0).transform.GetChild(0).transform.GetComponent<Text>().text=GameManager.instance.fightPlayer.playerCards.Count.ToString();
     }
     public void ShowNum()
     {

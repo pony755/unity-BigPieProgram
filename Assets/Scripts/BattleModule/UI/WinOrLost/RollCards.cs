@@ -30,7 +30,7 @@ public class RollCards : MonoBehaviour
         foreach (var c in cardsBtn)
             c.gameObject.SetActive(false);
         List<Cards> tempCards=new List<Cards>();
-        tempCards= GameManager.instance.tempPlayer.GetComponent<FightPlayer>().RollCards();
+        tempCards= GameManager.instance.fightPlayer.GetComponent<FightPlayerInFight>().RollCards();
        for(int i=0;i<tempCards.Count;i++)
         {
             cardsBtn[i].card=tempCards[i];

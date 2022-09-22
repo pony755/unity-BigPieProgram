@@ -72,7 +72,7 @@ public class WinOrLost : MonoBehaviour
         //rollø®≈∆ΩÁ√Ê
         if(settleCurrentState == SettleState.RollCard)
         {
-            if(GameManager.instance.tempPlayer.GetComponent<FightPlayer>().getCards.Count>0)
+            if(GameManager.instance.fightPlayer.getCards.Count>0)
             {
                 rollCardImg.GetComponent<RollCards>().RollCardShow();
             }
