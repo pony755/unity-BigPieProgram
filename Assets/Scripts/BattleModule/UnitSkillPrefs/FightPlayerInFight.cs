@@ -50,7 +50,7 @@ public class FightPlayerInFight : MonoBehaviour
     [Header("彜蓑楚")]
     public List<GetCard> getCards;
     [Header("蔑瞳")]
-    public List<item> items;
+    public List<ItemBase> items;
     // Start is called before the first frame update
     void Start()
     {
@@ -101,6 +101,16 @@ public class FightPlayerInFight : MonoBehaviour
         return tempCards;
     }
 
+    public void GetItem(int code)//資函蔑瞳
+    {
+        GameManager.instance.tempPlayer.GetComponent<FightPlayer>().itemsCode.Add(code);
+        ItemBase tempItem = AllList.instance.allItemList[code];
+        items.Add(tempItem);
+        if (tempItem.itemType==ItemBase.ItemType.Disposable)
+        {
+            tempItem.SettleDisposableItem();
+        }
+    }
     //！！！！！！！！！！！！！！！！！！！！！！！！触兎！！！！！！！！！！！！！！！！！！！！！！！！！
 
     public void TakeCard()//渇匯嫖兎

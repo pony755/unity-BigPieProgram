@@ -108,6 +108,12 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("加载游戏");
         yield return new WaitForSeconds(1f);//充分加载
+        foreach(var i in fightPlayer.items)//结算饰品效果
+        {
+            if(i.itemType == ItemBase.ItemType.GainEffectInFight)
+            i.SettleGainEffectInFightItem();
+        }
+        yield return new WaitForSeconds(1f);//充分加载
         StartCoroutine(PlayerTurnStart());
     }
 

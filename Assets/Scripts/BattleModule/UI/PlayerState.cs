@@ -11,6 +11,7 @@ public class PlayerState : MonoBehaviour
     public Text pMaxCard;
     public List<Image> heroImg;
     public List<Image> prepareHeroImg;
+    public List<Image> itemsImg;
     public FightPlayerInFight Player;
     private void Start()
     {
@@ -37,6 +38,11 @@ public class PlayerState : MonoBehaviour
             prepareHeroImg[i].sprite = GameManager.instance.heroPreparePrefab[i].GetComponent<Unit>().normalSprite;
             prepareHeroImg[i].gameObject.SetActive(true);
         }
+        for (int i = 0; i < Player.items.Count; i++)
+        {
+            itemsImg[i].sprite = Player.items[i].itemIcon;
+            itemsImg[i].color = new Color32(255, 255, 255, 255);
+        }
         gameObject.SetActive(true);
     }
     public void ObjectHide()
@@ -48,6 +54,11 @@ public class PlayerState : MonoBehaviour
         foreach (var hero in prepareHeroImg)
         {
             hero.gameObject.SetActive(false);
+        }
+        foreach (var item in itemsImg)
+        {
+            item.sprite=null;
+            item.color = new Color32(255, 255, 255, 0);
         }
         playerID.text = "";
         pAD.text = "";
