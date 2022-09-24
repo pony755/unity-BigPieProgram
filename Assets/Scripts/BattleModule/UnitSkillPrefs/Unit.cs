@@ -234,12 +234,15 @@ public class Unit : MonoBehaviour
             {
                 GameManager.instance.deadUnit.Add(this);
                 GameManager.instance.tempPlayer.GetComponent<FightPlayer>().deadHeroCode.Add(code);
+                GameManager.instance.tempPlayer.GetComponent<FightPlayer>().fightHeroCode.Remove(code);
+                GameManager.instance.tempPlayer.GetComponent<FightPlayer>().fightPrepareHeroCode.Remove(code);
+                
             }
             GetComponent<BoxCollider>().enabled = false;//¹Ø±ÕÅö×²Ìå½Å±¾
             if (GameManager.instance.heroUnit.Contains(this))
             {
                 GameManager.instance.heroUnit.Remove(this);
-                GameManager.instance.tempPlayer.GetComponent<FightPlayer>().fightHeroCode.Remove(AllList.instance.allHero.IndexOf(this.gameObject));
+                
             }
             if (GameManager.instance.enemyUnit.Contains(this))
             {

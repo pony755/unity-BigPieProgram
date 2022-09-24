@@ -20,6 +20,11 @@ public class AddCancleBtn : MonoBehaviour
             this.gameObject.transform.GetChild(0).GetComponent<Text>().color = Color.black;
         }
 
+        else if (GameManager.instance.state == BattleState.POINTPREPAREHERO)
+        {
+            this.gameObject.transform.GetChild(0).GetComponent<Text>().text = "ªª»À";
+            this.gameObject.transform.GetChild(0).GetComponent<Text>().color = Color.magenta;
+        }
         else if (GameManager.instance.state == BattleState.CARDTURNUNIT || GameManager.instance.state == BattleState.SKILL || GameManager.instance.state == BattleState.CARDTURNUNIT || GameManager.instance.state == BattleState.POINTALL || GameManager.instance.state == BattleState.POINTENEMY || GameManager.instance.state == BattleState.POINTPLAYER)
         {
             this.gameObject.transform.GetChild(0).GetComponent<Text>().text = "∑µªÿ";

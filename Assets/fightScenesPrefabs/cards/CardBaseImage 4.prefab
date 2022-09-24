@@ -643,7 +643,7 @@ MonoBehaviour:
   cardSkillSprite: {fileID: 21300000, guid: d862ef3dad610884cae825ba305ad947, type: 3}
   cardQuality: 3
   cardSkill: {fileID: 11400000, guid: 4dc3dad9517566c4586999c6ea7fe8d4, type: 2}
-  cardPointUnit: 0
+  cardPointUnit: 1
   cardAdress: {x: 0, y: 0, z: 0}
   cardAbandomAdress: {x: 0, y: 0, z: 0}
 --- !u!114 &743106706692741955

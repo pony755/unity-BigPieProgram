@@ -198,9 +198,19 @@ public class FightPlayerInFight : MonoBehaviour
             }
                
         }
-
     }
-
+    public IEnumerator CardAdjustPositionImediately()//各个卡片立刻调整自己位置
+    {
+        for (int i = 0; i < haveCards.Count; i++)
+        {
+            if (GameManager.instance.useCard != haveCards[i])
+            {
+                LeanTween.scale(haveCards[i].gameObject, new Vector3(1, 1, 1), 0f);
+                LeanTween.move(haveCards[i].gameObject, haveCards[i].cardAdress, 0f);
+            }
+        }
+        yield return null;
+    }
     IEnumerator CardEmpyt()
     {
         GameManager.instance.tips.text = "牌库抽空";

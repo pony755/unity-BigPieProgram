@@ -74,10 +74,10 @@ public class Skill : ScriptableObject
 
         if(type==SkillType.Excharge)
         {
+            
             GameManager.instance.skillImg.SetActive(false);
             GameManager.instance.CardCanvas.SetActive(false);
-            GameManager.instance.exchange.SetActive(true);
-            GameManager.instance.tips.text = "Ñ¡Ôñ½»»»½ÇÉ«";
+            GameManager.instance.exchange.SetActive(true);          
             GameManager.instance.state = BattleState.POINTPREPAREHERO;
         }
         else

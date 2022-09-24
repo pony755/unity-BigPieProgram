@@ -236,7 +236,11 @@ public class GameManager : MonoBehaviour
         }
     }
     public void GameReset()//÷ÿ÷√
-    {     
+    {
+        if (state == BattleState.POINTPREPAREHERO)
+            fightPlayer.CardAdjustPositionImediately();
+
+        AdjustCards = true;
         BtnReset();
         tips.text = "";
         pointNumber = 1;//ƒ¨»œ÷µ
@@ -249,7 +253,7 @@ public class GameManager : MonoBehaviour
         CardCanvas.SetActive(true);
         turnUnit.Clear();
         pointUnit.Clear();
-        AdjustCards = true;
+        
         if (state == BattleState.POINTPREPAREHERO)
             state = BattleState.PLAYERTURN;
         
