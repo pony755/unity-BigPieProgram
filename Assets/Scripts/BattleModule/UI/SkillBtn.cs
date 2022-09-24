@@ -5,13 +5,13 @@ using UnityEngine.UI;
 
 public class SkillBtn : MonoBehaviour
 {
-    public Image skillImg;
+    [HideInInspector] public Image skillImg;
     [HideInInspector] public Skill skillInfo;//技能信息加载
 
 
     private void Start()
     {
-        skillImg.sprite = skillInfo.skillImg;
+        
     }
     public void AddSkillName()//点击后获取使用的技能名,关闭skillText，并且更改GameManager技能目标数量变量。判断接下来的状态
     {

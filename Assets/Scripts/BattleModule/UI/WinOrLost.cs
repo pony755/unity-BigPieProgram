@@ -15,26 +15,22 @@ public class WinOrLost : MonoBehaviour
     public GameObject firstImg;
     public GameObject rollSkillImg;
     public GameObject rollCardImg;
-
-
+    private bool rollCardImgTempSwitch;
+    private bool finishTempSwitch;
 
     private void Start()
     {
+        rollCardImgTempSwitch = false;
+        finishTempSwitch = false;
         settleCurrentState = SettleState.None;
         firstImg.SetActive(false);
         rollSkillImg.SetActive(false);
         rollCardImg.SetActive(false);
-        /*player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        next.onClick.AddListener(delegate () {
-            if (player != null)
-            {
-                if (player.globalStateValue == 0)
-                {
-                    player.globalStateValue++;
-                }
-            }
-            ChangeScene(); });*/
-               
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+       
+
+ 
+
     }
     private void Update()
     {
@@ -67,20 +63,35 @@ public class WinOrLost : MonoBehaviour
             {
                 settleCurrentState = SettleState.RollCard;
             }
+
+            
         }
 
         //roll卡牌界面
         if(settleCurrentState == SettleState.RollCard)
         {
-            if(GameManager.instance.fightPlayer.getCards.Count>0)
+            if(GameManager.instance.fightPlayer.getCards.Count>0&&rollCardImgTempSwitch==false)
             {
+                rollCardImgTempSwitch = true;
                 rollCardImg.GetComponent<RollCards>().RollCardShow();
             }
             if(rollCardImg.GetComponent<RollCards>().nextSwitch==true)
             {
                 rollCardImg.SetActive(false);
                 settleCurrentState = SettleState.Finish;
+                rollCardImgTempSwitch=false;
             }
+        }
+
+        //完成
+        if (settleCurrentState == SettleState.Finish&&finishTempSwitch==false)
+        {
+            finishTempSwitch = true;
+            foreach(var h in GameManager.instance.heroUnit)
+                h.UnitSave();
+            foreach (var p in GameManager.instance.heroPreparePrefab)
+                p.GetComponent<Unit>().UnitSave();
+            //跳转
         }
     }
 

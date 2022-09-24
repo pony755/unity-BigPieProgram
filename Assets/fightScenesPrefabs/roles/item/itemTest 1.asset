@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bcf66c640ca6ff04e86fa83399c09c6f, type: 3}
-  m_Name: itemTest
+  m_Name: itemTest 1
   m_EditorClassIdentifier: 
-  itemQuality: 0
+  itemQuality: 1
   itemType: 1
   itemIcon: {fileID: 21300000, guid: d773d7827f2a3ba4da05a82504067edd, type: 3}
-  itemName: "tang\u6C0F\u795D\u798F0"
+  itemName: "tang\u6C0F\u795D\u798F1"
   itemDescription: "\u5F00\u5C40\u83B7\u5F97\u795E\u79D8tip\u795D\u798F"

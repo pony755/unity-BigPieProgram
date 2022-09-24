@@ -11,18 +11,35 @@ public class PlayerState : MonoBehaviour
     public Text pMaxCard;
     public List<Image> heroImg;
     public List<Image> prepareHeroImg;
-    public List<Image> itemsImg;
-    public FightPlayerInFight Player;
+    public List<iconImg> itemsImg;
+    public GameObject itemShow;
+    private FightPlayerInFight Player;
+ 
     private void Start()
     {
-        
+        itemShow.SetActive(false);
     }
     private void Update()
     {
         
     }
-    public void ObjectShow()
+   
+    public void ClickShowHide()
     {
+        if (gameObject.activeSelf)
+        {
+            ObjectHide();
+        }
+        else
+            ObjectShow();
+    }
+    private void ObjectShow()
+    {
+        Player = GameManager.instance.fightPlayer;
+        foreach(var u in GameManager.instance.heroUnit)
+            u.GetComponent<BoxCollider>().enabled = false;
+        foreach (var u in GameManager.instance.enemyUnit)
+            u.GetComponent<BoxCollider>().enabled = false;
         playerID.text = Player.PlayerID;
         pAD.text = Player.PlayerAD.ToString();
         pAP.text = Player.PlayerAP.ToString();
@@ -40,13 +57,17 @@ public class PlayerState : MonoBehaviour
         }
         for (int i = 0; i < Player.items.Count; i++)
         {
-            itemsImg[i].sprite = Player.items[i].itemIcon;
-            itemsImg[i].color = new Color32(255, 255, 255, 255);
+            itemsImg[i].SetIcon(Player.items[i],itemShow.GetComponent<iconShow>());
+
         }
         gameObject.SetActive(true);
     }
-    public void ObjectHide()
+    private void ObjectHide()
     {
+        foreach (var u in GameManager.instance.heroUnit)
+            u.GetComponent<BoxCollider>().enabled = true ;
+        foreach (var u in GameManager.instance.enemyUnit)
+            u.GetComponent<BoxCollider>().enabled = true;
         foreach (var hero in heroImg)
         {
             hero.gameObject.SetActive(false);
@@ -55,10 +76,10 @@ public class PlayerState : MonoBehaviour
         {
             hero.gameObject.SetActive(false);
         }
-        foreach (var item in itemsImg)
+        foreach (var icon in itemsImg)
         {
-            item.sprite=null;
-            item.color = new Color32(255, 255, 255, 0);
+            icon.GetComponent<iconImg>().ResetIcon();
+
         }
         playerID.text = "";
         pAD.text = "";

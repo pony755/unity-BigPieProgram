@@ -124,6 +124,9 @@ MonoBehaviour:
   Dodge: 0
   currentHP: 100
   currentExp: 0
+  skillRoll: 
+  getExp: 0
+  dropExp: 100
   tired: 0
   sneer: 0
   shield: 0
@@ -135,8 +138,6 @@ MonoBehaviour:
   cold: 0
   poison: 0
   currentMP: 0
-  getExp: 0
-  skillRoll: 
   ADDecrease: 0
   ADPrecentDecrease: 0
   APDecrease: 0
@@ -148,19 +149,19 @@ MonoBehaviour:
   ColdDecrease: 0
   ColdPrecentDecrease: 0
   heroSkillList:
-  - {fileID: 11400000, guid: ffdbfd91d7418d24da089bc8bf62e97b, type: 2}
+  - {fileID: 11400000, guid: ede24e4733a44304283e0f5c5f3afd75, type: 2}
   currencyLSkillList: []
-  currencyMSkillList: []
-  currencyHSkillList: []
   exclusiveLSkillList: []
+  currencyMSkillList: []
   exclusiveMSkillList: []
+  currencyHSkillList: []
   exclusiveHSkillList: []
   heroSkillListCode: 
   currencyFightLSkillList: 
-  currencyFightMSkillList: 
-  currencyFightHSkillList: 
   exclusiveFightLSkillList: 
+  currencyFightMSkillList: 
   exclusiveFightMSkillList: 
+  currencyFightHSkillList: 
   exclusiveFightHSkillList: 
   player: 0
   passiveTurnEndList: []
@@ -168,6 +169,9 @@ MonoBehaviour:
   passiveHitList: []
   passiveDeadList: []
   passiveGameBeginList: []
+  adjustTurn: 
+  attributeAdjust: 
+  attributeAdjustPoint: []
 --- !u!65 &4093394329364901655
 BoxCollider:
   m_ObjectHideFlags: 0

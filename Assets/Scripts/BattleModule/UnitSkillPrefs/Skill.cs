@@ -329,13 +329,13 @@ public class Skill : ScriptableObject
     //————————————————————默认的实现技能函数（可以根据不同的需求在此重载）—————————————————————————
     public virtual void SkillSettleAD(Unit turnUnit,Unit pointUnit)
     {
-        if (GameManager.instance.Probility(pointUnit.Dodge))
+        if (Function.Probility(pointUnit.Dodge))
         {
             pointUnit.FloatStateShow(pointUnit, "闪避", Color.white);
             return;
         }
         int damage = this.FinalPoint(turnUnit);//原始数据
-            if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+            if (Function.Probility(turnUnit.Critical))//暴击
         {
             turnUnit.FloatStateShow(turnUnit,"精准",Color.yellow);
             damage *= 2;
@@ -385,13 +385,13 @@ public class Skill : ScriptableObject
     }
     public virtual void SkillSettleAP(Unit turnUnit, Unit pointUnit)
     {
-        if (GameManager.instance.Probility(pointUnit.Dodge))
+        if (Function.Probility(pointUnit.Dodge))
         {
             pointUnit.FloatStateShow(pointUnit, "闪避", Color.white);
             return;
         }
         int damage = this.FinalPoint(turnUnit);//原始数据
-        if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        if (Function.Probility(turnUnit.Critical))//暴击
         {
             turnUnit.FloatStateShow(turnUnit, "精准", Color.yellow);
             damage *= 2;
@@ -439,13 +439,13 @@ public class Skill : ScriptableObject
     }
     public virtual void SkillSettleReallyDamage(Unit turnUnit, Unit pointUnit)
     {
-        if (GameManager.instance.Probility(pointUnit.Dodge))
+        if (Function.Probility(pointUnit.Dodge))
         {
             pointUnit.FloatStateShow(pointUnit, "闪避", Color.white);
             return;
         }
         int damage = this.FinalPoint(turnUnit);//原始数据
-        if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        if (Function.Probility(turnUnit.Critical))//暴击
         {
             turnUnit.FloatStateShow(turnUnit, "精准", Color.yellow);
             damage *= 2;
@@ -470,7 +470,7 @@ public class Skill : ScriptableObject
     public virtual void SkillSettleHeal(Unit turnUnit, Unit pointUnit)
     {
         int heal = this.FinalPoint(turnUnit);//原始数据
-        if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        if (Function.Probility(turnUnit.Critical))//暴击
         {
             turnUnit.FloatStateShow(turnUnit, "精准", Color.yellow);
             heal *= 2;
@@ -487,7 +487,7 @@ public class Skill : ScriptableObject
     public virtual void SkillSettleShield(Unit turnUnit, Unit pointUnit)
     {
         int shield = this.FinalPoint(turnUnit);//原始数据      
-        if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        if (Function.Probility(turnUnit.Critical))//暴击
         {
             turnUnit.FloatStateShow(turnUnit, "精准", Color.yellow);
             shield *= 2;
@@ -504,13 +504,13 @@ public class Skill : ScriptableObject
     }
     public virtual void SkillSettleBurn(Unit turnUnit, Unit pointUnit)
     {
-        if (GameManager.instance.Probility(pointUnit.Dodge))
+        if (Function.Probility(pointUnit.Dodge))
         {
             pointUnit.FloatStateShow(pointUnit, "闪避", Color.white);
             return;
         }
         int burn = this.FinalPoint(turnUnit);//原始数据
-        if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        if (Function.Probility(turnUnit.Critical))//暴击
         {
             turnUnit.FloatStateShow(turnUnit, "精准", Color.yellow);
             burn *= 2;
@@ -520,13 +520,13 @@ public class Skill : ScriptableObject
     }
     public virtual void SkillSettlePoison(Unit turnUnit, Unit pointUnit)
     {
-        if (GameManager.instance.Probility(pointUnit.Dodge))
+        if (Function.Probility(pointUnit.Dodge))
         {
             pointUnit.FloatStateShow(pointUnit, "闪避", Color.white);
             return;
         }
         int poison = this.FinalPoint(turnUnit);//原始数据
-        if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        if (Function.Probility(turnUnit.Critical))//暴击
         {
             turnUnit.FloatStateShow(turnUnit, "精准", Color.yellow);
             poison *= 2;
@@ -536,13 +536,13 @@ public class Skill : ScriptableObject
     }
     public virtual void SkillSettleCold(Unit turnUnit, Unit pointUnit)
     {
-        if (GameManager.instance.Probility(pointUnit.Dodge))
+        if (Function.Probility(pointUnit.Dodge))
         {
             pointUnit.FloatStateShow(pointUnit, "闪避", Color.white);
             return;
         }
         int cold = this.FinalPoint(turnUnit);//原始数据
-        if (GameManager.instance.Probility(turnUnit.Critical))//暴击
+        if (Function.Probility(turnUnit.Critical))//暴击
         {
             turnUnit.FloatStateShow(turnUnit, "精准", Color.yellow);
             cold *= 2;

@@ -58,6 +58,7 @@ public class GameManager : MonoBehaviour
     [HideInInspector]public List<GameObject> heroPrefab;//接收战斗列表角色
     public List<Unit> heroUnit;//获取战斗列表角色Unit脚本
     public List<GameObject> heroPreparePrefab;//接收小队列表角色
+    public List<Unit> deadUnit;//获取战斗列表角色Unit脚本
 
     [Header("enemyHeros")]
     [HideInInspector] public List<GameObject> enemyPrefab;//接收敌人列表角色
@@ -126,6 +127,13 @@ public class GameManager : MonoBehaviour
             over = true;
             foreach (var p in heroUnit)
                 p.getExpAndCurrentHp();//保存当前血量和获取的经验值
+            foreach (var p in deadUnit)
+                p.getExpAndCurrentHp();//保存当前血量和获取的经验值
+            foreach (var p in heroPreparePrefab)
+                p.GetComponent<Unit>().getExpAndCurrentHp();//保存当前血量和获取的经验值
+            //结算卡牌获取(记入存档)
+            if (Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99) < 70)
+                fightPlayer.getCards.Add(GetCard.T);
             StartCoroutine(Over());//若该事件结算完，启动Over函数
             GameReset();
         }
@@ -172,7 +180,6 @@ public class GameManager : MonoBehaviour
         heroPrefab[i].transform.SetParent(battleBackGround.transform);
         heroPrefab[i].GetComponent<SpriteRenderer>().sortingOrder = i;
         heroUnit.Add(heroPrefab[i].GetComponent<Unit>());//添加unit进列表
-                                                             //读取数据
         Hub[i].SetHub(heroUnit[i]);
         Hub[i].gameObject.SetActive(true);//显示对应角色状态栏
         LeanTween.move(Hub[i].gameObject, new Vector3(Hub[i].gameObject.transform.position.x + 350f, Hub[i].gameObject.transform.position.y, Hub[i].gameObject.transform.position.z), 0.8f);
@@ -206,7 +213,7 @@ public class GameManager : MonoBehaviour
 
 
     //————————————————————————UI——————————————————————————
-    public void SkillShow(Unit unit)//显示技能栏(code为当前场上角色编号）
+    public void SkillShow(Unit unit)//显示技能栏
     {
         skillImg.SetActive(true);
         turnUnit.Add(unit);
@@ -220,6 +227,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < unit.heroSkillList.Count; i++)//设置按钮
         {
             skillBtns[i].GetComponent<SkillBtn>().skillInfo = unit.heroSkillList[i];
+            skillBtns[i].GetComponent<SkillBtn>().skillImg.sprite = unit.heroSkillList[i].skillImg;
             skillBtns[i].SetActive(true);
             if (unit.heroSkillList[i].passiveSkill==true)
             {
@@ -229,8 +237,8 @@ public class GameManager : MonoBehaviour
     }
     public void GameReset()//重置
     {     
-        BtnHide();     
-        
+        BtnReset();
+        tips.text = "";
         pointNumber = 1;//默认值
         useSkill=null;//默认值
         useCard=null;
@@ -241,23 +249,23 @@ public class GameManager : MonoBehaviour
         CardCanvas.SetActive(true);
         turnUnit.Clear();
         pointUnit.Clear();
-        AdjustCards = true; 
-        StartCoroutine(TipsClear());
-    }
-    IEnumerator TipsClear()
-    {
-    yield return new WaitForSeconds(0.5f);
-        tips.text = "";
+        AdjustCards = true;
+        if (state == BattleState.POINTPREPAREHERO)
+            state = BattleState.PLAYERTURN;
+        
     }
 
 
-    public void BtnHide()
+
+    public void BtnReset()
     {
         for (int i = 0; i < skillBtns.Count; i++)//隐藏按钮
         {
+            
             skillBtns[i].SetActive(false);
             skillBtns[i].GetComponent<Button>().interactable = true;
             skillBtns[i].GetComponent<SkillBtn>().skillInfo = null;
+            
         }
     }
     public void Back()//返回玩家回合
@@ -397,7 +405,7 @@ public class GameManager : MonoBehaviour
     }
     IEnumerator ToAction()//过度态
     {
-        BtnHide();
+        BtnReset();
         exchange.SetActive(false);
         skillImg.SetActive(false);
         CardCanvas.SetActive(true);
@@ -432,7 +440,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.3f);
             if (useSkill != null)
             {
-                if(Probility(useSkill.precent))
+                if(Function.Probility(useSkill.precent))
                     {
 
                     tips.text = "欧不！ " + useSkill.skillName + " 发动失败";
@@ -552,7 +560,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
             if (useSkill != null)
             {
-                if (Probility(useSkill.precent))
+                if (Function.Probility(useSkill.precent))
                 {
                     tips.text = "欧不！ " + useSkill.skillName + " 发动失败";
                     turnUnit[0].SkillCost(useSkill);
@@ -768,19 +776,19 @@ public class GameManager : MonoBehaviour
     {
         backPanel.SetActive(false);
     }
-
-
+    public void BackToMainScene()
+    {
+        StartCoroutine(test());
+    }
+    IEnumerator test()
+    {
+        tips.text = "功能尚未开放";
+        yield return new WaitForSeconds(0.8f);
+        tips.text = "";
+    }
 
     //——————————————————————————小功能————————————————————————————————————
-    public bool Probility(int b)//成功率
-    {
-        int a;
-        a = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99);
-        if (a < b)
-            return true;
-        else
-            return false;
-    }
+    
     public void CheckAbandomCardNum()
     {
         if (abandomCardNum > 0&&abandomCardSwitch==false)

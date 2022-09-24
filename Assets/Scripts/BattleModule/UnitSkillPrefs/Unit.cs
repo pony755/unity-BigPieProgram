@@ -10,7 +10,10 @@ public class Unit : MonoBehaviour
 {
     [HideInInspector]public Animator anim;//动画
     [HideInInspector]public Unit danger;//暂时记录伤害来源
-    
+
+    [Header("在本列表内的下标号")]
+    public int code;
+    [Header("基础属性")]
     public Sprite normalSprite;
     public GameObject point;//指向
     public GameObject cardPoint;//卡片指向
@@ -111,6 +114,8 @@ public class Unit : MonoBehaviour
     public List<int> adjustTurn;
     public List<HeroAttribute> attributeAdjust;//技能增益属性列表
     public List<float> attributeAdjustPoint;//代价列表
+
+    private bool deadSwitch;
     [System.Serializable]
     public class SaveUnitData
     {
@@ -166,6 +171,7 @@ public class Unit : MonoBehaviour
     }
     protected virtual void Start()
     {
+        deadSwitch = false;
         nextExp = new int[maxLevel + 1];
         nextExp[1] = 100;
         for (int i = 2; i < maxLevel + 1; i++)
@@ -179,7 +185,7 @@ public class Unit : MonoBehaviour
 
     protected virtual void Update()
     {
-        if (GameManager.instance.state == BattleState.CARDTURNUNIT && playerHero&&tired==0)
+        if (GameManager.instance.state == BattleState.CARDTURNUNIT && playerHero&&tired==0&&currentHP>0)
             cardPoint.SetActive(true);
         else
             cardPoint.SetActive(false);
@@ -202,28 +208,44 @@ public class Unit : MonoBehaviour
         {
             currentHP = maxHP;
         }
-        if (currentHP <= 0)
+        if (currentHP <= 0&&deadSwitch==false)
         {
+            deadSwitch = true;
             currentHP = 0;
             anim.Play("dead");
             PassiveDead();
             Invoke("CheckDead", 0.2f);
         }
+        if(deadSwitch==true&&currentHP>0)
+            deadSwitch = false;
     }
     private void CheckDead()//死亡判断结算函数
     {
         if (currentHP == 0)
         {
+            //结算经验掉落
+            if(!playerHero)
+            {
+                foreach (var h in GameManager.instance.heroUnit)
+                    h.getExp += dropExp;
+
+            }
+            else
+            {
+                GameManager.instance.deadUnit.Add(this);
+                GameManager.instance.tempPlayer.GetComponent<FightPlayer>().deadHeroCode.Add(code);
+            }
             GetComponent<BoxCollider>().enabled = false;//关闭碰撞体脚本
             if (GameManager.instance.heroUnit.Contains(this))
             {
                 GameManager.instance.heroUnit.Remove(this);
+                GameManager.instance.tempPlayer.GetComponent<FightPlayer>().fightHeroCode.Remove(AllList.instance.allHero.IndexOf(this.gameObject));
             }
             if (GameManager.instance.enemyUnit.Contains(this))
             {
                 GameManager.instance.enemyUnit.Remove(this);
             }
-
+            
         }
     }
     IEnumerator SetPassive()
@@ -496,7 +518,7 @@ public class Unit : MonoBehaviour
         {
             Debug.Log("被动 " + o.skillName + " 所需MP不足");
         }
-        else if (GameManager.instance.Probility(o.precent))
+        else if (Function.Probility(o.precent))
         {
             Debug.Log(o.skillName + " 发动失败");
             SkillCost(o);
@@ -1161,7 +1183,7 @@ public class Unit : MonoBehaviour
         saveNumber = File.ReadAllText(Path.Combine(Application.persistentDataPath, locatorName));
         return saveNumber;
     }*/
-    public void UnitSave()//创建存档
+    public void UnitSave()//保存存档
     {
         string unitSaveName = "Save_BattleHero_" + unitName + ".sav";
         SaveUnitData saveData = new SaveUnitData

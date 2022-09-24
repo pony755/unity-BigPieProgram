@@ -11,6 +11,7 @@ public class FightPlayer : MonoBehaviour
     [Header("己方角色")]
     public List<int> fightHeroCode;//出战编号
     public List<int> fightPrepareHeroCode;//备战小队
+    public List<int> deadHeroCode;//备战小队
     [Header("敌人组合编号")]
     public int enemyBundleCode;
     [Header("卡组")]

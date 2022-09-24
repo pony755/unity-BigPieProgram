@@ -48,9 +48,15 @@ public class FightPlayerInFight : MonoBehaviour
         }
     }
     [Header("×´Ì¬Á¿")]
+    public int getCardLucky;
     public List<GetCard> getCards;
     [Header("ÊÎÆ·")]
     public List<ItemBase> items;
+
+    private List<Cards> Ncards = new List<Cards>();
+    private List<Cards> Rcards = new List<Cards>();
+    private List<Cards> SRcards = new List<Cards>();
+    private List<Cards> URcards = new List<Cards>();
     // Start is called before the first frame update
     void Start()
     {
@@ -74,6 +80,17 @@ public class FightPlayerInFight : MonoBehaviour
         for(int i = 0; i < startCard; i++)
             TakeCard();
 
+        foreach (var c in AllList.instance.allCardList)
+        {
+            if (c.cardQuality == Cards.CardQuality.N)
+                Ncards.Add(c);
+            else if (c.cardQuality == Cards.CardQuality.R)
+                Rcards.Add(c);
+            else if (c.cardQuality == Cards.CardQuality.SR)
+                SRcards.Add(c);
+            else if (c.cardQuality == Cards.CardQuality.UR)
+                URcards.Add(c);
+        }
     }
 
     // Update is called once per frame
@@ -93,9 +110,25 @@ public class FightPlayerInFight : MonoBehaviour
         List<Cards> tempCards = new List<Cards>();
         if (getCards[0] == GetCard.T)
         {
-            tempCards.Add(AllList.instance.allCardList[0]);
-            tempCards.Add(AllList.instance.allCardList[0]);
-            tempCards.Add(AllList.instance.allCardList[0]);
+            for (int i = 0; i < 3; i++)
+            {
+                int a = Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99);
+
+                if (a < 70)
+                    tempCards.Add(Ncards[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, Ncards.Count-1)]);
+
+                else if (a >= 70 && a < 90)
+                    tempCards.Add(Rcards[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, Rcards.Count-1)]);
+                else if (a >= 90 && a < 98)
+                    tempCards.Add(SRcards[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, SRcards.Count-1)]);
+                else if (a >= 98 && a < 100)
+                    tempCards.Add(URcards[Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, URcards.Count-1)]);
+            }
+
+            /*
+                        tempCards.Add(AllList.instance.allCardList[0]);
+                        tempCards.Add(AllList.instance.allCardList[0]);
+                        tempCards.Add(AllList.instance.allCardList[0]);*/
         }
         getCards.Remove(getCards[0]);
         return tempCards;

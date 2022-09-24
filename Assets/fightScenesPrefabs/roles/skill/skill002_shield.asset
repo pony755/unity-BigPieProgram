@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillImg: {fileID: 21300000, guid: 7c2f75c0b7a51c3459d7a6e02e1d0754, type: 3}
   skillName: "\u56FA\u7532"
-  description: "\u7ED9\u81EA\u5DF1100\u70B9\u62A4\u76FE"
+  description: "\u53D7\u5230\u4F24\u5BB3\u540E\u7ED9\u7ED9\u81EA\u5DF1100\u70B9\u62A4\u76FE"
   type: 4
   typeTag: 
   animType: 0
@@ -31,7 +31,7 @@ MonoBehaviour:
   point: 0
   noMe: 0
   autoPoint: 1
-  baseInt: 99
+  baseInt: 100
   attribute: 
   addition: []
   pointNum: 3
