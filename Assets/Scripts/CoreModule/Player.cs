@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static PlaceCard;
 
 public class Player : MonoBehaviour
@@ -79,6 +80,16 @@ public class Player : MonoBehaviour
         Debug.Log(childLevel);
         Debug.Log(BP);
         Debug.Log(nightmareSharps);
+    }
+    public void ChangeScene(string sceneName)//转移player回到地图场景并销毁当前场景
+    {
+        if (globalStateValue == 0)
+        {
+            globalStateValue++;
+        }
+        Scene nextScene = SceneManager.GetSceneByName("MapScene");
+        SceneManager.MoveGameObjectToScene(this.gameObject, nextScene);
+        SceneManager.UnloadSceneAsync(sceneName);
     }
     void Start()
     {
