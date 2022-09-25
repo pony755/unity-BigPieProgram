@@ -13,30 +13,17 @@ public class WinOrLost : MonoBehaviour
     
     public GameObject firstImg;
     public GameObject rollSkillImg;
-    
 
+    public Button nextBtn;
     
     
     private void Start()
     {
-        /*player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        next.onClick.AddListener(delegate () {
-            if (player != null)
-            {
-                if (player.globalStateValue == 0)
-                {
-                    player.globalStateValue++;
-                }
-            }
-            ChangeScene(); });*/
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        nextBtn.onClick.AddListener(delegate () {
+            player.ChangeScene("BattleScene");
+            });
         
-        
-    }
-    private void ChangeScene()
-    {
-        Scene scene = SceneManager.GetSceneByName("MapScene");
-        SceneManager.MoveGameObjectToScene(player.gameObject, scene);
-        SceneManager.UnloadSceneAsync("BattleScene");
     }
 
     public void FirstNextBtn()
