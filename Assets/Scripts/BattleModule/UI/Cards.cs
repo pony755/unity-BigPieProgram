@@ -101,7 +101,7 @@ public class Cards : MonoBehaviour
             if ((GameManager.instance.state == BattleState.PLAYERTURN&&!GameManager.instance.fightPlayer.abandomCards.Contains(this) )|| GameManager.instance.state == BattleState.ABANDOMCARD|| (GameManager.instance.useCard!=this && GameManager.instance.abandomCardSwitch == true))
             {
                 this.transform.SetAsLastSibling();
-                LeanTween.move(this.gameObject, new Vector3(cardAdress.x, cardAdress.y + 100f, cardAdress.z), 0.3f);
+                LeanTween.move(this.gameObject, new Vector3(cardAdress.x, cardAdress.y + Screen.height*0.1f, cardAdress.z), 0.3f);
 
             }
 
@@ -215,31 +215,29 @@ public class Cards : MonoBehaviour
     public void CardPosition()//卡牌内置位置调整
     {
         if (GameManager.instance.fightPlayer.haveCards.Count <= 5)
-            cardAdress.x = 450 + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * 260;
+            cardAdress.x = Screen.width*0.23f + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * Screen.width * 0.13f;
         else if (GameManager.instance.fightPlayer.haveCards.Count <= 7)
-            cardAdress.x = 450 + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * 170;
+            cardAdress.x = Screen.width * 0.23f + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * Screen.width * 0.09f;
         else if (GameManager.instance.fightPlayer.haveCards.Count <= 9)
-            cardAdress.x = 450 + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * 130;
+            cardAdress.x = Screen.width * 0.23f + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * Screen.width * 0.07f;
         else if (GameManager.instance.fightPlayer.haveCards.Count <= 11)
-            cardAdress.x = 450 + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * 105;
+            cardAdress.x = Screen.width * 0.23f + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * Screen.width * 0.055f;
         else if (GameManager.instance.fightPlayer.haveCards.Count <= 13)
-            cardAdress.x = 450 + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * 88;
+            cardAdress.x = Screen.width * 0.23f + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * Screen.width * 0.045f;
         else if (GameManager.instance.fightPlayer.haveCards.Count <= 15)
-            cardAdress.x = 450 + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * 73;
+            cardAdress.x = Screen.width * 0.23f + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * Screen.width * 0.038f;
         else if (GameManager.instance.fightPlayer.haveCards.Count <= 18)
-            cardAdress.x = 450 + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * 60;
+            cardAdress.x = Screen.width * 0.23f + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * Screen.width * 0.031f;
         else if (GameManager.instance.fightPlayer.haveCards.Count <= 22)
-            cardAdress.x = 450 + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * 50;
+            cardAdress.x = Screen.width * 0.23f + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * Screen.width * 0.026f;
         else if (GameManager.instance.fightPlayer.haveCards.Count <= 27)
-            cardAdress.x = 450 + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * 40;
+            cardAdress.x = Screen.width * 0.23f + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * Screen.width * 0.021f;
         else if (GameManager.instance.fightPlayer.haveCards.Count <= 30)
-            cardAdress.x = 440 + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * 37;
+            cardAdress.x = Screen.width * 0.23f + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * Screen.width * 0.019f;
         else if (GameManager.instance.fightPlayer.haveCards.Count <= 36)
-            cardAdress.x = 440 + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * 30;
-        else if (GameManager.instance.fightPlayer.haveCards.Count <= 40)
-            cardAdress.x = 428 + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * 28;
+            cardAdress.x = Screen.width * 0.23f + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * Screen.width * 0.015f;
         else
-            cardAdress.x = 428 + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * 25;
+            cardAdress.x = Screen.width * 0.23f + GameManager.instance.fightPlayer.haveCards.IndexOf(this) * Screen.width * 0.013f;
     }
 
 

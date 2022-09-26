@@ -34,17 +34,17 @@ public class Skill : ScriptableObject
     [Header("技能类型是否为为被动")]
     //被动类型;被动目标(M代表自己为技能使用方,后面表示目标(尾缀Auto需要设置目标数和rechoose));被动发动场合(E异回合，M同回合，A都可以)\n")
     public bool passiveSkill;
-    [ConditionalHide("passiveSkill",1)] public PassiveType passiveType;
-    [ConditionalHide("passiveSkill",1)] public PassivePoint passivePoint;
-    [ConditionalHide("passiveSkill",1)] public PassiveTurn passiveTurn;
+    [ConditionalHide("passive",1)]public PassiveType passiveType;
+    [ConditionalHide("passive", 1)] public PassivePoint passivePoint;
+    [ConditionalHide("passive", 1)] public PassiveTurn passiveTurn;
 
 
     [Header("主动技能(若为被动则不显示),noMe仅针对玩家有约束")]
 
-    [ConditionalHide("passiveSkill", 0)] public SkillPoint point;//技能指向类型
-    [ConditionalHide("passiveSkill", 0)] public bool noMe;//选择时不会包含自己
+    [ConditionalHide("passive", 0)] public SkillPoint point;//技能指向类型
+    [ConditionalHide("passive", 0)] public bool noMe;//选择时不会包含自己
     [Header("如果point是Players或Enemies,可勾选此项(若为被动则随便设置)")]
-    [ConditionalHide("passiveSkill", 0)] public bool autoPoint;//判断是否自动选取目标
+    [ConditionalHide("passive", 0)] public bool autoPoint;//判断是否自动选取目标
 
     [Header("技能数值设置(addition为float)")]
     public int baseInt;//技能基础类

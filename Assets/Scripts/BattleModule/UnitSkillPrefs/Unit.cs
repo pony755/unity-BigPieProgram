@@ -44,10 +44,10 @@ public class Unit : MonoBehaviour
     public int Dodge;
 
     [Header("游戏内状态量")]
-    public int currentHP;
-    public int currentExp;
-    [ConditionalHide("playerHero", 1)]public List<SkillRoll> skillRoll;
-    [ConditionalHide("playerHero", 1)]public int getExp;
+    [ConditionalHide("playerHero", 1)] public int currentHP;
+    [ConditionalHide("playerHero", 1)] public int currentExp;
+     public List<SkillRoll> skillRoll;
+     public int getExp;
 
     [Header("敌人掉落战利品")]
     [ConditionalHide("playerHero", 0)] public int dropExp;
@@ -174,10 +174,11 @@ public class Unit : MonoBehaviour
         deadSwitch = false;
         nextExp = new int[maxLevel + 1];
         nextExp[1] = 100;
-        for (int i = 2; i < maxLevel + 1; i++)
+        for (int i = 2; i < maxLevel; i++)
         {
             nextExp[i] = Mathf.RoundToInt(nextExp[i - 1] * 1.1f);
         }
+        nextExp[maxLevel ] = 99999;
         currentMP = maxMP;
         anim = GetComponent<Animator>();
         StartCoroutine(SetPassive());
@@ -1232,7 +1233,7 @@ public class Unit : MonoBehaviour
         SaveSystem.Save(unitSaveName, saveData);
     }
 
-    public void getExpAndCurrentHp()//保存当前getExp和血
+    public void GetExpAndCurrentHp()//保存当前getExp和血
     {
         string unitSaveName = "Save_BattleHero_" + unitName + ".sav";
         SaveUnitData saveData = SaveSystem.Load<SaveUnitData>(unitSaveName);

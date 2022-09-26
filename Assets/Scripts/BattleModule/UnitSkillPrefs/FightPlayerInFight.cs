@@ -195,6 +195,7 @@ public class FightPlayerInFight : MonoBehaviour
             {
                 LeanTween.scale(haveCards[i].gameObject, new Vector3(1, 1, 1), 0.2f);
                 LeanTween.move(haveCards[i].gameObject, haveCards[i].cardAdress, 0.4f);
+                haveCards[i].transform.SetSiblingIndex(GameManager.instance.fightPlayer.haveCards.IndexOf(haveCards[i]));
             }
                
         }

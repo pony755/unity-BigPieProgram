@@ -11,12 +11,12 @@ public class ConditionalHideAttribute : PropertyAttribute
     //TRUE = Hide in inspector / FALSE = Disable in inspector 
     public int HideInInspector = 100;
 
- /*   public ConditionalHideAttribute(string conditionalSourceField)
-    {
-        this.ConditionalSourceField = conditionalSourceField;
-        //this.HideInInspector = false;
-    }
-*/
+    /*   public ConditionalHideAttribute(string conditionalSourceField)
+       {
+           this.ConditionalSourceField = conditionalSourceField;
+           //this.HideInInspector = false;
+       }
+   */
     public ConditionalHideAttribute(string conditionalSourceField, int hideInInspector)
     {
         this.ConditionalSourceField = conditionalSourceField;

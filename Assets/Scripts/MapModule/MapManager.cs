@@ -604,8 +604,8 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    //以下为开发者功能
-    [UnityEditor.MenuItem("Developer/跳转到下一子关卡")]
+    /*//以下为开发者功能
+    [UnityEditor.MenuItem("Developer/跳转到下一子关卡")]*/
     public static void DevNextChildLevel()
     {
         MapManager mapManager = GameObject.FindGameObjectWithTag("MapManager").GetComponent<MapManager>();

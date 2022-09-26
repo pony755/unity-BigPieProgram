@@ -57,11 +57,12 @@ public class PlaceCard : MonoBehaviour
     IEnumerator TurnAnimation()//翻牌动画
     {
         float angle = 0;
-        for(int i = 0; i < 360; i++)
+        //60帧下1.5度最好
+        for(int i = 0; i < 120; i++)
         {
-            angle += 0.5f;
+            angle += 1.5f;
             transform.eulerAngles = new Vector3(0, angle, 0);
-            yield return new WaitForSeconds(0.0025f);
+            yield return new WaitForSeconds(0.001f);
         }
         mapManager.isTurning = false;
     }

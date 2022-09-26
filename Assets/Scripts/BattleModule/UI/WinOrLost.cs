@@ -23,7 +23,7 @@ public class WinOrLost : MonoBehaviour
         rollCardImgTempSwitch = false;
         finishTempSwitch = false;
         settleCurrentState = SettleState.None;
-        firstImg.SetActive(false);
+        firstImg.SetActive(true);
         rollSkillImg.SetActive(false);
         rollCardImg.SetActive(false);
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
@@ -35,10 +35,9 @@ public class WinOrLost : MonoBehaviour
     private void Update()
     {
         //初始
-        if(settleCurrentState == SettleState.None&& !firstImg.activeInHierarchy)
+        if(settleCurrentState == SettleState.None)
         {
             settleCurrentState = SettleState.First;
-            firstImg.SetActive(true);
         }
 
         //胜利界面
@@ -75,12 +74,13 @@ public class WinOrLost : MonoBehaviour
                 rollCardImgTempSwitch = true;
                 rollCardImg.GetComponent<RollCards>().RollCardShow();
             }
-            if(rollCardImg.GetComponent<RollCards>().nextSwitch==true)
+            if (rollCardImg.GetComponent<RollCards>().nextSwitch==true)
             {
-                rollCardImg.SetActive(false);
-                settleCurrentState = SettleState.Finish;
+                rollCardImg.SetActive(false);              
                 rollCardImgTempSwitch=false;
             }
+            if(GameManager.instance.fightPlayer.getCards.Count==0&&!rollCardImg.activeInHierarchy)
+                settleCurrentState = SettleState.Finish;
         }
 
         //完成
@@ -91,6 +91,8 @@ public class WinOrLost : MonoBehaviour
                 h.UnitSave();
             foreach (var p in GameManager.instance.heroPreparePrefab)
                 p.GetComponent<Unit>().UnitSave();
+            GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().ChangeScene("BattleScene");
+            finishTempSwitch=false;
             //跳转
         }
     }

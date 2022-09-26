@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Koubot.Tool;
+using DG.Tweening;
 
 public enum BattleState { NONE,START, PLAYERTURNSTART,PLAYERTURN, POINTALL,SKILL,CARDTURNUNIT,POINTENEMY,POINTPLAYER,POINTPREPAREHERO,TOACTION,ACTION,ACTIONFINISH,ABANDOMCARD,ENEMYTURNSTART, ENEMYTURN,ENEMYFINISH,OVER }
 
@@ -88,7 +89,8 @@ public class GameManager : MonoBehaviour
         //在fightprefs上setHero
 
         //判断该事件是否结算完过，未结算完过则往下走
-        LeanTween.move(turnTipsObject, new Vector3(turnTipsObject.transform.position.x, turnTipsObject.transform.position.y-200f, turnTipsObject.transform.position.z), 0.8f);
+        turnTipsObject.transform.DOMove(new Vector3(Screen.width*0.5f,Screen.height*0.92f, 0), 0.8f); ;
+        
         win = false;
         over = false;
         delayedSwitch = false;
@@ -101,7 +103,8 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         //判断该事件是否结算完过，未结算完过则往下走
-        StartCoroutine(Load());       
+        StartCoroutine(Load());   
+        
     }
 
     
@@ -126,11 +129,11 @@ public class GameManager : MonoBehaviour
         {
             over = true;
             foreach (var p in heroUnit)
-                p.getExpAndCurrentHp();//保存当前血量和获取的经验值
+                p.GetExpAndCurrentHp();//保存当前血量和获取的经验值
             foreach (var p in deadUnit)
-                p.getExpAndCurrentHp();//保存当前血量和获取的经验值
+                p.GetExpAndCurrentHp();//保存当前血量和获取的经验值
             foreach (var p in heroPreparePrefab)
-                p.GetComponent<Unit>().getExpAndCurrentHp();//保存当前血量和获取的经验值
+                p.GetComponent<Unit>().GetExpAndCurrentHp();//保存当前血量和获取的经验值
             //结算卡牌获取(记入存档)
             if (Koubot.Tool.Random.RandomTool.GenerateRandomInt(0, 99) < 70)
                 fightPlayer.getCards.Add(GetCard.T);
@@ -182,7 +185,8 @@ public class GameManager : MonoBehaviour
         heroUnit.Add(heroPrefab[i].GetComponent<Unit>());//添加unit进列表
         Hub[i].SetHub(heroUnit[i]);
         Hub[i].gameObject.SetActive(true);//显示对应角色状态栏
-        LeanTween.move(Hub[i].gameObject, new Vector3(Hub[i].gameObject.transform.position.x + 350f, Hub[i].gameObject.transform.position.y, Hub[i].gameObject.transform.position.z), 0.8f);
+        Hub[i].gameObject.transform.DOMoveX(Screen.width*0.1f, 0.8f);
+        Debug.Log("宽" + Hub[i].gameObject.GetComponent<RectTransform>().rect.width);
     }
     public void SetSinglePrepareHeros(int i)
     {
@@ -202,7 +206,8 @@ public class GameManager : MonoBehaviour
             enemyUnit.Add(enemyPrefab[j].GetComponent<Unit>());
             enemyHub[j].SetHub(enemyUnit[j]);
             enemyHub[j].gameObject.SetActive(true);//显示对应角色状态栏
-            LeanTween.move(enemyHub[j].gameObject, new Vector3(enemyHub[j].gameObject.transform.position.x - 350f, enemyHub[j].gameObject.transform.position.y, enemyHub[j].gameObject.transform.position.z), 0.8f);
+            /*LeanTween.move(enemyHub[j].gameObject, new Vector3(Screen.width-65 , enemyHub[j].gameObject.transform.position.y, enemyHub[j].gameObject.transform.position.z), 0.8f);*/
+            enemyHub[j].gameObject.transform.DOMoveX(Screen.width * 0.9f, 0.8f);
         }
         yield return null;
     }
@@ -629,7 +634,7 @@ public class GameManager : MonoBehaviour
         }
         else
             Debug.Log("《《《《你输了》》》》");
-
+  
         WinOrLost.SetActive(true);
         
     }

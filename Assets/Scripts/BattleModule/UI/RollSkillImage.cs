@@ -17,7 +17,9 @@ public class RollSkillImage : MonoBehaviour
         nextSwitch = false;
         nextBtn.GetComponent<Button>().onClick.AddListener(delegate () {
             nextSwitch = true;
+
             //+20Bp
+            GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().BP += 20;
         });
     }
 

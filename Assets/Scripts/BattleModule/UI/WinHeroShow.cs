@@ -45,6 +45,7 @@ public class WinHeroShow : MonoBehaviour
 
     private void Update()
     {
+
         //开摆，实时记录数据
         heroLV.text = "Lv " + tempLv.ToString();
         Exp.text = tempFinalExp.ToString();

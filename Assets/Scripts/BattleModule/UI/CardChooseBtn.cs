@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-public class CardChooseBtn : MonoBehaviour
+using UnityEngine.EventSystems;
+public class CardChooseBtn : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public Cards card;
     [Header("CardShow")]
@@ -12,28 +13,39 @@ public class CardChooseBtn : MonoBehaviour
     public Text BcardName;
     public Text BcardQualityText;
     public Text BcardText;
-    private Animator animator;
     public bool finish;
+    private bool scaleSwitch;
 
     private void Start()
     {
         finish = false;
-        
+        scaleSwitch=false;
         SetCardBtnShow();
-        Invoke("GetAnim",0.5f);
+
     }
-    private void GetAnim()
+
+    private void Update()
     {
-        animator = GetComponent<Animator>();
+        
+        
     }
-    public void CardJump()
+    public void OnPointerEnter(PointerEventData eventData)
     {
-        animator.Play("CardChooseBtn");
+        if (scaleSwitch == false)
+        {
+            scaleSwitch = true;
+            LeanTween.scale(gameObject, new Vector3(1.2f, 1.2f, 1.2f), 0.2f);
+        }
     }
-    public void CardStop()
+    public void OnPointerExit(PointerEventData eventData)
     {
-        animator.Play("CardJumpStop");
+        if (scaleSwitch == true)
+        {
+            scaleSwitch = false;
+            LeanTween.scale(gameObject, new Vector3(1f, 1f, 1f), 0.2f);
+        }
     }
+
     public void CardClick()
     {
         GameManager.instance.tempPlayer.GetComponent<FightPlayer>().cardCode.Add(AllList.instance.allCardList.IndexOf(card));

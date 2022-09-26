@@ -101,6 +101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   anim: {fileID: 0}
   danger: {fileID: 0}
+  code: 0
   normalSprite: {fileID: 21300000, guid: 6136a0a0173311246b183b3a18444e7a, type: 3}
   point: {fileID: 2542240277406501082}
   cardPoint: {fileID: 9214866406275400475}
@@ -126,7 +127,7 @@ MonoBehaviour:
   currentExp: 0
   skillRoll: 
   getExp: 0
-  dropExp: 100
+  dropExp: 150
   tired: 0
   sneer: 0
   shield: 0
